@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
     if (!init_opencl()) {
         return -1;
     }
-    size_t N = 3;
+    size_t N = 100;
     std::vector<size_t> input_size = {sizeof(float) * N,
                                       sizeof(float) * N,
                                       sizeof(float) * N};
@@ -83,10 +83,14 @@ int main(int argc, char **argv) {
                          device[0]
     );
 
-    float *a = new float[N]{1, 2, 3};
-    float *b = new float[N]{1, 2, 3};
+    float *a = new float[N];
+    float *b = new float[N];
     float *c = new float[N];
 
+    for (unsigned i = 0; i < N; i++) {
+        a[i] = i;
+        b[i] = i;
+    }
     scoped_aligned_ptr<float> input_list[3];
     input_list[0].reset(a);
     input_list[1].reset(b);

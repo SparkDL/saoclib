@@ -80,9 +80,8 @@ public:
         // Transfer inputs to each device. Each of the host buffers supplied to
         // clEnqueueWriteBuffer here is already aligned to ensure that DMA is used
         // for the host-to-device transfer.
-        size_t input_number = this->get_param_number();
-        scoped_array<cl_event> write_event(input_number);
-        for (unsigned i = 0; i < input_number; i++) {
+        scoped_array<cl_event> write_event(size);
+        for (unsigned i = 0; i < size; i++) {
             status = clEnqueueWriteBuffer(queue, input_buf_list[i], CL_FALSE,
                                           0, input_size_list[i],
                                           input_list[i], 0, NULL, &write_event[i]);
@@ -91,7 +90,7 @@ public:
 
         // set kernel input arguments.
         unsigned i = 0;
-        for (i = 0; i < input_number; i++) {
+        for (i = 0; i < size; i++) {
             status = clSetKernelArg(kernel, i, sizeof(cl_mem), &input_buf_list[i]);
             checkError(status, "Failed to set argument %d", i);
         }
@@ -107,7 +106,7 @@ public:
         //
         // Events are used to ensure that the kernel is not launched until
         // the writes to the input buffers have completed.
-        const size_t global_work_size = input_size_list[0];
+        const size_t global_work_size = input_size_list[0]/sizeof(T);
         printf("Launching for device %d (%zd elements)\n", i, global_work_size);
 
         status = clEnqueueNDRangeKernel(queue,
@@ -116,7 +115,7 @@ public:
                                         NULL,
                                         &global_work_size,
                                         NULL,
-                                        input_number,
+                                        size,
                                         write_event,
                                         &kernel_event);
 
@@ -125,17 +124,17 @@ public:
 
         // Read the result. This the final operation.
         status = clEnqueueReadBuffer(queue,
-                                     input_buf_list[input_number - 1],
+                                     input_buf_list[size - 1],
                                      CL_FALSE,
                                      0,
-                                     input_size_list[input_number - 1],
-                                     input_list[input_number - 1],
+                                     input_size_list[size - 1],
+                                     input_list[size - 1],
                                      1,
                                      &kernel_event,
                                      &finish_event);
 
         // Release local events.
-        for (unsigned i = 0; i < input_number; i++) {
+        for (unsigned i = 0; i < size; i++) {
             clReleaseEvent(write_event[i]);
         }
 
