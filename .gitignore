@@ -1,6 +1,6 @@
 cmake-build-*/
 bin/
-!bin/README.md
+!/bin/README.md
 # Compile products
 *.pyc
 *.class
