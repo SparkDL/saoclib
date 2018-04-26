@@ -20,7 +20,7 @@ set(libs rt pthread)
 link_libraries(${libs})
 
 file(GLOB utils "common/src/AOCLUtils/*.cpp")
-set(srcs host/src/core.cpp ${utils} host/src/Kernel.cpp host/src/Kernel.h)
+set(srcs host/src/core.cpp ${utils} host/src/FpgaImage.cpp host/src/FpgaImage.h)
 
 # output directory
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../../bin)
