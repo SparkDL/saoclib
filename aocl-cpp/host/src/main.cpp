@@ -54,13 +54,15 @@ void cleanup();
 int main(int argc, char **argv) {
     /* prepare input data */
 
-    // 128*128 matrix
+    // size of matrices
     int N = 2;
     int BLOCK_SIZE = 64;
     int A_height = N * BLOCK_SIZE, A_width = N * BLOCK_SIZE;
     int B_height = A_width, B_width = N * BLOCK_SIZE;
     int C_height = A_height, C_width = B_width;
     size_t A_size = A_height * A_width, B_size = B_height * B_width, C_size = C_height * C_width;
+
+    /* prepare data */
     scoped_aligned_ptr<float> a(A_size), b(B_size), c(C_size);
     for (unsigned i = 0; i < A_size; i++) {
         a[i] = 3.14;
@@ -68,39 +70,39 @@ int main(int argc, char **argv) {
     for (unsigned i = 0; i < B_size; i++) {
         b[i] = 3.14;
     }
+    Primitive<int> A_width_data(A_width);
+    Primitive<int> B_width_data(B_width);
+    AlignedBuffer<float> A_data{&a, A_size};
+    AlignedBuffer<float> B_data{&b, B_size};
+    AlignedBuffer<float> C_data{&c, C_size};
 
-
-    /* prepare data */
-    Primitive A_width_data{&A_width, sizeof(A_width)};
-    Primitive B_width_data{&B_width, sizeof(B_width)};
-    AlignedBuffer<float> a_data{&a, A_size};
-    AlignedBuffer<float> b_data{&b, B_size};
-    std::vector<const KernelData *> args{&A_width_data, &B_width_data, &a_data, &b_data};
+    std::vector<const KernelArg *> args{&A_width_data, &B_width_data, &A_data, &B_data};
 
     size_t global_work_size[2] = {C_width, C_height};
     size_t local_work_size[2] = {BLOCK_SIZE, BLOCK_SIZE};
     printf("global_work_size:%lu,%lu\n", global_work_size[0], global_work_size[1]);
     printf("local_work_size:%lu,%lu\n", local_work_size[0], local_work_size[1]);
 
-    /* invoke binary */
-    std::vector<KernelDataLimit> input_limits = {{KernelDataType::Primitive,     sizeof(int),   0},
-                                                 {KernelDataType::Primitive,     sizeof(int),   0},
-                                                 {KernelDataType::AlignedBuffer, sizeof(float), A_size},
-                                                 {KernelDataType::AlignedBuffer, sizeof(float), B_size}};
+    /* instance limits */
+    std::vector<KernelDataLimit> input_limits = {KernelDataLimit::PrimitiveLimit<int>(),
+                                                 KernelDataLimit::PrimitiveLimit<int>(),
+                                                 KernelDataLimit::AlignedBufferLimit<float>(A_size),
+                                                 KernelDataLimit::AlignedBufferLimit<float>(B_size)};
 
-    KernelDataLimit output_limit = {KernelDataType::AlignedBuffer, sizeof(float), C_size};
+    KernelDataLimit output_limit = KernelDataLimit::AlignedBufferLimit<float>(C_size);
 
     FImage image("matrix_mult");
     image.init_opencl();
     NDRangeKernel kernel(2, global_work_size, local_work_size,
                          &image, "matrixMult", input_limits, output_limit);
-    kernel.call(args, c.get(), C_size* sizeof(float));
+    kernel.call(args, &C_data);
 
     for (unsigned i = 0; i < C_size; i++) {
         if (c[i] == 0) {
             printf("i: %lu, total: %lu, ratio: %d", i, C_size, C_size / i);
             break;
         }
+        printf("%f,", c[i]);
     }
 
     return 0;

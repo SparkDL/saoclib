@@ -9,7 +9,7 @@
 #include <cassert>
 #include "AOCLUtils/aocl_utils.h"
 #include "FImage.hpp"
-#include "KernelData.hpp"
+#include "KernelArg.hpp"
 
 using namespace aocl_utils;
 
@@ -37,9 +37,9 @@ public:
 
         // create a readonly buffer(which of cl_mem type) for every input
         for (auto &limit : input_limits) {
-            if (limit.type == KernelDataType::AlignedBuffer) {
+            if (limit.getType() == KernelDataType::AlignedBuffer) {
                 this->input_mems.push_back(clCreateBuffer(fimage->getContext(), CL_MEM_READ_ONLY,
-                                                          limit.elem_size * limit.array_length, NULL, &status));
+                                                          limit.getElemSize() * limit.getArrayLength(), NULL, &status));
                 checkError(status, "Failed to create buffer for input");
             }
         }
@@ -47,7 +47,7 @@ public:
         // create a write-only buffer for output
         if (this->hasOutput()) {
             output_mem = clCreateBuffer(fimage->getContext(), CL_MEM_WRITE_ONLY,
-                                        output_limit.elem_size * output_limit.array_length, NULL, &status);
+                                        output_limit.getElemSize() * output_limit.getArrayLength(), NULL, &status);
             checkError(status, "Failed to create buffer for input");
         }
     }
@@ -58,12 +58,11 @@ public:
         }
     };
 
-    virtual void call(const std::vector<const KernelData *> &inputs,
-                      void *output,
-                      size_t output_size)=0;
+    virtual void call(const std::vector<const KernelArg *> &inputs,
+                      KernelArg *output)=0;
 
     bool hasOutput() {
-        return output_limit.type == KernelDataType::AlignedBuffer;
+        return output_limit.getType() == KernelDataType::AlignedBuffer;
     }
 
 protected:
@@ -96,10 +95,8 @@ public:
               local_work_size_list(local_work_size_list) {
     }
 
-    void call(const std::vector<const KernelData *> &inputs,
-              void *output,
-              size_t output_size
-    ) override {
+    void call(const std::vector<const KernelArg *> &inputs,
+              KernelArg *output) override {
         printf("Calling kernel '%s'\n", kernel_name.c_str());
         size_t input_size = inputs.size();
         // assure given input parameters meets the limits
@@ -120,11 +117,11 @@ public:
         // for the host-to-device transfer.
         unsigned input_mems_index = 0;
         for (unsigned i = 0; i < input_size; i++) {
-            const KernelData *input = inputs[i];
+            const KernelArg *input = inputs[i];
             if (input->getType() == KernelDataType::AlignedBuffer) {
-                status = clEnqueueWriteBuffer( queue, input_mems[input_mems_index], CL_FALSE,
+                status = clEnqueueWriteBuffer(queue, input_mems[input_mems_index], CL_FALSE,
                                               0, input->getSize(),
-                                              input->getDataPtr(), 0, NULL, NULL);
+                                              input->getReadonlyDataPtr(), 0, NULL, NULL);
                 checkError(status, "Failed to transfer input %d", i);
                 input_mems_index++;
             }
@@ -136,12 +133,12 @@ public:
         input_mems_index = 0;
         unsigned argi = 0;
         for (; argi < input_size; argi++) {
-            const KernelData *input = inputs[argi];
+            const KernelArg *input = inputs[argi];
             if (input->getType() == KernelDataType::AlignedBuffer) {
                 status = clSetKernelArg(kernel, argi, sizeof(cl_mem), &input_mems[input_mems_index]);
                 checkError(status, "Failed to set argument %d", argi);
             } else {
-                const void *p_data = input->getDataPtr();
+                const void *p_data = input->getReadonlyDataPtr();
                 size_t size = input->getSize();
                 status = clSetKernelArg(kernel, argi, size, p_data);
                 checkError(status, "Failed to set argument %d", argi);
@@ -163,7 +160,7 @@ public:
         // Read the result. This the final operation.
         if (hasOutput()) {
             status = clEnqueueReadBuffer(queue, output_mem, CL_FALSE,
-                                         0, output_size, output,
+                                         0, output->getSize(), output->getWriteableDataPtr(),
                                          0, NULL, &kernel_event);
         }
         // Wait for kernel to finish.
