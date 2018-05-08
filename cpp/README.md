@@ -21,15 +21,3 @@ sudo ln -s $AOCL_BOARD_PACKAGE_ROOT/linux64/lib/* /usr/lib
 sudo ldconfig
 ```
 
-# run
-
-1. get platform
-
-```c++
-platform = findPlatform("Intel");
-```
-
-2. query available divece
-```c++
-device.reset(getDevices(platform, CL_DEVICE_TYPE_ALL, &num_devices));
-```
