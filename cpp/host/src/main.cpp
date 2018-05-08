@@ -34,20 +34,18 @@
 // Verification is performed against the same computation on the host CPU.
 ///////////////////////////////////////////////////////////////////////////////////
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
 #include <vector>
 #include <iostream>
+#include "saoclib.h"
 
-#include "CL/opencl.h"
-#include "AOCLUtils/aocl_utils.h"
-#include "Kernel.hpp"
-
-using namespace aocl_utils;
-
-
-void cleanup();
+using namespace saoclib;
+/**
+ * This definition is used to avoid link errors when lookup implementation for function 'cleanup' declared in AOCLUtils.
+ */
+void cleanup() {};
 
 
 // Entry point.
@@ -108,7 +106,4 @@ int main(int argc, char **argv) {
     return 0;
 }
 
-void cleanup() {
-
-}
 
