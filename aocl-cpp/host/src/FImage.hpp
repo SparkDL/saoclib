@@ -10,7 +10,6 @@
 #include <iostream>
 #include "AOCLUtils/aocl_utils.h"
 #include "CL/opencl.h"
-#include "common.h"
 
 using namespace aocl_utils;
 
@@ -23,7 +22,7 @@ public:
         cleanup();
     }
 
-    /*!
+    /**
      * Init OpenCL resources,
      * including platform, device, context and program
      * @return
@@ -66,7 +65,7 @@ public:
 
     }
 
-    const std::string &getImage_name() const {
+    const std::string &getImageName() const {
         return image_name;
     }
 

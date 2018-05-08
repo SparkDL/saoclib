@@ -20,7 +20,7 @@ set(libs rt pthread)
 link_libraries(${libs})
 
 file(GLOB utils "common/src/AOCLUtils/*.cpp")
-set(srcs host/src/main.cpp ${utils} host/src/FImage.hpp host/src/Kernel.hpp host/src/KernelData.hpp host/src/common.h)
+set(srcs host/src/main.cpp ${utils} host/src/FImage.hpp host/src/Kernel.hpp host/src/KernelData.hpp)
 
 # output directory
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../../bin)

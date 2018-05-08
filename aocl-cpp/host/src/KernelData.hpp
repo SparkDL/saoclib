@@ -6,7 +6,6 @@
 #define AOCL_CPP_KERNEL_DATA_H
 
 #include <cstddef>
-#include "common.h"
 
 enum class KernelDataType {
     Void, /// Void
@@ -174,7 +173,7 @@ public:
     }
 
     size_t getSize() const override {
-        return sizeof(T) * array_length;
+        return elem_size * array_length;
     }
 
 private:

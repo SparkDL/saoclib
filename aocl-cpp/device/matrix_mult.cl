@@ -134,6 +134,7 @@ void matrixMult(
     int a_end = a_start + A_width - 1;
     int b_start = BLOCK_SIZE * block_x;
 
+
     float running_sum = 0.0f;
 
     // Compute the matrix multiplication result for this output element. Each

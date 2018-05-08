@@ -7,7 +7,6 @@
 
 #include <vector>
 #include <cassert>
-#include "common.h"
 #include "AOCLUtils/aocl_utils.h"
 #include "FImage.hpp"
 #include "KernelData.hpp"
@@ -123,7 +122,7 @@ public:
         for (unsigned i = 0; i < input_size; i++) {
             const KernelData *input = inputs[i];
             if (input->getType() == KernelDataType::AlignedBuffer) {
-                status = clEnqueueWriteBuffer(queue, input_mems[input_mems_index], CL_FALSE,
+                status = clEnqueueWriteBuffer( queue, input_mems[input_mems_index], CL_FALSE,
                                               0, input->getSize(),
                                               input->getDataPtr(), 0, NULL, NULL);
                 checkError(status, "Failed to transfer input %d", i);
