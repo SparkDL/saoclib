@@ -37,11 +37,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "CL/opencl.h"
-#include "AOCLUtils/aocl_utils.h"
-#include "FpgaImage.h"
 #include <vector>
 #include <iostream>
+
+#include "CL/opencl.h"
+#include "AOCLUtils/aocl_utils.h"
+#include "Kernel.hpp"
 
 using namespace aocl_utils;
 
@@ -59,38 +60,37 @@ int main(int argc, char **argv) {
     int B_height = A_width, B_width = 2 * BLOCK_SIZE;
     int C_height = A_height, C_width = B_width;
 
-    // set primitive args
-    Data A_width_data = {&A_width, sizeof(A_width)};
-    Data B_width_data = {&B_width, sizeof(B_width)};
-    std::vector<const Data *> primitive_args = {&A_width_data, &B_width_data};
-    // set mem_args
-    scoped_aligned_ptr<float> a(A_height * A_width), b(B_height * B_width), c(B_height * B_width);
+    scoped_aligned_ptr<float> a(A_height * A_width), b(B_height * B_width), c(C_height * C_width);
     for (unsigned i = 0; i < A_height * A_width; i++) {
-        a[i] = i;
+        a[i] = 1;
     }
     for (unsigned i = 0; i < B_height * B_width; i++) {
-        b[i] = i;
+        b[i] = 1;
     }
-    std::vector<scoped_aligned_ptr<float> *> mem_args{&a, &b, &c};
 
+    Primitive A_width_data{&A_width, sizeof(A_width)};
+    Primitive B_width_data{&B_width, sizeof(B_width)};
+    AlignedBuffer<float> a_data{&a, A_height * A_width};
+    AlignedBuffer<float> b_data{&b, B_height * B_width};
+    std::vector<const KernelData *> args{&A_width_data, &B_width_data, &a_data, &b_data};
 
-    const size_t global_work_size = C_width;
-    const size_t local_work_size = BLOCK_SIZE;
+    size_t global_work_size[2] = {C_width, C_height};
+    size_t local_work_size[2] = {BLOCK_SIZE, BLOCK_SIZE};
     std::cout << "global_work_size: " << global_work_size << std::endl;
     std::cout << "local_work_size: " << BLOCK_SIZE << std::endl;
 
-
-
     /* invoke binary */
-    std::vector<size_t> input_sizes = {sizeof(float) * A_height * A_width,
-                                       sizeof(float) * B_height * B_width,
-                                       sizeof(float) * C_height * C_width};
-    FpgaImage image("matrix_mult", input_sizes);
+    std::vector<KernelDataLimit> input_limits = {{KernelDataType::Primitive,     sizeof(int),   0},
+                                                 {KernelDataType::Primitive,     sizeof(int),   0},
+                                                 {KernelDataType::AlignedBuffer, sizeof(float), A_height * A_width},
+                                                 {KernelDataType::AlignedBuffer, sizeof(float), B_height * B_width}};
+    KernelDataLimit output_limit = {KernelDataType::AlignedBuffer, sizeof(float), C_height * C_width};
+    FImage image("matrix_mult");
     image.init_opencl();
 
-    image.call("matrixMult", &global_work_size, &local_work_size,
-               1, primitive_args, mem_args);
-
+    NDRangeKernel kernel(2, global_work_size, local_work_size,
+                         &image, "matrixMult", input_limits, output_limit);
+    kernel.call(args, c.get(), output_limit.array_length);
     for (unsigned i = 0; i < C_height * C_width; i++) {
         printf("%f,", c[i]);
     }

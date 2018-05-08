@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(vector_add)
+project(aocl-cpp)
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -20,7 +20,7 @@ set(libs rt pthread)
 link_libraries(${libs})
 
 file(GLOB utils "common/src/AOCLUtils/*.cpp")
-set(srcs host/src/core.cpp ${utils} host/src/FpgaImage.cpp host/src/FpgaImage.h)
+set(srcs host/src/main.cpp ${utils} host/src/FImage.hpp host/src/Kernel.hpp host/src/KernelData.hpp host/src/common.h)
 
 # output directory
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../../bin)

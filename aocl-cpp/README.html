@@ -44,7 +44,7 @@ Intel FPGA OpenCL Design Examples page</a>.</p>
 <li><a href="#Description">Description</a></li>
 <li><a href="#Software_Hardware_Requirements">Software &amp; Hardware Requirements</a></li>
 <li><a href="#Package_Contents">Package Contents</a></li>
-<li><a href="#Compiling_the_OpenCL_Kernel">Compiling the OpenCL FpgaImage</a></li>
+<li><a href="#Compiling_the_OpenCL_Kernel">Compiling the OpenCL FImage</a></li>
 <li><a href="#Compiling_the_Host_Program">Compiling the Host Program</a></li>
 <li><a href="#Running_the_Host_Program">Running the Host Program</a></li>
 <li><a href="#Release_History">Release History</a></li>
@@ -74,7 +74,7 @@ Intel FPGA OpenCL Design Examples page</a>.</p>
 <tr>
   <th rowspan="3">Requirement</th>
   <th rowspan="3">Version</th>
-<th colspan="2">OpenCL FpgaImage</th><th colspan="4">Host Program</th></tr><tr><th rowspan="2">Hardware<br/>Compile</th><th rowspan="2">Emulation<br/>Compile</th><th colspan="2">Hardware</th><th colspan="2">Emulation</th></tr><tr><th>Compile</th><th>Run</th><th>Compile</th><th>Run</th></tr></thead><tbody><tr><td>Quartus Prime Design Software <small>(Quartus II)</small></td><td>17.0 or later</td><td class="req">&#x02713;</td><td class="req">&#x02713;</td><td></td><td></td><td></td><td></td></tr><tr><td>Intel(R) FPGA SDK for OpenCL(TM)</td><td>17.0 or later</td><td class="req">&#x02713;</td><td class="req">&#x02713;</td><td class="req" rowspan="2">&#x02713;<div class="either">(either)</div></td><td class="req" rowspan="2">&#x02713;<div class="either">(either)</div></td><td class="req" rowspan="2">&#x02713;<div class="either">(either)</div></td><td class="req" rowspan="2">&#x02713;<div class="either">(either)</div></td></tr><tr><td>Intel(R) FPGA Runtime Environment for OpenCL(TM)</td><td>17.0 or later</td><td></td><td></td></tr><tr><td>Board Support Package</td><td>17.0-compatible</td><td class="req">&#x02713;</td><td class="req">&#x02713;</td><td class="req">&#x02713;</td><td class="req">&#x02713;</td><td class="req">&#x02713;</td><td class="req">&#x02713;</td></tr><tr><td>Board Hardware</td><td>-</td><td></td><td></td><td></td><td class="req">&#x02713;</td><td></td><td></td></tr><tr><td>gcc</td><td>4.4.7 or later</td><td></td><td></td><td class="req">&#x02713;</td><td class="req">&#x02713;</td><td class="req">&#x02713;</td><td class="req">&#x02713;</td></tr><tr><td>GNU Make</td><td>3.8.1 or later</td><td></td><td></td><td class="req">&#x02713;</td><td></td><td class="req">&#x02713;</td><td></td></tr></tbody>
+<th colspan="2">OpenCL FImage</th><th colspan="4">Host Program</th></tr><tr><th rowspan="2">Hardware<br/>Compile</th><th rowspan="2">Emulation<br/>Compile</th><th colspan="2">Hardware</th><th colspan="2">Emulation</th></tr><tr><th>Compile</th><th>Run</th><th>Compile</th><th>Run</th></tr></thead><tbody><tr><td>Quartus Prime Design Software <small>(Quartus II)</small></td><td>17.0 or later</td><td class="req">&#x02713;</td><td class="req">&#x02713;</td><td></td><td></td><td></td><td></td></tr><tr><td>Intel(R) FPGA SDK for OpenCL(TM)</td><td>17.0 or later</td><td class="req">&#x02713;</td><td class="req">&#x02713;</td><td class="req" rowspan="2">&#x02713;<div class="either">(either)</div></td><td class="req" rowspan="2">&#x02713;<div class="either">(either)</div></td><td class="req" rowspan="2">&#x02713;<div class="either">(either)</div></td><td class="req" rowspan="2">&#x02713;<div class="either">(either)</div></td></tr><tr><td>Intel(R) FPGA Runtime Environment for OpenCL(TM)</td><td>17.0 or later</td><td></td><td></td></tr><tr><td>Board Support Package</td><td>17.0-compatible</td><td class="req">&#x02713;</td><td class="req">&#x02713;</td><td class="req">&#x02713;</td><td class="req">&#x02713;</td><td class="req">&#x02713;</td><td class="req">&#x02713;</td></tr><tr><td>Board Hardware</td><td>-</td><td></td><td></td><td></td><td class="req">&#x02713;</td><td></td><td></td></tr><tr><td>gcc</td><td>4.4.7 or later</td><td></td><td></td><td class="req">&#x02713;</td><td class="req">&#x02713;</td><td class="req">&#x02713;</td><td class="req">&#x02713;</td></tr><tr><td>GNU Make</td><td>3.8.1 or later</td><td></td><td></td><td class="req">&#x02713;</td><td></td><td class="req">&#x02713;</td><td></td></tr></tbody>
 </table>
 
 </section>
@@ -124,7 +124,7 @@ Intel FPGA OpenCL Design Examples page</a>.</p>
 </section>
 
 <section>
-<a id="Compiling_the_OpenCL_Kernel"><h2>Compiling the OpenCL FpgaImage</h2></a>
+<a id="Compiling_the_OpenCL_Kernel"><h2>Compiling the OpenCL FImage</h2></a>
     <p>The top-level OpenCL kernel file is <span class="mono">device/vector_add.cl</span>.</p>
     <p>To compile the OpenCL kernel, run:</p>
     <div class="command">aoc device/vector_add.cl <span class="nowrap">-o</span> bin/vector_add.aocx --board <span class="highlight">&lt;<i>board</i>&gt;</span></div>
