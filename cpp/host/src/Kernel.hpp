@@ -59,6 +59,14 @@ namespace saoclib {
             if (kernel) {
                 clReleaseKernel(kernel);
             }
+            if (queue) {
+                clReleaseCommandQueue(queue);
+            }
+            for (auto &mem:input_mems) {
+                if (mem) {
+                    clReleaseMemObject(mem);
+                }
+            }
         };
 
         virtual void call(const std::vector<const KernelArg *> &inputs,
