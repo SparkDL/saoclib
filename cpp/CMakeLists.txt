@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(aocl-cpp)
+project(saoclib-cpp)
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -20,14 +20,15 @@ set(libs rt pthread)
 link_libraries(${libs})
 
 file(GLOB utils "common/src/AOCLUtils/*.cpp")
-set(srcs host/src/main.cpp ${utils} host/src/FImage.hpp host/src/Kernel.hpp host/src/KernelArg.hpp host/src/saoclib.h)
+file(GLOB saoclib "host/src/*.hpp")
 
 # output directory
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../../bin)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../../bin)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../../bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/bin)
 
 # target executable
 # add_executable(host ${srcs})
 
-add_executable(core ${srcs})
+add_executable(matrix_mult.exe host/test/matrix_mult.cpp ${utils} ${saoclib})
+add_executable(vector_add.exe host/test/vector_add.cpp ${utils} ${saoclib})

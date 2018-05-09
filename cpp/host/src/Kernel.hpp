@@ -2,8 +2,8 @@
 // Created by pcz on 18-5-7.
 //
 
-#ifndef AOCL_CPP_KERNEL_HPP
-#define AOCL_CPP_KERNEL_HPP
+#ifndef SAOCLIB_CPP_KERNEL_HPP
+#define SAOCLIB_CPP_KERNEL_HPP
 
 #include <vector>
 #include <cassert>
@@ -19,8 +19,8 @@ namespace saoclib {
     public:
         Kernel(const FImage *fimage,
                const std::string &kernel_name,
-               const std::vector<KernelDataLimit> &input_limits,
-               const KernelDataLimit output_limit,
+               const std::vector<KernelArgLimit> &input_limits,
+               const KernelArgLimit output_limit,
                const unsigned device_num = 0)
                 : fimage(fimage),
                   kernel_name(kernel_name),
@@ -39,7 +39,7 @@ namespace saoclib {
 
             // create a readonly buffer(which of cl_mem type) for every input
             for (auto &limit : input_limits) {
-                if (limit.getType() == KernelDataType::AlignedBuffer) {
+                if (limit.getType() == KernelArgType::AlignedBuffer) {
                     this->input_mems.push_back(clCreateBuffer(fimage->getContext(), CL_MEM_READ_ONLY,
                                                               limit.getElemSize() * limit.getArrayLength(), NULL,
                                                               &status));
@@ -73,7 +73,7 @@ namespace saoclib {
                           KernelArg *output)=0;
 
         bool hasOutput() {
-            return output_limit.getType() == KernelDataType::AlignedBuffer;
+            return output_limit.getType() == KernelArgType::AlignedBuffer;
         }
 
     protected:
@@ -83,9 +83,9 @@ namespace saoclib {
         cl_kernel kernel;   /// OpenCL Kernel, need to be released in destructor.
         cl_command_queue queue; /// Command queue.
 
-        const std::vector<KernelDataLimit> input_limits; /// Type and size limits of input array.
+        const std::vector<KernelArgLimit> input_limits; /// Type and size limits of input array.
         std::vector<cl_mem> input_mems;  /// Input buffer(memory object).
-        KernelDataLimit output_limit; /// Type and size limit of output.
+        KernelArgLimit output_limit; /// Type and size limit of output.
         cl_mem output_mem = NULL; /// Output buffer(memory object).
     };
 
@@ -97,8 +97,8 @@ namespace saoclib {
 
                       const FImage *fimage,
                       const std::string &kernel_name,
-                      const std::vector<KernelDataLimit> &input_limits,
-                      const KernelDataLimit output_limit,
+                      const std::vector<KernelArgLimit> &input_limits,
+                      const KernelArgLimit output_limit,
                       const unsigned device_num = 0)
                 : Kernel(fimage, kernel_name, input_limits, output_limit, device_num),
                   work_dim(work_dim),
@@ -129,7 +129,7 @@ namespace saoclib {
             unsigned input_mems_index = 0;
             for (unsigned i = 0; i < input_size; i++) {
                 const KernelArg *input = inputs[i];
-                if (input->getType() == KernelDataType::AlignedBuffer) {
+                if (input->getType() == KernelArgType::AlignedBuffer) {
                     status = clEnqueueWriteBuffer(queue, input_mems[input_mems_index], CL_FALSE,
                                                   0, input->getSize(),
                                                   input->getReadonlyDataPtr(), 0, NULL, NULL);
@@ -145,7 +145,7 @@ namespace saoclib {
             unsigned argi = 0;
             for (; argi < input_size; argi++) {
                 const KernelArg *input = inputs[argi];
-                if (input->getType() == KernelDataType::AlignedBuffer) {
+                if (input->getType() == KernelArgType::AlignedBuffer) {
                     status = clSetKernelArg(kernel, argi, sizeof(cl_mem), &input_mems[input_mems_index]);
                     checkError(status, "Failed to set argument %d", argi);
                 } else {
@@ -200,4 +200,4 @@ namespace saoclib {
 //class SingleItemKernel : NDRangeKernel {
 //};
 }
-#endif //AOCL_CPP_KERNEL_HPP
+#endif //SAOCLIB_CPP_KERNEL_HPP

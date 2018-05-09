@@ -2,8 +2,8 @@
 // Created by pcz on 18-4-18.
 //
 
-#ifndef AOCL_CPP_FIMAGE_HPP
-#define AOCL_CPP_FIMAGE_HPP
+#ifndef SAOCLIB_CPP_FIMAGE_HPP
+#define SAOCLIB_CPP_FIMAGE_HPP
 
 #include <cassert>
 #include <utility>
@@ -119,4 +119,4 @@ namespace saoclib {
     };
 }
 
-#endif //AOCL_CPP_FIMAGE_HPP
+#endif //SAOCLIB_CPP_FIMAGE_HPP

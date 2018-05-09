@@ -20,8 +20,8 @@
 // by the laws of the United States of America.
 
  // ACL kernel for adding two input vectors
-__kernel void vector_add(__global const float *x, 
-                         __global const float *y, 
+__kernel void vector_add(__global const float *restrict x,
+                         __global const float *restrict y,
                          __global float *restrict z)
 {
     // get index of the work item
@@ -30,5 +30,3 @@ __kernel void vector_add(__global const float *x,
     // add the vector elements
     z[index] = x[index] + y[index];
 }
-
-                                                          从

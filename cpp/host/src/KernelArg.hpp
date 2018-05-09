@@ -2,25 +2,25 @@
 // Created by pcz on 18-5-7.
 //
 
-#ifndef AOCL_CPP_KERNEL_ARG_H
-#define AOCL_CPP_KERNEL_ARG_H
+#ifndef SAOCLIB_CPP_KERNEL_ARG_H
+#define SAOCLIB_CPP_KERNEL_ARG_H
 
 #include <cstddef>
 
 namespace saoclib {
-    enum class KernelDataType {
+    enum class KernelArgType {
         Void, /// Void
         Primitive, /// Primitive data, such as int, float...
         AlignedBuffer  /// Aligned buffer.
     };
 
-    class KernelDataQuery {
+    class KernelArgQuery {
     public:
         /**
          * Get data type, which could be KernelDataType::Void/Primitive/AlignedPointer...
          * @return data type
          */
-        virtual KernelDataType getType() const = 0;
+        virtual KernelArgType getType() const = 0;
 
         /**
          * Get the total size of data stored in the inside pointer.
@@ -51,47 +51,47 @@ namespace saoclib {
          */
         void print() {
             switch (getType()) {
-                case KernelDataType::Void:
+                case KernelArgType::Void:
                     printf("<void>\n");
                     break;
-                case KernelDataType::Primitive:
+                case KernelArgType::Primitive:
                     printf("<primitive,size: %lu>\n", getSize());
                     break;
-                case KernelDataType::AlignedBuffer:
+                case KernelArgType::AlignedBuffer:
                     printf("<aligned buffer,elem size: %lu,length: %lu>\n", getElemSize(), getArrayLength());
                     break;
             }
         }
     };
 
-    class KernelDataLimit : public KernelDataQuery {
+    class KernelArgLimit : public KernelArgQuery {
     public:
-        static KernelDataLimit VoidLimit() {
-            return {KernelDataType::Void, 0, 0};
+        static KernelArgLimit VoidLimit() {
+            return {KernelArgType::Void, 0, 0};
         }
 
         template<class T>
-        static KernelDataLimit PrimitiveLimit() {
-            return {KernelDataType::Primitive, sizeof(T), 0};
+        static KernelArgLimit PrimitiveLimit() {
+            return {KernelArgType::Primitive, sizeof(T), 0};
         }
 
         template<class T>
-        static KernelDataLimit AlignedBufferLimit(size_t array_length) {
-            return {KernelDataType::AlignedBuffer, sizeof(T), array_length};
+        static KernelArgLimit AlignedBufferLimit(size_t array_length) {
+            return {KernelArgType::AlignedBuffer, sizeof(T), array_length};
         }
 
-        KernelDataType getType() const override {
+        KernelArgType getType() const override {
             return type;
         }
 
         size_t getSize() const override {
-            if (type == KernelDataType::Void) {
+            if (type == KernelArgType::Void) {
                 return 0;
             }
-            if (type == KernelDataType::Primitive) {
+            if (type == KernelArgType::Primitive) {
                 return elem_size;
             }
-            if (type == KernelDataType::AlignedBuffer) {
+            if (type == KernelArgType::AlignedBuffer) {
                 return elem_size * array_length;
             }
         }
@@ -105,13 +105,13 @@ namespace saoclib {
         }
 
     private:
-        KernelDataLimit(KernelDataType type, size_t elem_size, size_t array_length)
+        KernelArgLimit(KernelArgType type, size_t elem_size, size_t array_length)
                 : type(type),
                   elem_size(elem_size),
                   array_length(array_length) {}
 
 
-        KernelDataType type;
+        KernelArgType type;
         size_t elem_size;
         size_t array_length;
     };
@@ -120,7 +120,7 @@ namespace saoclib {
 /**
  * This class is used to describe and store kernel parameters/arguments.
  */
-    class KernelArg : public KernelDataQuery {
+    class KernelArg : public KernelArgQuery {
     public:
         /**
          * Get the raw data pointer.
@@ -143,13 +143,13 @@ namespace saoclib {
          * @param limit
          * @return if valid
          */
-        virtual bool checkValid(const KernelDataLimit &limit) const =0;
+        virtual bool checkValid(const KernelArgLimit &limit) const =0;
     };
 
     class Void : public KernelArg {
     public:
-        KernelDataType getType() const override {
-            return KernelDataType::Void;
+        KernelArgType getType() const override {
+            return KernelArgType::Void;
         }
 
         const void *getReadonlyDataPtr() const override {
@@ -173,8 +173,8 @@ namespace saoclib {
         }
 
 
-        bool checkValid(const KernelDataLimit &limit) const override {
-            return limit.getType() == KernelDataType::Void;
+        bool checkValid(const KernelArgLimit &limit) const override {
+            return limit.getType() == KernelArgType::Void;
         }
     };
 
@@ -183,8 +183,8 @@ namespace saoclib {
     public:
         Primitive(T data) : data(data) {}
 
-        KernelDataType getType() const override {
-            return KernelDataType::Primitive;
+        KernelArgType getType() const override {
+            return KernelArgType::Primitive;
         }
 
         const void *getReadonlyDataPtr() const override {
@@ -207,8 +207,8 @@ namespace saoclib {
             return 0;
         }
 
-        bool checkValid(const KernelDataLimit &limit) const override {
-            return limit.getType() == KernelDataType::Primitive && limit.getElemSize() == size;
+        bool checkValid(const KernelArgLimit &limit) const override {
+            return limit.getType() == KernelArgType::Primitive && limit.getElemSize() == size;
         }
 
     private:
@@ -222,12 +222,12 @@ namespace saoclib {
         AlignedBuffer(const scoped_aligned_ptr <T> *data_container, size_t array_length)
                 : data_container(data_container), array_length(array_length) {}
 
-        KernelDataType getType() const override {
-            return KernelDataType::AlignedBuffer;
+        KernelArgType getType() const override {
+            return KernelArgType::AlignedBuffer;
         }
 
-        bool checkValid(const KernelDataLimit &limit) const override {
-            return limit.getType() == KernelDataType::AlignedBuffer && limit.getElemSize() == elem_size &&
+        bool checkValid(const KernelArgLimit &limit) const override {
+            return limit.getType() == KernelArgType::AlignedBuffer && limit.getElemSize() == elem_size &&
                    limit.getArrayLength() == array_length;
         }
 
@@ -258,4 +258,4 @@ namespace saoclib {
 
     };
 }
-#endif //AOCL_CPP_KERNEL_ARG_H
+#endif //SAOCLIB_CPP_KERNEL_ARG_H
