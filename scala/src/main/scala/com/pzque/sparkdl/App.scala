@@ -1,9 +1,7 @@
-import com.intel.analytics.bigdl.nn._
 import com.pzque.sparkdl.saoclib.FImage
 
 
-
-object Main {
+object App {
   def main(args: Array[String]): Unit = {
     System.loadLibrary("saoclib")
 

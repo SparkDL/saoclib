@@ -1,18 +1,20 @@
 package com.pzque.sparkdl.saoclib
 
 object FImage {
-  @native def newFImage(name: String): Long
+  @native protected def newFImage(name: String): Long
 
-  @native def getNumDevices(pImage: Long): Long
+  @native protected def getNumDevices(pImage: Long): Long
 
-  @native def initOpenCL(pImage: Long): Boolean
+  @native protected def initOpenCL(pImage: Long): Boolean
+
+  @native protected def disposeInternal(handle: Long): Unit
 }
 
 class FImage(name: String) extends NativeBackendObject {
   _nativeHandle = FImage.newFImage(name)
 
-  override protected def disposeInternal(): Unit = {
-    disposeInternal(_nativeHandle)
+  override protected def destroy(): Unit = {
+    FImage.disposeInternal(_nativeHandle)
   }
 
   def getNumDevices: Option[Long] = {
@@ -28,6 +30,4 @@ class FImage(name: String) extends NativeBackendObject {
     }
     None
   }
-
-  @native protected def disposeInternal(handle: Long): Unit
 }

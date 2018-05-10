@@ -31,6 +31,14 @@ JNIEXPORT jlong JNICALL Java_com_pzque_sparkdl_saoclib_FImage_00024_getNumDevice
 JNIEXPORT jboolean JNICALL Java_com_pzque_sparkdl_saoclib_FImage_00024_initOpenCL
   (JNIEnv *, jobject, jlong);
 
+/*
+ * Class:     com_pzque_sparkdl_saoclib_FImage__
+ * Method:    disposeInternal
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_pzque_sparkdl_saoclib_FImage_00024_disposeInternal
+  (JNIEnv *, jobject, jlong);
+
 #ifdef __cplusplus
 }
 #endif

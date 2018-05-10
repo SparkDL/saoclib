@@ -1,8 +1,7 @@
-//.c_str()
+//
 // Created by pcz on 18-5-10.
 //
 
-#include "com_pzque_sparkdl_saoclib_FImage.h"
 #include "com_pzque_sparkdl_saoclib_FImage__.h"
 #include "../src/FImage.hpp"
 
@@ -31,7 +30,8 @@ JNIEXPORT jboolean JNICALL Java_com_pzque_sparkdl_saoclib_FImage_00024_initOpenC
     return result ? JNI_TRUE : JNI_FALSE;
 }
 
-void Java_com_pzque_sparkdl_saoclib_FImage_disposeInternal(JNIEnv *env, jobject obj, jlong ptr) {
+JNIEXPORT void JNICALL Java_com_pzque_sparkdl_saoclib_FImage_00024_disposeInternal
+        (JNIEnv *env, jobject obj, jlong ptr) {
     delete (saoclib::FImage *) ptr;
 }
 

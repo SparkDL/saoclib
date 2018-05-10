@@ -8,14 +8,14 @@ abstract class NativeBackendObject extends AutoCloseable {
   override def close(): Unit = {
     this.synchronized {
       if (_nativeOwner && _nativeHandle != 0) {
-        disposeInternal()
+        destroy()
         _nativeHandle = 0
         _nativeOwner = false
       }
     }
   }
 
-  protected def disposeInternal(): Unit
+  protected def destroy(): Unit
 
   def isValid: Boolean = _nativeOwner && _nativeHandle != 0
 }
