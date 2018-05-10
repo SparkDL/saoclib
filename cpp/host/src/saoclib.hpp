@@ -6,4 +6,5 @@
 #define SAOCLIB_CPP_SAOCLIB_HPP
 
 #include "Kernel.hpp"
+
 #endif //SAOCLIB_CPP_SAOCLIB_HPP

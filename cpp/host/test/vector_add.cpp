@@ -35,12 +35,13 @@ int main(int argc, char **argv) {
 
     /* set inputs and output limits */
     std::vector<KernelArgLimit> input_limits = {KernelArgLimit::AlignedBufferLimit<float>(N),
-                                                 KernelArgLimit::AlignedBufferLimit<float>(N)};
+                                                KernelArgLimit::AlignedBufferLimit<float>(N)};
     KernelArgLimit output_limit = KernelArgLimit::AlignedBufferLimit<float>(N);
 
     /* init an FPGA image */
     FImage image("vector_add");
     image.init_opencl();
+    image.load_image();
     /* init the kernel */
     size_t *global_work_size = &N;
     size_t *local_work_size = NULL;

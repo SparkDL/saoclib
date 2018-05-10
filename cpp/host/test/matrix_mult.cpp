@@ -87,6 +87,7 @@ int main(int argc, char **argv) {
     /* init an FPGA image */
     FImage image("matrix_mult");
     image.init_opencl();
+    image.load_image();
     /* init the kernel */
     size_t global_work_size[2] = {C_width, C_height};
     size_t local_work_size[2] = {BLOCK_SIZE, BLOCK_SIZE};

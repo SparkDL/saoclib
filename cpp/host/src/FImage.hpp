@@ -47,7 +47,11 @@ namespace saoclib {
             for (unsigned i = 0; i < num_devices; ++i) {
                 printf("  %s\n", getDeviceName(devices[i]).c_str());
             }
+            return true;
+        }
 
+        bool load_image(){
+            cl_int status;
             // Create the context.
             context = clCreateContext(NULL, num_devices, devices, &oclContextCallback, NULL, &status);
             checkError(status, "Failed to create context");
@@ -61,9 +65,7 @@ namespace saoclib {
             // Build the program that was just created.
             status = clBuildProgram(program, 0, NULL, "", NULL, NULL);
             checkError(status, "Failed to build program");
-
             return true;
-
         }
 
         const std::string &getImageName() const {
