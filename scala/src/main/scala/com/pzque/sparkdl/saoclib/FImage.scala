@@ -1,32 +1,23 @@
 package com.pzque.sparkdl.saoclib
 
 object FImage {
-  @native protected def newFImage(name: String): Long
+  @native protected def newInstance(pFImage: Long, imagePath: String): Long
 
-  @native protected def getNumDevices(pImage: Long): Long
+  @native protected def destroyInstance(pFImage: Long): Unit
 
-  @native protected def initOpenCL(pImage: Long): Boolean
-
-  @native protected def destroy(handle: Long): Unit
+  @native protected def deployImage(pFImage: Long, devices: Array[Long]): Boolean
 }
 
-class FImage(name: String) extends NativeBackendObject {
-  _nativeHandle = FImage.newFImage(name)
+class FImage(pFEnv: Long, imagePath: String) extends NativeBackendObject {
+  _nativeHandle = FImage.newInstance(pFEnv, imagePath)
 
   override protected def destroy(): Unit = {
-    FImage.destroy(_nativeHandle)
+    FImage.destroyInstance(_nativeHandle)
   }
 
-  def getNumDevices: Option[Long] = {
+  def deployImage(devices: Array[Long]): Option[Boolean] = {
     if (isValid) {
-      return Some(FImage.getNumDevices(_nativeHandle))
-    }
-    None
-  }
-
-  def initOpenCL(): Option[Boolean] = {
-    if (isValid) {
-      return Some(FImage.initOpenCL(_nativeHandle))
+      Some(FImage.deployImage(_nativeHandle, devices))
     }
     None
   }

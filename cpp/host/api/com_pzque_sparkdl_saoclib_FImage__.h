@@ -9,35 +9,27 @@ extern "C" {
 #endif
 /*
  * Class:     com_pzque_sparkdl_saoclib_FImage__
- * Method:    newFImage
- * Signature: (Ljava/lang/String;)J
+ * Method:    newInstance
+ * Signature: (JLjava/lang/String;)J
  */
-JNIEXPORT jlong JNICALL Java_com_pzque_sparkdl_saoclib_FImage_00024_newFImage
-  (JNIEnv *, jobject, jstring);
+JNIEXPORT jlong JNICALL Java_com_pzque_sparkdl_saoclib_FImage_00024_newInstance
+  (JNIEnv *, jobject, jlong, jstring);
 
 /*
  * Class:     com_pzque_sparkdl_saoclib_FImage__
- * Method:    getNumDevices
- * Signature: (J)J
- */
-JNIEXPORT jlong JNICALL Java_com_pzque_sparkdl_saoclib_FImage_00024_getNumDevices
-  (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     com_pzque_sparkdl_saoclib_FImage__
- * Method:    initOpenCL
- * Signature: (J)Z
- */
-JNIEXPORT jboolean JNICALL Java_com_pzque_sparkdl_saoclib_FImage_00024_initOpenCL
-  (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     com_pzque_sparkdl_saoclib_FImage__
- * Method:    destroy
+ * Method:    destroyInstance
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_pzque_sparkdl_saoclib_FImage_00024_destroy
+JNIEXPORT void JNICALL Java_com_pzque_sparkdl_saoclib_FImage_00024_destroyInstance
   (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_pzque_sparkdl_saoclib_FImage__
+ * Method:    deployImage
+ * Signature: (J[J)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_pzque_sparkdl_saoclib_FImage_00024_deployImage
+  (JNIEnv *, jobject, jlong, jlongArray);
 
 #ifdef __cplusplus
 }

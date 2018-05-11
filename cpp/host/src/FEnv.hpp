@@ -39,7 +39,7 @@ namespace saoclib {
             platformName = aocl_utils::getPlatformName(platform);
 
             // Query the available OpenCL device.
-            devices.reset(getDevices(platform, CL_DEVICE_TYPE_ALL, &num_devices));
+            devices.reset(aocl_utils::getDevices(platform, CL_DEVICE_TYPE_ALL, &num_devices));
             printf("Platform: %s\n", platformName.c_str());
             printf("Using %d device(s)\n", num_devices);
             for (unsigned i = 0; i < num_devices; ++i) {
@@ -67,6 +67,10 @@ namespace saoclib {
 
         unsigned getNumDevices() const {
             return num_devices;
+        }
+
+        const scoped_array<cl_device_id> & getDevices(){
+            return devices;
         }
 
         cl_device_id getDeviceId(unsigned num) const {

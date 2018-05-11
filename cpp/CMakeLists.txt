@@ -27,7 +27,8 @@ link_libraries(${libs})
 
 file(GLOB utils "common/src/AOCLUtils/*.cpp")
 file(GLOB srcs "host/src/*.hpp")
-file(GLOB api "host/api/*.h" "host/api/*cpp")
+file(GLOB apicpp "host/api/*.h")
+file(GLOB apih "host/api/*cpp")
 
 # output directory
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../bin)
@@ -39,4 +40,4 @@ add_executable(matrix_mult.exe host/test/matrix_mult.cpp ${utils} ${srcs})
 add_executable(vector_add.exe host/test/vector_add.cpp ${utils} ${srcs})
 
 # target dynamic library
-add_library(saoclib SHARED ${api} ${utils} ${srcs})
+add_library(saoclib SHARED ${apih} ${apicpp} ${utils} ${srcs})

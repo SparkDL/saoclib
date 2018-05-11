@@ -1,9 +1,12 @@
 package com.pzque.sparkdl.saoclib
 
 abstract class NativeBackendObject extends AutoCloseable {
-
   protected var _nativeHandle: Long = 0
   protected var _nativeOwner: Boolean = true
+
+  def getNativeHandler: Long = _nativeHandle
+
+  def isValid: Boolean = _nativeOwner && _nativeHandle != 0
 
   override def close(): Unit = {
     this.synchronized {
@@ -16,7 +19,4 @@ abstract class NativeBackendObject extends AutoCloseable {
   }
 
   protected def destroy(): Unit
-
-  def isValid: Boolean = _nativeOwner && _nativeHandle != 0
 }
-
