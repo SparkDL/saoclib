@@ -6,122 +6,21 @@
 #define SAOCLIB_CPP_KERNEL_ARG_H
 
 #include <cstddef>
+#include "KernelArgLimit.hpp"
 
 namespace saoclib {
-    enum class KernelArgType {
-        Void, /// Void
-        Primitive, /// Primitive data, such as int, float...
-        AlignedBuffer  /// Aligned buffer.
-    };
 
-    class KernelArgQuery {
-    public:
-        /**
-         * Get data type, which could be KernelDataType::Void/Primitive/AlignedPointer...
-         * @return data type
-         */
-        virtual KernelArgType getType() const = 0;
-
-        /**
-         * Get the total size of data stored in the inside pointer.
-         * For Void class, it will be 0.
-         * For Primitive class, it will be the size of the primitive data, for example, sizeof a int/float/char...
-         * For AlignedBuffer class, it will be element size * array length.
-         * @return the total size of data
-         */
-        virtual size_t getSize() const =0;
-
-        /**
-         * Get size of an element, only used for AlignedBuffer class;
-         * @return element size
-         * @note this function is only used for AlignedBuffer class
-         */
-        virtual size_t getElemSize() const =0;
-
-        /**
-         * Get length of array, only used for AlignedBuffer class;
-         * @return length of array store
-         * @note this function is only used for AlignedBuffer class
-         */
-        virtual size_t getArrayLength() const =0;
-
-
-        /**
-         * Print data info.
-         */
-        void print() {
-            switch (getType()) {
-                case KernelArgType::Void:
-                    printf("<void>\n");
-                    break;
-                case KernelArgType::Primitive:
-                    printf("<primitive,size: %lu>\n", getSize());
-                    break;
-                case KernelArgType::AlignedBuffer:
-                    printf("<aligned buffer,elem size: %lu,length: %lu>\n", getElemSize(), getArrayLength());
-                    break;
-            }
-        }
-    };
-
-    class KernelArgLimit : public KernelArgQuery {
-    public:
-        static KernelArgLimit VoidLimit() {
-            return {KernelArgType::Void, 0, 0};
-        }
-
-        template<class T>
-        static KernelArgLimit PrimitiveLimit() {
-            return {KernelArgType::Primitive, sizeof(T), 0};
-        }
-
-        template<class T>
-        static KernelArgLimit AlignedBufferLimit(size_t array_length) {
-            return {KernelArgType::AlignedBuffer, sizeof(T), array_length};
-        }
-
-        KernelArgType getType() const override {
-            return type;
-        }
-
-        size_t getSize() const override {
-            if (type == KernelArgType::Void) {
-                return 0;
-            }
-            if (type == KernelArgType::Primitive) {
-                return elem_size;
-            }
-            if (type == KernelArgType::AlignedBuffer) {
-                return elem_size * array_length;
-            }
-        }
-
-        size_t getElemSize() const override {
-            return elem_size;
-        }
-
-        size_t getArrayLength() const override {
-            return array_length;
-        }
-
-    private:
-        KernelArgLimit(KernelArgType type, size_t elem_size, size_t array_length)
-                : type(type),
-                  elem_size(elem_size),
-                  array_length(array_length) {}
-
-
-        KernelArgType type;
-        size_t elem_size;
-        size_t array_length;
-    };
-
-
-/**
- * This class is used to describe and store kernel parameters/arguments.
- */
+    /**
+     * This class is used to describe and store kernel parameters/arguments.
+     */
     class KernelArg : public KernelArgQuery {
     public:
+        KernelArg(KernelArgMode mode) : mode(mode) {}
+
+        KernelArgMode getMode() const override {
+            return mode;
+        }
+
         /**
          * Get the raw data pointer.
          * For Void class, it should return NULL.
@@ -144,10 +43,15 @@ namespace saoclib {
          * @return if valid
          */
         virtual bool checkValid(const KernelArgLimit &limit) const =0;
+
+    private:
+        KernelArgMode mode;
     };
 
     class Void : public KernelArg {
     public:
+        Void() : KernelArg(KernelArgMode::Output) {}
+
         KernelArgType getType() const override {
             return KernelArgType::Void;
         }
@@ -172,7 +76,6 @@ namespace saoclib {
             return 0;
         }
 
-
         bool checkValid(const KernelArgLimit &limit) const override {
             return limit.getType() == KernelArgType::Void;
         }
@@ -181,7 +84,13 @@ namespace saoclib {
     template<class T>
     class Primitive : public KernelArg {
     public:
-        Primitive(T data) : data(data) {}
+        static Primitive Input(T data) {
+            return {KernelArgMode::Input, data};
+        }
+
+        static Primitive Output(T data) {
+            return {KernelArgMode::Output, data};
+        }
 
         KernelArgType getType() const override {
             return KernelArgType::Primitive;
@@ -212,6 +121,8 @@ namespace saoclib {
         }
 
     private:
+        Primitive(KernelArgMode mode, T data) : KernelArg(mode), data(data) {}
+
         T data;
         static const size_t size = sizeof(T);
     };
@@ -219,8 +130,13 @@ namespace saoclib {
     template<class T>
     class AlignedBuffer : public KernelArg {
     public:
-        AlignedBuffer(const scoped_aligned_ptr <T> *data_container, size_t array_length)
-                : data_container(data_container), array_length(array_length) {}
+        static AlignedBuffer Input(const scoped_aligned_ptr<T> *data_container, size_t array_length) {
+            return {KernelArgMode::Input, data_container, array_length};
+        }
+
+        static AlignedBuffer Output(const scoped_aligned_ptr<T> *data_container, size_t array_length) {
+            return {KernelArgMode::Output, data_container, array_length};
+        }
 
         KernelArgType getType() const override {
             return KernelArgType::AlignedBuffer;
@@ -252,10 +168,24 @@ namespace saoclib {
         }
 
     private:
-        const scoped_aligned_ptr <T> *data_container;
+        AlignedBuffer(KernelArgMode mode, const scoped_aligned_ptr<T> *data_container, size_t array_length)
+                : KernelArg(mode), data_container(data_container), array_length(array_length) {}
+
+        const scoped_aligned_ptr<T> *data_container;
         static const size_t elem_size = sizeof(T);
         size_t array_length;
 
     };
+
+
+    typedef Primitive<char> Char;
+    typedef Primitive<int> Int;
+    typedef Primitive<unsigned> Unsigned;
+    typedef Primitive<float> Float;
+
+    typedef AlignedBuffer<char> CharBuffer;
+    typedef AlignedBuffer<int> IntBuffer;
+    typedef AlignedBuffer<unsigned> UnsignedBuffer;
+    typedef AlignedBuffer<float> FloatBuffer;
 }
 #endif //SAOCLIB_CPP_KERNEL_ARG_H

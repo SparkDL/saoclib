@@ -70,31 +70,35 @@ int main(int argc, char **argv) {
         b[i] = 3.14;
     }
     /* wrap the raw data to KernelArg objects */
-    Primitive<int> A_width_data(A_width);
-    Primitive<int> B_width_data(B_width);
-    AlignedBuffer<float> A_data{&a, A_size};
-    AlignedBuffer<float> B_data{&b, B_size};
-    AlignedBuffer<float> C_data{&c, C_size};
-    std::vector<const KernelArg *> args{&A_width_data, &B_width_data, &A_data, &B_data};
+    Int A_width_data = Int::Input(A_width);
+    Int B_width_data = Int::Input(B_width);
+    FloatBuffer A_data = FloatBuffer::Input(&a, A_size);
+    FloatBuffer B_data = FloatBuffer::Input(&b, B_size);
+    FloatBuffer C_data = FloatBuffer::Output(&c, C_size);
+    KernelArg *args[5] = {&A_width_data, &B_width_data, &A_data, &B_data, &C_data};
 
     /* set inputs and output limits */
-    std::vector<KernelArgLimit> input_limits = {KernelArgLimit::PrimitiveLimit<int>(),
-                                                 KernelArgLimit::PrimitiveLimit<int>(),
-                                                 KernelArgLimit::AlignedBufferLimit<float>(A_size),
-                                                 KernelArgLimit::AlignedBufferLimit<float>(B_size)};
-    KernelArgLimit output_limit = KernelArgLimit::AlignedBufferLimit<float>(C_size);
+    KernelArgLimit arg_limits[5] = {KernelArgLimit::PrimitiveInput<int>(),
+                                    KernelArgLimit::PrimitiveInput<int>(),
+                                    KernelArgLimit::AlignedBufferInput<float>(A_size),
+                                    KernelArgLimit::AlignedBufferInput<float>(B_size),
+                                    KernelArgLimit::AlignedBufferOutput<float>(C_size)};
 
     /* init an FPGA image */
-    FImage image("matrix_mult");
-    image.init_opencl();
-    image.load_image();
+    FEnv env;
+    env.init_opencl();
+
+    FImage image(&env, "matrix_mult");
+    auto device = env.getDeviceId(0);
+    image.deploy_image(&device, 1);
+
     /* init the kernel */
     size_t global_work_size[2] = {C_width, C_height};
     size_t local_work_size[2] = {BLOCK_SIZE, BLOCK_SIZE};
     NDRangeKernel kernel(2, global_work_size, local_work_size,
-                         &image, "matrixMult", input_limits, output_limit);
+                         &image, device, "matrixMult", arg_limits, 5);
     /* call kernel with inputs and output */
-    kernel.call(args, &C_data);
+    kernel.call(args, 5);
 
     /* print results */
     for (unsigned i = 0; i < C_size; i++) {

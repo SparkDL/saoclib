@@ -7,14 +7,14 @@ object FImage {
 
   @native protected def initOpenCL(pImage: Long): Boolean
 
-  @native protected def disposeInternal(handle: Long): Unit
+  @native protected def destroy(handle: Long): Unit
 }
 
 class FImage(name: String) extends NativeBackendObject {
   _nativeHandle = FImage.newFImage(name)
 
   override protected def destroy(): Unit = {
-    FImage.disposeInternal(_nativeHandle)
+    FImage.destroy(_nativeHandle)
   }
 
   def getNumDevices: Option[Long] = {

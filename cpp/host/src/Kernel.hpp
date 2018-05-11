@@ -15,78 +15,79 @@
 namespace saoclib {
     using namespace aocl_utils;
 
+    // TODO CheckError with cleanup
     class Kernel {
     public:
-        Kernel(const FImage *fimage,
+        Kernel(const FImage *f_image,
+               const cl_device_id device,
                const std::string &kernel_name,
-               const std::vector<KernelArgLimit> &input_limits,
-               const KernelArgLimit output_limit,
-               const unsigned device_num = 0)
-                : fimage(fimage),
-                  kernel_name(kernel_name),
-                  input_limits(input_limits),
-                  output_limit(output_limit),
-                  device_num(device_num) {
+               const KernelArgLimit *arg_limits_raw,
+               unsigned num_args) : f_image(f_image),
+                                    device(device),
+                                    kernel_name(kernel_name),
+                                    num_args(num_args) {
             cl_int status;
-            // create command queue for device
-            queue = clCreateCommandQueue(fimage->getContext(), fimage->getDevice(device_num), CL_QUEUE_PROFILING_ENABLE,
-                                         &status);
-            checkError(status, "Failed to create command queue");
 
             // create kernel
-            kernel = clCreateKernel(fimage->getProgram(), kernel_name.c_str(), &status);
+            kernel = clCreateKernel(f_image->getProgram(), kernel_name.c_str(), &status);
             checkError(status, "Failed to create kernel");
 
-            // create a readonly buffer(which of cl_mem type) for every input
-            for (auto &limit : input_limits) {
+            // create buffer for arguments
+            this->arg_limits.reset(num_args);
+            for (unsigned i = 0; i < num_args; i++) {
+                auto limit = arg_limits_raw[i];
+                this->arg_limits[i] = limit;
+
                 if (limit.getType() == KernelArgType::AlignedBuffer) {
-                    this->input_mems.push_back(clCreateBuffer(fimage->getContext(), CL_MEM_READ_ONLY,
-                                                              limit.getElemSize() * limit.getArrayLength(), NULL,
-                                                              &status));
+                    switch (limit.getMode()) {
+                        case KernelArgMode::Input:
+                            this->arg_mems.push_back(clCreateBuffer(f_image->getEnv()->getContext(), CL_MEM_READ_ONLY,
+                                                                    limit.getElemSize() * limit.getArrayLength(), NULL,
+                                                                    &status));
+                            break;
+                        case KernelArgMode::Output:
+                            this->arg_mems.push_back(clCreateBuffer(f_image->getEnv()->getContext(), CL_MEM_WRITE_ONLY,
+                                                                    limit.getElemSize() * limit.getArrayLength(), NULL,
+                                                                    &status));
+                            break;
+                        case KernelArgMode::InputOutput:
+                            this->arg_mems.push_back(clCreateBuffer(f_image->getEnv()->getContext(), CL_MEM_READ_WRITE,
+                                                                    limit.getElemSize() * limit.getArrayLength(), NULL,
+                                                                    &status));
+                            break;
+                    }
                     checkError(status, "Failed to create buffer for input");
                 }
-            }
-
-            // create a write-only buffer for output
-            if (this->hasOutput()) {
-                output_mem = clCreateBuffer(fimage->getContext(), CL_MEM_WRITE_ONLY,
-                                            output_limit.getElemSize() * output_limit.getArrayLength(), NULL, &status);
-                checkError(status, "Failed to create buffer for input");
             }
         }
 
         virtual ~Kernel() {
+            cleanup();
+        };
+
+        virtual bool call(KernelArg **args, unsigned num_args)=0;
+
+
+        void cleanup() {
             if (kernel) {
                 clReleaseKernel(kernel);
             }
-            if (queue) {
-                clReleaseCommandQueue(queue);
-            }
-            for (auto &mem:input_mems) {
+            for (auto &mem:arg_mems) {
                 if (mem) {
                     clReleaseMemObject(mem);
                 }
             }
-        };
-
-        virtual void call(const std::vector<const KernelArg *> &inputs,
-                          KernelArg *output)=0;
-
-        bool hasOutput() {
-            return output_limit.getType() == KernelArgType::AlignedBuffer;
         }
 
     protected:
-        const FImage *fimage; /// An FPGA image instance.
+        const FImage *f_image; /// An FPGA image instance.
         std::string kernel_name; /// Name of kernel.
-        unsigned device_num; /// The device number where the kernel will running on.
+        cl_device_id device; /// The device id of the device where the kernel will running on.
         cl_kernel kernel;   /// OpenCL Kernel, need to be released in destructor.
-        cl_command_queue queue; /// Command queue.
 
-        const std::vector<KernelArgLimit> input_limits; /// Type and size limits of input array.
-        std::vector<cl_mem> input_mems;  /// Input buffer(memory object).
-        KernelArgLimit output_limit; /// Type and size limit of output.
-        cl_mem output_mem = NULL; /// Output buffer(memory object).
+        scoped_array<KernelArgLimit> arg_limits; /// Type and size limits of input array.
+        unsigned num_args;
+        std::vector<cl_mem> arg_mems;  /// Input and output buffers(memory object).
     };
 
     class NDRangeKernel : public Kernel {
@@ -95,29 +96,28 @@ namespace saoclib {
                       const size_t *global_work_size_list,
                       const size_t *local_work_size_list,
 
-                      const FImage *fimage,
+                      const FImage *f_image,
+                      const cl_device_id device,
                       const std::string &kernel_name,
-                      const std::vector<KernelArgLimit> &input_limits,
-                      const KernelArgLimit output_limit,
-                      const unsigned device_num = 0)
-                : Kernel(fimage, kernel_name, input_limits, output_limit, device_num),
+                      const KernelArgLimit *arg_limits_raw,
+                      unsigned num_args)
+                : Kernel(f_image, device, kernel_name, arg_limits_raw, num_args),
                   work_dim(work_dim),
                   global_work_size_list(global_work_size_list),
                   local_work_size_list(local_work_size_list) {
         }
 
-        void call(const std::vector<const KernelArg *> &inputs,
-                  KernelArg *output) override {
+        bool call(KernelArg **args, unsigned num_args) override {
             printf("Calling kernel '%s'\n", kernel_name.c_str());
-            size_t input_size = inputs.size();
-            // assure given input parameters meets the limits
-            assert(input_size == input_limits.size());
-            for (size_t i = 0; i < input_size; i++) {
-                auto limit = input_limits[i];
-                auto input = inputs[i];
+            cl_command_queue queue = f_image->getQueueForDevice(device);
+            // assure given parameters meets the limits
+            assert(num_args == this->num_args && "Wrong arguments count");
+            for (size_t i = 0; i < num_args; i++) {
+                auto limit = arg_limits[i];
+                auto arg = args[i];
                 printf("arg %lu: ", i);
                 limit.print();
-                assert(input->checkValid(limit));
+                assert(arg->checkValid(limit));
             }
 
             cl_int status;
@@ -126,39 +126,35 @@ namespace saoclib {
             // Transfer inputs to device. Each of the host buffers supplied to
             // clEnqueueWriteBuffer here is already aligned to ensure that DMA is used
             // for the host-to-device transfer.
-            unsigned input_mems_index = 0;
-            for (unsigned i = 0; i < input_size; i++) {
-                const KernelArg *input = inputs[i];
-                if (input->getType() == KernelArgType::AlignedBuffer) {
-                    status = clEnqueueWriteBuffer(queue, input_mems[input_mems_index], CL_FALSE,
-                                                  0, input->getSize(),
-                                                  input->getReadonlyDataPtr(), 0, NULL, NULL);
+            cl_event write_event;
+            unsigned arg_mems_index = 0;
+            for (unsigned i = 0; i < num_args; i++) {
+                const KernelArg *arg = args[i];
+                if (arg->getType() == KernelArgType::AlignedBuffer && arg->getMode() == KernelArgMode::Input) {
+                    status = clEnqueueWriteBuffer(f_image->getQueueForDevice(device), arg_mems[arg_mems_index],
+                                                  CL_FALSE, 0, arg->getSize(),
+                                                  arg->getReadonlyDataPtr(), 0, NULL, &write_event);
                     checkError(status, "Failed to transfer input %d", i);
-                    input_mems_index++;
+                    arg_mems_index++;
                 }
             }
-            // wait for queue to finish
-            clFinish(queue);
+            // wait for writing action to finish
+            clWaitForEvents(1, &write_event);
 
-            // set kernel input arguments.
-            input_mems_index = 0;
-            unsigned argi = 0;
-            for (; argi < input_size; argi++) {
-                const KernelArg *input = inputs[argi];
-                if (input->getType() == KernelArgType::AlignedBuffer) {
-                    status = clSetKernelArg(kernel, argi, sizeof(cl_mem), &input_mems[input_mems_index]);
-                    checkError(status, "Failed to set argument %d", argi);
+            // set kernel arguments.
+            arg_mems_index = 0;
+            for (unsigned i = 0; i < num_args; i++) {
+                KernelArg *arg = args[i];
+                if (arg->getType() == KernelArgType::AlignedBuffer) {
+                    status = clSetKernelArg(kernel, i, sizeof(cl_mem), &arg_mems[arg_mems_index]);
+                    checkError(status, "Failed to set argument %d", i);
+                    arg_mems_index++;
                 } else {
-                    const void *p_data = input->getReadonlyDataPtr();
-                    size_t size = input->getSize();
-                    status = clSetKernelArg(kernel, argi, size, p_data);
-                    checkError(status, "Failed to set argument %d", argi);
+                    const void *p_data = arg->getReadonlyDataPtr();
+                    size_t size = arg->getSize();
+                    status = clSetKernelArg(kernel, i, size, p_data);
+                    checkError(status, "Failed to set argument %d", i);
                 }
-            }
-            // set kernel output argument
-            if (hasOutput()) {
-                status = clSetKernelArg(kernel, argi, sizeof(cl_mem), &output_mem);
-                checkError(status, "Failed to set argument %d", argi);
             }
 
             // Enqueue kernel.
@@ -167,26 +163,40 @@ namespace saoclib {
                                             global_work_size_list, local_work_size_list, 0,
                                             NULL, &kernel_event);
             checkError(status, "Failed to launch kernel");
-
-            // Read the result. This the final operation.
-            if (hasOutput()) {
-                status = clEnqueueReadBuffer(queue, output_mem, CL_FALSE,
-                                             0, output->getSize(), output->getWriteableDataPtr(),
-                                             0, NULL, &kernel_event);
-            }
             // Wait for kernel to finish.
             clWaitForEvents(1, &kernel_event);
 
-            const double end_time = getCurrentTimestamp();
+            // Read the result. This the final operation.
+            scoped_array<cl_event> read_events(num_args);
+            unsigned num_read_events = 0;
+            arg_mems_index = 0;
+            for (unsigned i = 0; i < num_args; i++) {
+                KernelArg *arg = args[i];
+                if (arg->getType() == KernelArgType::AlignedBuffer) {
+                    if (arg->getMode() == KernelArgMode::Output) {
+                        status = clEnqueueReadBuffer(queue, arg_mems[arg_mems_index], CL_FALSE,
+                                                     0, arg_limits[i].getSize(), arg->getWriteableDataPtr(),
+                                                     0, NULL, &read_events[num_read_events]);
+                        num_read_events++;
+                    }
+                    arg_mems_index++;
+                }
+            }
+            clWaitForEvents(num_read_events, read_events.get());
 
+            const double end_time = getCurrentTimestamp();
             // Wall-clock time taken.
             printf("\nTime: %0.3f ms\n", (end_time - start_time) * 1e3);
 
             // Get kernel times using the OpenCL event profiling API.
             cl_ulong time_ns = getStartEndTime(kernel_event);
-            printf("Kernel time (device %d): %0.3f ms\n", device_num, double(time_ns) * 1e-6);
+            printf("Kernel time (device %p): %0.3f ms\n", device, double(time_ns) * 1e-6);
 
             // Release all events.
+            for (unsigned i = 0; i < num_read_events; i++) {
+                clReleaseEvent(read_events[i]);
+            }
+            clReleaseEvent(write_event);
             clReleaseEvent(kernel_event);
         }
 

@@ -35,9 +35,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../bin)
 
 # target executable
-# add_executable(host ${srcs})
-
 add_executable(matrix_mult.exe host/test/matrix_mult.cpp ${utils} ${srcs})
 add_executable(vector_add.exe host/test/vector_add.cpp ${utils} ${srcs})
 
+# target dynamic library
 add_library(saoclib SHARED ${api} ${utils} ${srcs})

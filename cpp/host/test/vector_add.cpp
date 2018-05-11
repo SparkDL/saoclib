@@ -16,40 +16,45 @@ void cleanup() {};
 // Entry point.
 int main(int argc, char **argv) {
     /* assign the size of vector */
-    size_t N = 100000;
+    const size_t N = 100000;
+    const unsigned num_args = 3;
 
     /* prepare raw data */
     scoped_aligned_ptr<float> a(N), b(N), c(N);
     for (unsigned i = 0; i < N; i++) {
         a[i] = 3.14;
-    }
-    for (unsigned i = 0; i < N; i++) {
         b[i] = 3.14;
     }
 
     /* wrap the raw data to KernelArg objects */
-    AlignedBuffer<float> A_data{&a, N};
-    AlignedBuffer<float> B_data{&b, N};
-    AlignedBuffer<float> C_data{&c, N};
-    std::vector<const KernelArg *> args{&A_data, &B_data};
+    FloatBuffer A_data = FloatBuffer::Input(&a, N);
+    FloatBuffer B_data = FloatBuffer::Input(&b, N);
+    FloatBuffer C_data = FloatBuffer::Output(&c, N);
+    KernelArg *args[num_args] = {&A_data, &B_data, &C_data};
 
     /* set inputs and output limits */
-    std::vector<KernelArgLimit> input_limits = {KernelArgLimit::AlignedBufferLimit<float>(N),
-                                                KernelArgLimit::AlignedBufferLimit<float>(N)};
-    KernelArgLimit output_limit = KernelArgLimit::AlignedBufferLimit<float>(N);
-
+    KernelArgLimit arg_limits[num_args] = {KernelArgLimit::AlignedBufferInput<float>(N),
+                                    KernelArgLimit::AlignedBufferInput<float>(N),
+                                    KernelArgLimit::AlignedBufferOutput<float>(N)};
     /* init an FPGA image */
-    FImage image("vector_add");
-    image.init_opencl();
-    image.load_image();
-    /* init the kernel */
-    size_t *global_work_size = &N;
-    size_t *local_work_size = NULL;
-    NDRangeKernel kernel(1, global_work_size, local_work_size,
-                         &image, "vector_add", input_limits, output_limit);
-    /* call kernel with inputs and output */
-    kernel.call(args, &C_data);
+    FEnv env;
+    env.init_opencl();
 
+    FImage image(&env, "vector_add");
+    auto device = env.getDeviceId(0);
+    image.deploy_image(&device, 1);
+
+    /* init the kernel */
+    size_t global_work_size[1] = {N};
+    NDRangeKernel kernel(1, global_work_size, NULL,
+                         &image, device, "vector_add", arg_limits, num_args);
+    /* call kernel with inputs and output */
+    kernel.call(args, num_args);
+
+    /* print results */
+    for (unsigned i = 0; i < N; i++) {
+        printf("%f,", c[i]);
+    }
     /* print results */
     for (unsigned i = 0; i < N; i++) {
         printf("%f,", c[i]);

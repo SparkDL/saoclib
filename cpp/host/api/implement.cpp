@@ -30,7 +30,7 @@ JNIEXPORT jboolean JNICALL Java_com_pzque_sparkdl_saoclib_FImage_00024_initOpenC
     return result ? JNI_TRUE : JNI_FALSE;
 }
 
-JNIEXPORT void JNICALL Java_com_pzque_sparkdl_saoclib_FImage_00024_disposeInternal
+JNIEXPORT void JNICALL Java_com_pzque_sparkdl_saoclib_FImage_00024_destroy
         (JNIEnv *env, jobject obj, jlong ptr) {
     delete (saoclib::FImage *) ptr;
 }

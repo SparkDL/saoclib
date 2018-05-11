@@ -33,10 +33,10 @@ JNIEXPORT jboolean JNICALL Java_com_pzque_sparkdl_saoclib_FImage_00024_initOpenC
 
 /*
  * Class:     com_pzque_sparkdl_saoclib_FImage__
- * Method:    disposeInternal
+ * Method:    destroy
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_pzque_sparkdl_saoclib_FImage_00024_disposeInternal
+JNIEXPORT void JNICALL Java_com_pzque_sparkdl_saoclib_FImage_00024_destroy
   (JNIEnv *, jobject, jlong);
 
 #ifdef __cplusplus
