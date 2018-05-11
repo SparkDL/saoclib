@@ -7,6 +7,7 @@ object App {
 
     val env = new FEnv()
     env.initOpenCL()
+
     val image = new FImage(env.getNativeHandler, "/home/pcz/Projects/saoclib/bin/matrix_mult")
     val device = env.getDeviceId(0).get
     val devices = Array(device)
