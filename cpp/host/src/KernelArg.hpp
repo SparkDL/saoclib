@@ -178,14 +178,15 @@ namespace saoclib {
     };
 
 
-    typedef Primitive<char> Char;
-    typedef Primitive<int> Int;
-    typedef Primitive<unsigned> Unsigned;
-    typedef Primitive<float> Float;
+    typedef Primitive<char> ArgChar;
+    typedef Primitive<int> ArgInt;
+    typedef Primitive<unsigned> ArgUnsigned;
+    typedef Primitive<float> ArgFloat;
+    typedef Primitive<double> ArgDouble;
 
-    typedef AlignedBuffer<char> CharBuffer;
-    typedef AlignedBuffer<int> IntBuffer;
-    typedef AlignedBuffer<unsigned> UnsignedBuffer;
-    typedef AlignedBuffer<float> FloatBuffer;
+    typedef AlignedBuffer<char> ArgCharBuffer;
+    typedef AlignedBuffer<int> ArgIntBuffer;
+    typedef AlignedBuffer<unsigned> ArgUnsignedBuffer;
+    typedef AlignedBuffer<float> ArgFloatBuffer;
 }
 #endif //SAOCLIB_CPP_KERNEL_ARG_H

@@ -70,11 +70,11 @@ int main(int argc, char **argv) {
         b[i] = 3.14;
     }
     /* wrap the raw data to KernelArg objects */
-    Int A_width_data = Int::Input(A_width);
-    Int B_width_data = Int::Input(B_width);
-    FloatBuffer A_data = FloatBuffer::Input(&a, A_size);
-    FloatBuffer B_data = FloatBuffer::Input(&b, B_size);
-    FloatBuffer C_data = FloatBuffer::Output(&c, C_size);
+    ArgInt A_width_data = ArgInt::Input(A_width);
+    ArgInt B_width_data = ArgInt::Input(B_width);
+    ArgFloatBuffer A_data = ArgFloatBuffer::Input(&a, A_size);
+    ArgFloatBuffer B_data = ArgFloatBuffer::Input(&b, B_size);
+    ArgFloatBuffer C_data = ArgFloatBuffer::Output(&c, C_size);
     KernelArg *args[5] = {&A_width_data, &B_width_data, &A_data, &B_data, &C_data};
 
     /* set inputs and output limits */
@@ -85,10 +85,10 @@ int main(int argc, char **argv) {
                                     KernelArgLimit::AlignedBufferOutput<float>(C_size)};
 
     /* init an FPGA image */
-    FEnv env;
+    ClEnv env;
     env.init_opencl();
 
-    FImage image(&env, "matrix_mult");
+    ClImage image(&env, "matrix_mult");
     auto device = env.getDeviceId(0);
     image.deploy_image(&device, 1);
 

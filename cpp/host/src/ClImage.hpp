@@ -10,7 +10,7 @@
 #include <iostream>
 #include <map>
 #include "AOCLUtils/aocl_utils.h"
-#include "FEnv.hpp"
+#include "ClEnv.hpp"
 
 namespace saoclib {
     using namespace aocl_utils;
@@ -19,12 +19,12 @@ namespace saoclib {
      * @note we assume all devices are of the same type
      */
     // TODO CheckError with cleanup
-    class FImage {
+    class ClImage {
     public:
-        FImage(const FEnv *f_env, const std::string &image_path)
+        ClImage(const ClEnv *f_env, const std::string &image_path)
                 : f_env(f_env), image_path(image_path) {}
 
-        ~FImage() {
+        ~ClImage() {
             cleanup();
         }
 
@@ -81,7 +81,7 @@ namespace saoclib {
             return NULL;
         }
 
-        const FEnv *getEnv() const {
+        const ClEnv *getEnv() const {
             return f_env;
         }
 
@@ -119,7 +119,7 @@ namespace saoclib {
         }
 
     private:
-        const FEnv *f_env = NULL;
+        const ClEnv *f_env = NULL;
         const std::string image_path;                  /// image path: xxx.aocx
         cl_program program = NULL;                     /// opencl program
 

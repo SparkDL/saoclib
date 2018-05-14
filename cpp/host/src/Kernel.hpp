@@ -8,7 +8,7 @@
 #include <vector>
 #include <cassert>
 #include "AOCLUtils/aocl_utils.h"
-#include "FImage.hpp"
+#include "ClImage.hpp"
 #include "KernelArg.hpp"
 
 
@@ -18,7 +18,7 @@ namespace saoclib {
     // TODO CheckError with cleanup
     class Kernel {
     public:
-        Kernel(const FImage *f_image,
+        Kernel(const ClImage *f_image,
                const cl_device_id device,
                const std::string &kernel_name,
                const KernelArgLimit *arg_limits_raw,
@@ -80,7 +80,7 @@ namespace saoclib {
         }
 
     protected:
-        const FImage *f_image; /// An FPGA image instance.
+        const ClImage *f_image; /// An FPGA image instance.
         std::string kernel_name; /// Name of kernel.
         cl_device_id device; /// The device id of the device where the kernel will running on.
         cl_kernel kernel;   /// OpenCL Kernel, need to be released in destructor.
@@ -96,7 +96,7 @@ namespace saoclib {
                       const size_t *global_work_size_list,
                       const size_t *local_work_size_list,
 
-                      const FImage *f_image,
+                      const ClImage *f_image,
                       const cl_device_id device,
                       const std::string &kernel_name,
                       const KernelArgLimit *arg_limits_raw,
@@ -177,6 +177,7 @@ namespace saoclib {
                         status = clEnqueueReadBuffer(queue, arg_mems[arg_mems_index], CL_FALSE,
                                                      0, arg_limits[i].getSize(), arg->getWriteableDataPtr(),
                                                      0, NULL, &read_events[num_read_events]);
+                        checkError(status, "Failed to read buffer for output");
                         num_read_events++;
                     }
                     arg_mems_index++;

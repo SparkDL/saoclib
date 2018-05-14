@@ -2,8 +2,8 @@
 // Created by pcz on 18-4-18.
 //
 
-#ifndef SAOCLIB_CPP_FCONTEXT_HPP
-#define SAOCLIB_CPP_FCONTEXT_HPP
+#ifndef SAOCLIB_CPP_CLENV_HPP
+#define SAOCLIB_CPP_CLENV_HPP
 
 #include "AOCLUtils/aocl_utils.h"
 
@@ -11,11 +11,11 @@ namespace saoclib {
     using namespace aocl_utils;
 
     // TODO CheckError with cleanup
-    class FEnv {
+    class ClEnv {
     public:
-        FEnv() = default;
+        ClEnv() = default;
 
-        ~FEnv() {
+        ~ClEnv() {
             cleanup();
         }
 
@@ -102,4 +102,4 @@ namespace saoclib {
         unsigned num_devices = 0;                      /// the number of devices connected in PCIE slots
     };
 }
-#endif //SAOCLIB_CPP_FCONTEXT_HPP
+#endif //SAOCLIB_CPP_CLENV_HPP

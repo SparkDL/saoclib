@@ -27,20 +27,20 @@ int main(int argc, char **argv) {
     }
 
     /* wrap the raw data to KernelArg objects */
-    FloatBuffer A_data = FloatBuffer::Input(&a, N);
-    FloatBuffer B_data = FloatBuffer::Input(&b, N);
-    FloatBuffer C_data = FloatBuffer::Output(&c, N);
+    ArgFloatBuffer A_data = ArgFloatBuffer::Input(&a, N);
+    ArgFloatBuffer B_data = ArgFloatBuffer::Input(&b, N);
+    ArgFloatBuffer C_data = ArgFloatBuffer::Output(&c, N);
     KernelArg *args[num_args] = {&A_data, &B_data, &C_data};
 
     /* set inputs and output limits */
     KernelArgLimit arg_limits[num_args] = {KernelArgLimit::AlignedBufferInput<float>(N),
-                                    KernelArgLimit::AlignedBufferInput<float>(N),
-                                    KernelArgLimit::AlignedBufferOutput<float>(N)};
+                                           KernelArgLimit::AlignedBufferInput<float>(N),
+                                           KernelArgLimit::AlignedBufferOutput<float>(N)};
     /* init an FPGA image */
-    FEnv env;
+    ClEnv env;
     env.init_opencl();
 
-    FImage image(&env, "vector_add");
+    ClImage image(&env, "vector_add");
     auto device = env.getDeviceId(0);
     image.deploy_image(&device, 1);
 
@@ -55,6 +55,10 @@ int main(int argc, char **argv) {
     for (unsigned i = 0; i < N; i++) {
         printf("%f,", c[i]);
     }
+
+    /* test for multi calls */
+    printf("call kernel of 2 times:\n");
+    kernel.call(args,num_args);
     /* print results */
     for (unsigned i = 0; i < N; i++) {
         printf("%f,", c[i]);

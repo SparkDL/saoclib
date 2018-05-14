@@ -1,6 +1,6 @@
 package com.pzque.sparkdl.saoclib
 
-object FEnv {
+object ClEnv {
   @native protected def newInstance(): Long
 
   @native protected def destroyInstance(handle: Long): Unit
@@ -14,37 +14,37 @@ object FEnv {
   @native def getDeviceId(handle: Long, index: Int): Long
 }
 
-class FEnv extends NativeBackendObject {
-  _nativeHandle = FEnv.newInstance()
+class ClEnv extends NativeBackendObject {
+  _nativeHandle = ClEnv.newInstance()
 
   override protected def destroy(): Unit = {
-    FEnv.destroyInstance(_nativeHandle)
+    ClEnv.destroyInstance(_nativeHandle)
   }
 
   def initOpenCL(): Option[Boolean] = {
     if (isValid) {
-      return Some(FEnv.initOpenCL(_nativeHandle))
+      return Some(ClEnv.initOpenCL(_nativeHandle))
     }
     None
   }
 
   def getNumDevices: Option[Long] = {
     if (isValid) {
-      return Some(FEnv.getNumDevices(_nativeHandle))
+      return Some(ClEnv.getNumDevices(_nativeHandle))
     }
     None
   }
 
   def getDeviceIdList: Option[Array[Long]] = {
     if (isValid) {
-      return Some(FEnv.getDeviceIdList(_nativeHandle))
+      return Some(ClEnv.getDeviceIdList(_nativeHandle))
     }
     None
   }
 
   def getDeviceId(index: Int): Option[Long] = {
     if (isValid) {
-      return Some(FEnv.getDeviceId(_nativeHandle, index))
+      return Some(ClEnv.getDeviceId(_nativeHandle, index))
     }
     None
   }
