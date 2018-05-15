@@ -40,17 +40,17 @@ namespace saoclib {
 
                 if (limit.getType() == KernelArgType::AlignedBuffer) {
                     switch (limit.getMode()) {
-                        case KernelArgMode::Input:
+                        case KernelArgMode::mode_input:
                             this->arg_mems.push_back(clCreateBuffer(f_image->getEnv()->getContext(), CL_MEM_READ_ONLY,
                                                                     limit.getElemSize() * limit.getArrayLength(), NULL,
                                                                     &status));
                             break;
-                        case KernelArgMode::Output:
+                        case KernelArgMode::mode_output:
                             this->arg_mems.push_back(clCreateBuffer(f_image->getEnv()->getContext(), CL_MEM_WRITE_ONLY,
                                                                     limit.getElemSize() * limit.getArrayLength(), NULL,
                                                                     &status));
                             break;
-                        case KernelArgMode::InputOutput:
+                        case KernelArgMode::mode_input_output:
                             this->arg_mems.push_back(clCreateBuffer(f_image->getEnv()->getContext(), CL_MEM_READ_WRITE,
                                                                     limit.getElemSize() * limit.getArrayLength(), NULL,
                                                                     &status));
@@ -130,7 +130,7 @@ namespace saoclib {
             unsigned arg_mems_index = 0;
             for (unsigned i = 0; i < num_args; i++) {
                 const KernelArg *arg = args[i];
-                if (arg->getType() == KernelArgType::AlignedBuffer && arg->getMode() == KernelArgMode::Input) {
+                if (arg->getType() == KernelArgType::AlignedBuffer && arg->getMode() == KernelArgMode::mode_input) {
                     status = clEnqueueWriteBuffer(f_image->getQueueForDevice(device), arg_mems[arg_mems_index],
                                                   CL_FALSE, 0, arg->getSize(),
                                                   arg->getReadonlyDataPtr(), 0, NULL, &write_event);
@@ -173,7 +173,7 @@ namespace saoclib {
             for (unsigned i = 0; i < num_args; i++) {
                 KernelArg *arg = args[i];
                 if (arg->getType() == KernelArgType::AlignedBuffer) {
-                    if (arg->getMode() == KernelArgMode::Output) {
+                    if (arg->getMode() == KernelArgMode::mode_output) {
                         status = clEnqueueReadBuffer(queue, arg_mems[arg_mems_index], CL_FALSE,
                                                      0, arg_limits[i].getSize(), arg->getWriteableDataPtr(),
                                                      0, NULL, &read_events[num_read_events]);

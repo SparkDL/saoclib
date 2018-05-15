@@ -50,7 +50,7 @@ namespace saoclib {
 
     class Void : public KernelArg {
     public:
-        Void() : KernelArg(KernelArgMode::Output) {}
+        Void() : KernelArg(KernelArgMode::mode_output) {}
 
         KernelArgType getType() const override {
             return KernelArgType::Void;
@@ -85,11 +85,11 @@ namespace saoclib {
     class Primitive : public KernelArg {
     public:
         static Primitive Input(T data) {
-            return {KernelArgMode::Input, data};
+            return {KernelArgMode::mode_input, data};
         }
 
         static Primitive Output(T data) {
-            return {KernelArgMode::Output, data};
+            return {KernelArgMode::mode_output, data};
         }
 
         KernelArgType getType() const override {
@@ -131,11 +131,11 @@ namespace saoclib {
     class AlignedBuffer : public KernelArg {
     public:
         static AlignedBuffer Input(const scoped_aligned_ptr<T> *data_container, size_t array_length) {
-            return {KernelArgMode::Input, data_container, array_length};
+            return {KernelArgMode::mode_input, data_container, array_length};
         }
 
         static AlignedBuffer Output(const scoped_aligned_ptr<T> *data_container, size_t array_length) {
-            return {KernelArgMode::Output, data_container, array_length};
+            return {KernelArgMode::mode_output, data_container, array_length};
         }
 
         KernelArgType getType() const override {

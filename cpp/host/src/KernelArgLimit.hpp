@@ -5,10 +5,10 @@
 #ifndef SAOCLIB_CPP_KERNELARGLIMIT_HPP
 #define SAOCLIB_CPP_KERNELARGLIMIT_HPP
 namespace saoclib {
-    enum class KernelArgMode {
-        Input = 0,
-        Output = 1,
-        InputOutput = 2
+    enum class KernelArgMode : long {
+        mode_input = 0,
+        mode_output = 1,
+        mode_input_output = 2
     };
 
     enum class KernelArgType {
@@ -61,13 +61,13 @@ namespace saoclib {
         void print() {
             const char *mode = NULL;
             switch (getMode()) {
-                case KernelArgMode::Input:
+                case KernelArgMode::mode_input:
                     mode = "input";
                     break;
-                case KernelArgMode::Output:
+                case KernelArgMode::mode_output:
                     mode = "output";
                     break;
-                case KernelArgMode::InputOutput:
+                case KernelArgMode::mode_input_output:
                     mode = "input+output";
             }
             switch (getType()) {
@@ -86,29 +86,52 @@ namespace saoclib {
 
     class KernelArgLimit : public KernelArgQuery {
     public:
-        template<class T>
-        inline static KernelArgLimit PrimitiveInput() {
-            return {KernelArgMode::Input, KernelArgType::Primitive, sizeof(T), 0};
+        inline static KernelArgLimit Void(KernelArgMode mode) {
+            return {mode, KernelArgType::Void, 0, 0};
         }
 
-        template<class T>
-        inline static KernelArgLimit AlignedBufferInput(size_t array_length) {
-            return {KernelArgMode::Input, KernelArgType::AlignedBuffer, sizeof(T), array_length};
+        inline static KernelArgLimit VoidInput() {
+            return {KernelArgMode::mode_input, KernelArgType::Void, 0, 0};
         }
 
         inline static KernelArgLimit VoidOutput() {
-            return {KernelArgMode::Output, KernelArgType::Void, 0, 0};
+            return {KernelArgMode::mode_output, KernelArgType::Void, 0, 0};
+        }
+
+        template<class T>
+        inline static KernelArgLimit Primitive(KernelArgMode mode) {
+            return {mode, KernelArgType::Primitive, sizeof(T), 0};
+        }
+
+        template<class T>
+        inline static KernelArgLimit PrimitiveInput() {
+            return {KernelArgMode::mode_input, KernelArgType::Primitive, sizeof(T), 0};
         }
 
         template<class T>
         inline static KernelArgLimit PrimitiveOutput() {
-            return {KernelArgMode::Output, KernelArgType::Primitive, sizeof(T), 0};
+            return {KernelArgMode::mode_output, KernelArgType::Primitive, sizeof(T), 0};
+        }
+
+        inline static KernelArgLimit AlignedBuffer(KernelArgMode mode, size_t elem_size, size_t array_length) {
+            return {mode, KernelArgType::AlignedBuffer, elem_size, array_length};
+        }
+
+        template<class T>
+        inline static KernelArgLimit AlignedBuffer(KernelArgMode mode, size_t array_length) {
+            return {mode, KernelArgType::AlignedBuffer, sizeof(T), array_length};
+        }
+
+        template<class T>
+        inline static KernelArgLimit AlignedBufferInput(size_t array_length) {
+            return {KernelArgMode::mode_input, KernelArgType::AlignedBuffer, sizeof(T), array_length};
         }
 
         template<class T>
         inline static KernelArgLimit AlignedBufferOutput(size_t array_length) {
-            return {KernelArgMode::Output, KernelArgType::AlignedBuffer, sizeof(T), array_length};
+            return {KernelArgMode::mode_output, KernelArgType::AlignedBuffer, sizeof(T), array_length};
         }
+
 
         KernelArgLimit() = default;
 
@@ -140,6 +163,9 @@ namespace saoclib {
             return array_length;
         }
 
+        KernelArgLimit(const KernelArgLimit &) = default;
+
+    private:
         KernelArgLimit(KernelArgMode mode, KernelArgType type,
                        size_t elem_size, size_t array_length)
                 : mode(mode),
@@ -147,10 +173,7 @@ namespace saoclib {
                   elem_size(elem_size),
                   array_length(array_length) {}
 
-        KernelArgLimit(const KernelArgLimit &) = default;
-
-    private:
-        KernelArgMode mode = KernelArgMode::Input;
+        KernelArgMode mode = KernelArgMode::mode_input;
         KernelArgType type = KernelArgType::Void;
         size_t elem_size = 0;
         size_t array_length = 0;

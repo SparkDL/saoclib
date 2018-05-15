@@ -1,18 +1,7 @@
 package com.pzque.sparkdl.saoclib
 
-object ClEnv {
-  @native protected def newInstance(): Long
+import nativeapi.ClEnv
 
-  @native protected def destroyInstance(handle: Long): Unit
-
-  @native def initOpenCL(handle: Long): Boolean
-
-  @native def getNumDevices(handle: Long): Long
-
-  @native def getDeviceIdList(handle: Long): Array[Long]
-
-  @native def getDeviceId(handle: Long, index: Int): Long
-}
 
 class ClEnv extends NativeBackendObject {
   _nativeHandle = ClEnv.newInstance()

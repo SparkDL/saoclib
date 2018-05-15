@@ -1,12 +1,6 @@
 package com.pzque.sparkdl.saoclib
 
-object ClImage {
-  @native protected def newInstance(handle: Long, imagePath: String): Long
-
-  @native protected def destroyInstance(handle: Long): Unit
-
-  @native protected def deployImage(handle: Long, devices: Array[Long]): Boolean
-}
+import nativeapi.ClImage
 
 class ClImage(pFEnv: Long, imagePath: String) extends NativeBackendObject {
   _nativeHandle = ClImage.newInstance(pFEnv, imagePath)

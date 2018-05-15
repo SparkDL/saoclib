@@ -2,16 +2,16 @@
 // Created by pcz on 18-5-11.
 //
 
-#include "com_pzque_sparkdl_saoclib_ClImage__.h"
+#include "com_pzque_sparkdl_saoclib_nativeapi_ClImage__.h"
 #include "../src/ClImage.hpp"
 
 using namespace saoclib;
 /*
- * Class:     com_pzque_sparkdl_saoclib_ClImage__
+ * Class:     com_pzque_sparkdl_saoclib_nativeapi_ClImage__
  * Method:    newInstance
  * Signature: (Ljava/lang/String;)J
  */
-JNIEXPORT jlong JNICALL Java_com_pzque_sparkdl_saoclib_ClImage_00024_newInstance
+JNIEXPORT jlong JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_ClImage_00024_newInstance
         (JNIEnv *env, jobject obj, jlong p_env, jstring jname) {
     auto *cl_env = reinterpret_cast<ClEnv *>(p_env);
     const char *name_chars = env->GetStringUTFChars(jname, NULL);
@@ -21,21 +21,21 @@ JNIEXPORT jlong JNICALL Java_com_pzque_sparkdl_saoclib_ClImage_00024_newInstance
 }
 
 /*
- * Class:     com_pzque_sparkdl_saoclib_ClImage__
+ * Class:     com_pzque_sparkdl_saoclib_nativeapi_ClImage__
  * Method:    destroyInstance
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_pzque_sparkdl_saoclib_ClImage_00024_destroyInstance
+JNIEXPORT void JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_ClImage_00024_destroyInstance
         (JNIEnv *env, jobject obj, jlong p_image) {
     delete reinterpret_cast<ClImage *>(p_image);
 }
 
 /*
- * Class:     com_pzque_sparkdl_saoclib_ClImage__
+ * Class:     com_pzque_sparkdl_saoclib_nativeapi_ClImage__
  * Method:    deployImage
  * Signature: (J[J)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_pzque_sparkdl_saoclib_ClImage_00024_deployImage
+JNIEXPORT jboolean JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_ClImage_00024_deployImage
         (JNIEnv *env, jobject obj, jlong p_image, jlongArray jdevices) {
     ClImage *image = reinterpret_cast<ClImage *>(p_image);
     auto num_devices = env->GetArrayLength(jdevices);

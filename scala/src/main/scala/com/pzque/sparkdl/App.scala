@@ -1,9 +1,15 @@
 import com.pzque.sparkdl.saoclib._
+import com.pzque.sparkdl.saoclib.nativeapi.NDRangeKernel
 
 object App {
   def main(args: Array[String]): Unit = {
-    test()
-    testCL()
+    System.loadLibrary("saoclib")
+    val limits: Array[KernelArgLimit] = Array(
+      limit(c_array(c_int, 10), mode_input),
+      limit(c_array(c_int, 10), mode_input),
+      limit(c_array(c_int, 10), mode_output)
+    )
+    NDRangeKernel.newInstance(1, Array(1), Array(1), 0, 0, "void", limits)
   }
 
   def test(): Unit = {
@@ -38,7 +44,7 @@ object App {
 
     val env = new ClEnv()
     env.initOpenCL()
-    val image = new ClImage(env.getNativeHandler, "/home/pcz/Projects/saoclib/bin/matrix_mult")
+    val image = new ClImage(env.getNativeHandle, "/home/pcz/Projects/saoclib/bin/matrix_mult")
     val device = env.getDeviceId(0).get
     val devices = Array(device)
     image.deployImage(devices)
