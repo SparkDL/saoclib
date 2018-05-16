@@ -4,12 +4,7 @@ import com.pzque.sparkdl.saoclib.nativeapi.NDRangeKernel
 object App {
   def main(args: Array[String]): Unit = {
     System.loadLibrary("saoclib")
-    val limits: Array[KernelArgLimit] = Array(
-      limit(c_array(c_int, 10), mode_input),
-      limit(c_array(c_int, 10), mode_input),
-      limit(c_array(c_int, 10), mode_output)
-    )
-    NDRangeKernel.newInstance(1, Array(1), Array(1), 0, 0, "void", limits)
+    testCL();
   }
 
   def test(): Unit = {
@@ -44,10 +39,30 @@ object App {
 
     val env = new ClEnv()
     env.initOpenCL()
-    val image = new ClImage(env.getNativeHandle, "/home/pcz/Projects/saoclib/bin/matrix_mult")
-    val device = env.getDeviceId(0).get
-    val devices = Array(device)
-    image.deployImage(devices)
+    val image = new ClImage(env.getNativeHandle,
+      "/home/pcz/Projects/saoclib/bin/vector_add")
+
+    val device_handle = env.getDeviceId(0).get
+    val device_handle_list = Array(device_handle)
+    image.deployImage(device_handle_list)
+
+    val N = 100
+
+    val limits: Array[KernelArgLimit] = Array(
+      limit(c_array(c_int, N), mode_input),
+      limit(c_array(c_int, N), mode_input),
+      limit(c_array(c_int, N), mode_output)
+    )
+
+    val kernel = new NDRangeKernel(
+      work_dim = 1,
+      global_work_size_list = Array(N),
+      local_work_size_list = null,
+      cl_image = image,
+      device_handle = device_handle,
+      kernel_name = "vector_add",
+      arg_limits = limits
+    )
   }
 
 

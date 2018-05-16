@@ -93,6 +93,30 @@ namespace saoclib {
     class NDRangeKernel : public Kernel {
     public:
         NDRangeKernel(cl_uint work_dim,
+                      const long *global_work_size_list,
+                      const long *local_work_size_list,
+
+                      const ClImage *f_image,
+                      const cl_device_id device,
+                      const std::string &kernel_name,
+                      const KernelArgLimit *arg_limits_raw,
+                      unsigned num_args)
+                : Kernel(f_image, device, kernel_name, arg_limits_raw, num_args),
+                  work_dim(work_dim) {
+            this->global_work_size_list.reset(work_dim);
+            for (unsigned i = 0; i < work_dim; i++) {
+                this->global_work_size_list[i] = global_work_size_list[i];
+            }
+
+            if (local_work_size_list != NULL) {
+                this->local_work_size_list.reset(work_dim);
+                for (unsigned i = 0; i < work_dim; i++) {
+                    this->local_work_size_list[i] = local_work_size_list[i];
+                }
+            }
+        }
+
+        NDRangeKernel(cl_uint work_dim,
                       const size_t *global_work_size_list,
                       const size_t *local_work_size_list,
 
@@ -102,9 +126,18 @@ namespace saoclib {
                       const KernelArgLimit *arg_limits_raw,
                       unsigned num_args)
                 : Kernel(f_image, device, kernel_name, arg_limits_raw, num_args),
-                  work_dim(work_dim),
-                  global_work_size_list(global_work_size_list),
-                  local_work_size_list(local_work_size_list) {
+                  work_dim(work_dim) {
+            this->global_work_size_list.reset(work_dim);
+            for (unsigned i = 0; i < work_dim; i++) {
+                this->global_work_size_list[i] = global_work_size_list[i];
+            }
+
+            if (local_work_size_list != NULL) {
+                this->local_work_size_list.reset(work_dim);
+                for (unsigned i = 0; i < work_dim; i++) {
+                    this->local_work_size_list[i] = local_work_size_list[i];
+                }
+            }
         }
 
         bool call(KernelArg **args, unsigned num_args) override {
@@ -160,7 +193,7 @@ namespace saoclib {
             // Enqueue kernel.
             cl_event kernel_event;
             status = clEnqueueNDRangeKernel(queue, kernel, work_dim, NULL,
-                                            global_work_size_list, local_work_size_list, 0,
+                                            global_work_size_list.get(), local_work_size_list.get(), 0,
                                             NULL, &kernel_event);
             checkError(status, "Failed to launch kernel");
             // Wait for kernel to finish.
@@ -203,8 +236,8 @@ namespace saoclib {
 
     protected:
         cl_uint work_dim;
-        const size_t *global_work_size_list; /// work_dim elements
-        const size_t *local_work_size_list; /// work_dim elements
+        scoped_array<size_t> global_work_size_list; /// work_dim elements
+        scoped_array<size_t> local_work_size_list; /// work_dim elements
     };
 
 

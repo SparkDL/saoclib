@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     com_pzque_sparkdl_saoclib_nativeapi_NDRangeKernel__
  * Method:    newInstance
- * Signature: (I[I[IJJLjava/lang/String;[Ljava/lang/Object;)J
+ * Signature: (I[J[JJJLjava/lang/String;[Ljava/lang/Object;)J
  */
 JNIEXPORT jlong JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_NDRangeKernel_00024_newInstance
-  (JNIEnv *, jobject, jint, jintArray, jintArray, jlong, jlong, jstring, jobjectArray);
+  (JNIEnv *, jobject, jint, jlongArray, jlongArray, jlong, jlong, jstring, jobjectArray);
 
 /*
  * Class:     com_pzque_sparkdl_saoclib_nativeapi_NDRangeKernel__
@@ -30,14 +30,6 @@ JNIEXPORT void JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_NDRangeKernel_00
  */
 JNIEXPORT void JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_NDRangeKernel_00024_call
   (JNIEnv *, jobject, jlong, jobjectArray);
-
-/*
- * Class:     com_pzque_sparkdl_saoclib_nativeapi_NDRangeKernel__
- * Method:    test_get_type_id
- * Signature: (Ljava/lang/Object;)J
- */
-JNIEXPORT jlong JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_NDRangeKernel_00024_test_1get_1type_1id
-  (JNIEnv *, jobject, jobject);
 
 #ifdef __cplusplus
 }

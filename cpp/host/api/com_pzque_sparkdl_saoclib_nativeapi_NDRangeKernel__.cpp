@@ -55,34 +55,76 @@ KernelArgLimit makeArgLimit(JNIEnv *env, jobject arg_limit_jobject) {
 
 /*
  * Class:     com_pzque_sparkdl_saoclib_nativeapi_NDRangeKernel__
- * Method:    test_get_type_id
- * Signature: (Ljava/lang/Object;)J
- */
-JNIEXPORT jlong JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_NDRangeKernel_00024_test_1get_1type_1id
-        (JNIEnv *env, jobject jobj, jobject obj) {
-    return 0;
-}
-/*
- * Class:     com_pzque_sparkdl_saoclib_nativeapi_NDRangeKernel__
  * Method:    newInstance
  * Signature: (I[I[IJJLjava/lang/String;[Ljava/lang/Object;)J
  */
 // TODO: to complete the kernel construction
 JNIEXPORT jlong JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_NDRangeKernel_00024_newInstance
-        (JNIEnv *env, jobject obj,
-         jint work_dim, jintArray global_work_size, jintArray local_work_size,
-         jlong image_handle, jlong device_handle,
-         jstring kernel_name, jobjectArray arg_limits_jarray) {
-    jsize n = env->GetArrayLength(arg_limits_jarray);
-    scoped_array<KernelArgLimit> arg_limits(n);
-    for (jsize i = 0; i < n; i++) {
+        (JNIEnv *env,
+         jobject obj,
+         jint work_dim,
+         jlongArray global_work_size_list_jarray,
+         jlongArray local_work_size_list_jarray,
+         jlong image_handle,
+         jlong device_handle,
+         jstring kernel_name_jstring,
+         jobjectArray arg_limits_jarray) {
+    assert(image_handle != 0
+           && "image_handle cannot be a null pointer");
+    assert(device_handle != 0
+           && "device_handle cannot be a null pointer");
+
+    /* fetch global work size and local work size*/
+    scoped_array<jlong> global_work_size_list;
+    scoped_array<jlong> local_work_size_list;
+
+    // global work size list cannot be null
+    assert(global_work_size_list_jarray != NULL
+           && "global work size list cannot be null");
+    jsize global_work_size_list_length = env->GetArrayLength(global_work_size_list_jarray);
+    // global work size list must be of 'work_dim' size
+    assert(work_dim == global_work_size_list_length
+           && "the array of global work size must be of 'work_dim' size");
+    // copy elements from jarray to the scoped_array
+    global_work_size_list.reset(work_dim);
+    env->GetLongArrayRegion(global_work_size_list_jarray, 0, work_dim, global_work_size_list.get());
+
+    // local work size list could be null
+    if (local_work_size_list_jarray != NULL) {
+        jsize local_work_size_length = env->GetArrayLength(local_work_size_list_jarray);
+        assert(work_dim == local_work_size_length
+               && "if local work size is not null, it must be of 'work_dim' size");
+        // copy elements from jarray to the scoped_array
+        local_work_size_list.reset(work_dim);
+        env->GetLongArrayRegion(local_work_size_list_jarray, 0, work_dim, local_work_size_list.get());
+    }
+
+    /* fetch arg limits*/
+    assert(arg_limits_jarray != NULL
+           && "arg limits cannot be null");
+    jsize num_args = env->GetArrayLength(arg_limits_jarray);
+    scoped_array<KernelArgLimit> arg_limits(num_args);
+    for (jsize i = 0; i < num_args; i++) {
         jobject arg_limit_jobject = env->GetObjectArrayElement(arg_limits_jarray, 0);
         arg_limits[i] = makeArgLimit(env, arg_limit_jobject);
     }
-    for (int i = 0; i < n; i++) {
-        arg_limits[i].print();
-    }
-    return 0;
+
+    /* fetch kernel name */
+    const char *kernel_name_cstr = env->GetStringUTFChars(kernel_name_jstring, NULL);
+    std::string kernel_name(kernel_name_cstr);
+    env->ReleaseStringUTFChars(kernel_name_jstring, kernel_name_cstr);
+
+    /* construct object */
+    auto image = reinterpret_cast<ClImage *>(image_handle);
+    auto device = reinterpret_cast<cl_device_id>(device_handle);
+    return reinterpret_cast<jlong>(new NDRangeKernel(work_dim,
+                                                     global_work_size_list.get(),
+                                                     local_work_size_list.get(),
+                                                     image,
+                                                     device,
+                                                     kernel_name,
+                                                     arg_limits.get(),
+                                                     num_args));
 }
 
 /*
