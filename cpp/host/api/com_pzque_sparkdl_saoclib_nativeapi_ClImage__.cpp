@@ -39,10 +39,9 @@ JNIEXPORT jboolean JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_ClImage_0002
         (JNIEnv *env, jobject obj, jlong p_image, jlongArray jdevices) {
     ClImage *image = reinterpret_cast<ClImage *>(p_image);
     auto num_devices = env->GetArrayLength(jdevices);
-    scoped_array<cl_device_id> devices(num_devices);
-    env->GetLongArrayRegion(jdevices, 0, num_devices, (jlong *) devices.get());
-
-    bool result = image->deploy_image(devices.get(), num_devices);
+    jlong *devices = env->GetLongArrayElements(jdevices, JNI_FALSE);
+    bool result = image->deploy_image(reinterpret_cast<cl_device_id const *>(devices), num_devices);
+    env->ReleaseLongArrayElements(jdevices, devices, 0);
     if (result) {
         return JNI_TRUE;
     }

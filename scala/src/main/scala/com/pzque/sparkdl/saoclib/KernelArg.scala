@@ -1,36 +1,53 @@
 package com.pzque.sparkdl.saoclib
 
-abstract class KernelArg(arg_limit: KernelArgLimit, value: Object) {
+import scala.reflect.ClassTag
+
+sealed abstract class KernelArg(arg_limit: KernelArgLimit) {
   val argLimit: KernelArgLimit = arg_limit
+
+  def getArgValue: Object
 
   override def toString: String = argLimit.toString
 }
 
-case class ArgInt(value: Integer, mode: KernelArgMode)
-  extends KernelArg(limit(c_int, mode), value) {
+case class ArgVal[T <: AnyVal: TypeMapping](arg_value: T)(mode: KernelArgMode)
+  extends KernelArg(limit(implicitly[TypeMapping[T]].getNativeType(), mode)) {
+  val argValue: T = arg_value
+
+  override def getArgValue: Object = arg_value.asInstanceOf[Object]
 }
 
-case class ArgFloat(value: java.lang.Float, mode: KernelArgMode)
-  extends KernelArg(limit(c_int, mode), value) {
 
+class ArgArray[T <: AnyVal : TypeMapping](arg_value: Array[T])(mode: KernelArgMode)
+  extends KernelArg(limit(c_array(implicitly[TypeMapping[T]].getNativeType(), arg_value.length), mode)) {
+  val argValue: Array[T] = arg_value
+
+  def length: Int = this.argValue.length
+
+  def size: Int = this.arg_value.size
+
+  def apply(index: Int): T = this.argValue(index)
+
+  def update(index: Int, x: T) = this.arg_value.update(index, x)
+
+  override def getArgValue: AnyRef = arg_value
 }
 
-case class ArgDouble(value: java.lang.Double, mode: KernelArgMode)
-  extends KernelArg(limit(c_int, mode), value) {
 
-}
+object ArgArray {
 
-case class ArgIntArray(value: Array[Int], length: Long, mode: KernelArgMode)
-  extends KernelArg(limit(c_array(c_int, length), mode), value) {
+  // e.g. ArgArray(Array(1,2,3))(mode_input)
+  def apply[T <: AnyVal : TypeMapping : ClassTag](args: Array[T])(mode: KernelArgMode)
 
-}
+  = new ArgArray[T](args)(mode)
 
-case class ArgFloatArray(value: Array[Float], length: Long, mode: KernelArgMode)
-  extends KernelArg(limit(c_array(c_float, length), mode), value) {
+  // e.g. ArgArray(1,2,3)(mode_input)
+  def apply[T <: AnyVal : TypeMapping : ClassTag](values: T*)(mode: KernelArgMode)
+  : ArgArray[T]
+  = new ArgArray[T](values.toArray[T])(mode)
 
-}
-
-case class ArgDoubleArray(value: Array[Double], length: Long, mode: KernelArgMode)
-  extends KernelArg(limit(c_array(c_double, length), mode), value) {
-
+  // e.g ArgArray.fill(3)(0)(mode_input)
+  def fill[T <: AnyVal : TypeMapping : ClassTag](size: Int)(fill_value: T)(mode: KernelArgMode)
+  : ArgArray[T]
+  = new ArgArray[T](Array.fill(size)(fill_value))(mode)
 }

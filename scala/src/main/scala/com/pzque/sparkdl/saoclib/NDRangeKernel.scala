@@ -24,9 +24,10 @@ class NDRangeKernel(work_dim: Int,
   val kernelName: String = kernel_name
   val argLimits: Array[KernelArgLimit] = arg_limits
 
-  def call(args: Array[KernelArg]): Unit = NDRangeKernel.call(_nativeHandle, argLimits)
+  def call(args: KernelArg*): Unit = {
+    args.foreach(println(_))
+    NDRangeKernel.call(_nativeHandle, args.toArray)
+  }
 
   override protected def destroy(): Unit = NDRangeKernel.destroyInstance(_nativeHandle)
-
-
 }

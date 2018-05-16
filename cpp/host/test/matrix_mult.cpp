@@ -72,9 +72,9 @@ int main(int argc, char **argv) {
     /* wrap the raw data to KernelArg objects */
     ArgInt A_width_data = ArgInt::Input(A_width);
     ArgInt B_width_data = ArgInt::Input(B_width);
-    ArgFloatBuffer A_data = ArgFloatBuffer::Input(&a, A_size);
-    ArgFloatBuffer B_data = ArgFloatBuffer::Input(&b, B_size);
-    ArgFloatBuffer C_data = ArgFloatBuffer::Output(&c, C_size);
+    ArgBufferFloat A_data = ArgBufferFloat::Input(&a, A_size);
+    ArgBufferFloat B_data = ArgBufferFloat::Input(&b, B_size);
+    ArgBufferFloat C_data = ArgBufferFloat::Output(&c, C_size);
     KernelArg *args[5] = {&A_width_data, &B_width_data, &A_data, &B_data, &C_data};
 
     /* set inputs and output limits */

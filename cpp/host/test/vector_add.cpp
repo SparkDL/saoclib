@@ -27,9 +27,9 @@ int main(int argc, char **argv) {
     }
 
     /* wrap the raw data to KernelArg objects */
-    ArgFloatBuffer A_data = ArgFloatBuffer::Input(&a, N);
-    ArgFloatBuffer B_data = ArgFloatBuffer::Input(&b, N);
-    ArgFloatBuffer C_data = ArgFloatBuffer::Output(&c, N);
+    ArgBufferFloat A_data = ArgBufferFloat::Input(&a, N);
+    ArgBufferFloat B_data = ArgBufferFloat::Input(&b, N);
+    ArgBufferFloat C_data = ArgBufferFloat::Output(&c, N);
     KernelArg *args[num_args] = {&A_data, &B_data, &C_data};
 
     /* set inputs and output limits */
@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
 
     /* test for multi calls */
     printf("call kernel of 2 times:\n");
-    kernel.call(args,num_args);
+    kernel.call(args, num_args);
     /* print results */
     for (unsigned i = 0; i < N; i++) {
         printf("%f,", c[i]);

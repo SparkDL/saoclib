@@ -5,6 +5,11 @@
 #ifndef SAOCLIB_CPP_NATIVETYPEID_H
 #define SAOCLIB_CPP_NATIVETYPEID_H
 
+/*!
+ * This enumeration is used to be identify native type in scala.
+ * Feel free to modify their values.
+ * @note If you want to add new IDs, remember to add new methods to scala calss com.pzque.sacolib.natvieapi.NativeTypeID.
+ */
 enum class NativeTypeID : jlong {
     c_void = 0,
     c_byte = 1,

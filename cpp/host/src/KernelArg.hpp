@@ -120,8 +120,8 @@ namespace saoclib {
             return limit.getType() == KernelArgType::Primitive && limit.getElemSize() == size;
         }
 
-    private:
         Primitive(KernelArgMode mode, T data) : KernelArg(mode), data(data) {}
+    private:
 
         T data;
         static const size_t size = sizeof(T);
@@ -167,10 +167,10 @@ namespace saoclib {
             return elem_size * array_length;
         }
 
-    private:
         AlignedBuffer(KernelArgMode mode, const scoped_aligned_ptr<T> *data_container, size_t array_length)
                 : KernelArg(mode), data_container(data_container), array_length(array_length) {}
 
+    private:
         const scoped_aligned_ptr<T> *data_container;
         static const size_t elem_size = sizeof(T);
         size_t array_length;
@@ -178,15 +178,18 @@ namespace saoclib {
     };
 
 
-    typedef Primitive<char> ArgChar;
+    typedef Primitive<signed char> ArgByte;
+    typedef Primitive<short> ArgShort;
     typedef Primitive<int> ArgInt;
-    typedef Primitive<unsigned> ArgUnsigned;
+    typedef Primitive<long> ArgLong;
     typedef Primitive<float> ArgFloat;
     typedef Primitive<double> ArgDouble;
 
-    typedef AlignedBuffer<char> ArgCharBuffer;
-    typedef AlignedBuffer<int> ArgIntBuffer;
-    typedef AlignedBuffer<unsigned> ArgUnsignedBuffer;
-    typedef AlignedBuffer<float> ArgFloatBuffer;
+    typedef AlignedBuffer<signed char> ArgBufferByte;
+    typedef AlignedBuffer<short> ArgBufferShort;
+    typedef AlignedBuffer<int> ArgBufferInt;
+    typedef AlignedBuffer<long> ArgBufferLong;
+    typedef AlignedBuffer<float> ArgBufferFloat;
+    typedef AlignedBuffer<double> ArgBufferDouble;
 }
 #endif //SAOCLIB_CPP_KERNEL_ARG_H

@@ -4,6 +4,26 @@
 #include "com_pzque_sparkdl_saoclib_nativeapi_NativeTypeSize__.h"
 /*
  * Class:     com_pzque_sparkdl_saoclib_nativeapi_NativeTypeSize__
+ * Method:    sizeof_c_byte
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_NativeTypeSize_00024_sizeof_1c_1byte
+        (JNIEnv *, jobject) {
+    return sizeof(unsigned char);
+}
+
+/*
+ * Class:     com_pzque_sparkdl_saoclib_nativeapi_NativeTypeSize__
+ * Method:    sizeof_c_short
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_NativeTypeSize_00024_sizeof_1c_1short
+        (JNIEnv *, jobject) {
+    return sizeof(short);
+}
+
+/*
+ * Class:     com_pzque_sparkdl_saoclib_nativeapi_NativeTypeSize__
  * Method:    sizeof_c_int
  * Signature: ()J
  */
