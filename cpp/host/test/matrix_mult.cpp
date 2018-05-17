@@ -62,19 +62,22 @@ int main(int argc, char **argv) {
     size_t A_size = A_height * A_width, B_size = B_height * B_width, C_size = C_height * C_width;
 
     /* prepare raw data */
-    scoped_aligned_ptr<float> a(A_size), b(B_size), c(C_size);
+    scoped_aligned_ptr<float> *a, *b, *c;
+    a = new scoped_aligned_ptr<float>(A_size);
+    b = new scoped_aligned_ptr<float>(B_size);
+    c = new scoped_aligned_ptr<float>(C_size);
     for (unsigned i = 0; i < A_size; i++) {
-        a[i] = 3.14;
+        (*a)[i] = 3.14;
     }
     for (unsigned i = 0; i < B_size; i++) {
-        b[i] = 3.14;
+        (*b)[i] = 3.14;
     }
     /* wrap the raw data to KernelArg objects */
     ArgInt A_width_data = ArgInt::Input(A_width);
     ArgInt B_width_data = ArgInt::Input(B_width);
-    ArgBufferFloat A_data = ArgBufferFloat::Input(&a, A_size);
-    ArgBufferFloat B_data = ArgBufferFloat::Input(&b, B_size);
-    ArgBufferFloat C_data = ArgBufferFloat::Output(&c, C_size);
+    ArgBufferFloat A_data = ArgBufferFloat::Input(a, A_size);
+    ArgBufferFloat B_data = ArgBufferFloat::Input(b, B_size);
+    ArgBufferFloat C_data = ArgBufferFloat::Output(c, C_size);
     KernelArg *args[5] = {&A_width_data, &B_width_data, &A_data, &B_data, &C_data};
 
     /* set inputs and output limits */
@@ -102,7 +105,7 @@ int main(int argc, char **argv) {
 
     /* print results */
     for (unsigned i = 0; i < C_size; i++) {
-        printf("%f,", c[i]);
+        printf("%f,", (*c)[i]);
     }
 
     return 0;

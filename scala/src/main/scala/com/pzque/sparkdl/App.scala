@@ -1,7 +1,5 @@
 import com.pzque.sparkdl.saoclib._
 
-import scala.collection.mutable.ArrayBuffer
-
 object App {
   def main(args: Array[String]): Unit = {
     System.loadLibrary("saoclib")
@@ -46,10 +44,12 @@ object App {
       arg_limits = limits
     )
     // call kernel with arguments
-    val a: ArgArray[Int] = ArgArray.fill(N)(1)(mode_input)
-    val b: ArgArray[Int] = ArgArray.fill(N)(2)(mode_input)
-    val c: ArgArray[Int] = ArgArray.fill(N)(0)(mode_output)
-    val d: ArgVal[Int] = ArgVal[Int](1)(mode_input)
-    kernel.call(a, b, c, d)
+    val a: ArgArray[Float] = ArgArray.fill(N)(1f)(mode_input)
+    val b: ArgArray[Float] = ArgArray.fill(N)(2f)(mode_input)
+    val c: ArgArray[Float] = ArgArray.fill(N)(0f)(mode_output)
+
+    kernel.call(a, b, c)
+
+    c.argValue.foreach(x => print(s"$x,"))
   }
 }

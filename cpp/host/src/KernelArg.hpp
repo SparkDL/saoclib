@@ -121,6 +121,7 @@ namespace saoclib {
         }
 
         Primitive(KernelArgMode mode, T data) : KernelArg(mode), data(data) {}
+
     private:
 
         T data;
@@ -130,6 +131,16 @@ namespace saoclib {
     template<class T>
     class AlignedBuffer : public KernelArg {
     public:
+        AlignedBuffer(KernelArgMode mode, const scoped_aligned_ptr<T> *data_container, size_t array_length)
+                : KernelArg(mode), data_container(data_container), array_length(array_length) {}
+
+
+        ~AlignedBuffer() {
+            if (data_container) {
+                delete data_container;
+            }
+        }
+
         static AlignedBuffer Input(const scoped_aligned_ptr<T> *data_container, size_t array_length) {
             return {KernelArgMode::mode_input, data_container, array_length};
         }
@@ -167,10 +178,8 @@ namespace saoclib {
             return elem_size * array_length;
         }
 
-        AlignedBuffer(KernelArgMode mode, const scoped_aligned_ptr<T> *data_container, size_t array_length)
-                : KernelArg(mode), data_container(data_container), array_length(array_length) {}
-
     private:
+        // remember to release this container in destructor
         const scoped_aligned_ptr<T> *data_container;
         static const size_t elem_size = sizeof(T);
         size_t array_length;

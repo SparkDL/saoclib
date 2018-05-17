@@ -20,16 +20,19 @@ int main(int argc, char **argv) {
     const unsigned num_args = 3;
 
     /* prepare raw data */
-    scoped_aligned_ptr<float> a(N), b(N), c(N);
+    scoped_aligned_ptr<float> *a, *b, *c;
+    a = new scoped_aligned_ptr<float>(N);
+    b = new scoped_aligned_ptr<float>(N);
+    c = new scoped_aligned_ptr<float>(N);
     for (unsigned i = 0; i < N; i++) {
-        a[i] = 3.14;
-        b[i] = 3.14;
+        (*a)[i] = 3.14;
+        (*b)[i] = 3.14;
     }
 
     /* wrap the raw data to KernelArg objects */
-    ArgBufferFloat A_data = ArgBufferFloat::Input(&a, N);
-    ArgBufferFloat B_data = ArgBufferFloat::Input(&b, N);
-    ArgBufferFloat C_data = ArgBufferFloat::Output(&c, N);
+    ArgBufferFloat A_data = ArgBufferFloat::Input(a, N);
+    ArgBufferFloat B_data = ArgBufferFloat::Input(b, N);
+    ArgBufferFloat C_data = ArgBufferFloat::Output(c, N);
     KernelArg *args[num_args] = {&A_data, &B_data, &C_data};
 
     /* set inputs and output limits */
@@ -53,7 +56,7 @@ int main(int argc, char **argv) {
 
     /* print results */
     for (unsigned i = 0; i < N; i++) {
-        printf("%f,", c[i]);
+        printf("%f,", (*c)[i]);
     }
 
     /* test for multi calls */
@@ -61,7 +64,7 @@ int main(int argc, char **argv) {
     kernel.call(args, num_args);
     /* print results */
     for (unsigned i = 0; i < N; i++) {
-        printf("%f,", c[i]);
+        printf("%f,", (*c)[i]);
     }
 
     return 0;
