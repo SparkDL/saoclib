@@ -11,11 +11,11 @@ namespace saoclib {
     using namespace aocl_utils;
 
     // TODO CheckError with cleanup
-    class ClEnv {
+    class CLEnv {
     public:
-        ClEnv();
+        CLEnv();
 
-        ~ClEnv();
+        ~CLEnv();
 
         /**
          * Init OpenCL resources,

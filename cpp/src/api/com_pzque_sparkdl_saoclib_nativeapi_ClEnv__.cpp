@@ -14,7 +14,7 @@ using namespace saoclib;
  */
 JNIEXPORT jlong JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_ClEnv_00024_newInstance
         (JNIEnv *env, jobject obj) {
-    return reinterpret_cast<jlong>(new ClEnv());
+    return reinterpret_cast<jlong>(new CLEnv());
 }
 
 /*
@@ -24,7 +24,7 @@ JNIEXPORT jlong JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_ClEnv_00024_new
  */
 JNIEXPORT void JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_ClEnv_00024_destroyInstance
         (JNIEnv *env, jobject obj, jlong ptr) {
-    delete reinterpret_cast<ClEnv *>(ptr);
+    delete reinterpret_cast<CLEnv *>(ptr);
 }
 
 /*
@@ -34,7 +34,7 @@ JNIEXPORT void JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_ClEnv_00024_dest
  */
 JNIEXPORT jboolean JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_ClEnv_00024_initOpenCL
         (JNIEnv *env, jobject obj, jlong ptr) {
-    auto *cl_env = reinterpret_cast<ClEnv *>(ptr);
+    auto *cl_env = reinterpret_cast<CLEnv *>(ptr);
     bool result = cl_env->initOpenCL();
     if (result) {
         return JNI_TRUE;
@@ -49,7 +49,7 @@ JNIEXPORT jboolean JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_ClEnv_00024_
  */
 JNIEXPORT jlong JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_ClEnv_00024_getNumDevices
         (JNIEnv *env, jobject obj, jlong ptr) {
-    auto *cl_env = reinterpret_cast<ClEnv *>(ptr);
+    auto *cl_env = reinterpret_cast<CLEnv *>(ptr);
     return cl_env->getNumDevices();
 }
 
@@ -60,7 +60,7 @@ JNIEXPORT jlong JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_ClEnv_00024_get
  */
 JNIEXPORT jlongArray JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_ClEnv_00024_getDeviceIdList
         (JNIEnv *env, jobject obj, jlong ptr) {
-    auto *clEnv = reinterpret_cast<ClEnv *>(ptr);
+    auto *clEnv = reinterpret_cast<CLEnv *>(ptr);
     unsigned num_devices = clEnv->getNumDevices();
     const long *devices = (long *) clEnv->getDevices().get();
 
@@ -76,7 +76,7 @@ JNIEXPORT jlongArray JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_ClEnv_0002
  */
 JNIEXPORT jlong JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_ClEnv_00024_getDeviceId
         (JNIEnv *env, jobject obj, jlong ptr, jint index) {
-    auto *clEnv = reinterpret_cast<ClEnv *>(ptr);
+    auto *clEnv = reinterpret_cast<CLEnv *>(ptr);
     return reinterpret_cast<jlong>(clEnv->getDeviceID(index));
 }
 

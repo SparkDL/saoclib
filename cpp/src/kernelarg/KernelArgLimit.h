@@ -7,6 +7,7 @@
 
 #include <cstddef>
 #include <cstdio>
+
 #include "TypeTag.h"
 #include "KernelArgMode.h"
 #include "KernelArgQuery.h"
@@ -15,8 +16,8 @@ namespace saoclib {
 
     class KernelArgLimit : public KernelArgQuery {
     public:
-        KernelArgLimit(KernelArgMode mode, const TypeTag *argTypeTag)
-                : mode(mode), argTypeTag(argTypeTag) {}
+        KernelArgLimit(const TypeTag *argTypeTag, KernelArgMode mode)
+                : argTypeTag(argTypeTag), mode(mode) {}
 
         KernelArgLimit() = default;
 

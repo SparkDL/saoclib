@@ -7,6 +7,6 @@
 namespace saoclib {
 
     std::string KernelArgQuery::toString() const {
-        return std::string("<") + argModeRepr(getMode()) + "," + getTypeTag()->toString() + ">";
+        return std::string("<") + getTypeTag()->toString() + "," + argModeRepr(getMode()) + ">";
     }
 }

@@ -5,7 +5,7 @@
 #ifndef SAOCLIB_CPP_CLIMAGE_H
 #define SAOCLIB_CPP_CLIMAGE_H
 
-#include "ClEnv.h"
+#include "CLEnv.h"
 #include "AOCLUtils/aocl_utils.h"
 
 namespace saoclib {
@@ -17,7 +17,7 @@ namespace saoclib {
     // TODO CheckError with cleanup
     class ClImage {
     public:
-        ClImage(const ClEnv *f_env, const std::string &image_path);
+        ClImage(const CLEnv *f_env, const std::string &image_path);
 
         ~ClImage();
 
@@ -25,7 +25,7 @@ namespace saoclib {
 
         const cl_command_queue getQueueForDevice(cl_device_id id) const;
 
-        const ClEnv *getEnv() const;
+        const CLEnv *getEnv() const;
 
         const std::string &getImagePath() const;
 
@@ -44,7 +44,7 @@ namespace saoclib {
         void cleanup();
 
     private:
-        const ClEnv *f_env = NULL;
+        const CLEnv *f_env = NULL;
         const std::string image_path;                  /// image path: xxx.aocx
         cl_program program = NULL;                     /// opencl program
 

@@ -10,7 +10,7 @@
 #include "KernelArgMode.h"
 #include "TypeTag.h"
 #include "TypeTagQuery.h"
-#include "NativeTypeID.h"
+
 
 namespace saoclib {
     class KernelArgQuery : public TypeTagQuery {

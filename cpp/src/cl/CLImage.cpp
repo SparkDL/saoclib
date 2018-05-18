@@ -2,11 +2,11 @@
 // Created by pcz on 18-5-17.
 //
 
-#include "ClImage.h"
+#include "CLImage.h"
 
 namespace saoclib {
 
-    ClImage::ClImage(const ClEnv *f_env, const std::string &image_path)
+    ClImage::ClImage(const CLEnv *f_env, const std::string &image_path)
             : f_env(f_env), image_path(image_path) {}
 
     ClImage::~ClImage() {
@@ -66,7 +66,7 @@ namespace saoclib {
         return NULL;
     }
 
-    const ClEnv *ClImage::getEnv() const {
+    const CLEnv *ClImage::getEnv() const {
         return f_env;
     }
 

@@ -3,7 +3,7 @@
 //
 
 #include "com_pzque_sparkdl_saoclib_nativeapi_ClImage__.h"
-#include "../src/ClImage.h"
+#include "../src/CLImage.h"
 
 using namespace saoclib;
 /*
@@ -13,7 +13,7 @@ using namespace saoclib;
  */
 JNIEXPORT jlong JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_ClImage_00024_newInstance
         (JNIEnv *env, jobject obj, jlong p_env, jstring jname) {
-    auto *cl_env = reinterpret_cast<ClEnv *>(p_env);
+    auto *cl_env = reinterpret_cast<CLEnv *>(p_env);
     const char *name_chars = env->GetStringUTFChars(jname, NULL);
     std::string name(name_chars);
     env->ReleaseStringUTFChars(jname, name_chars);

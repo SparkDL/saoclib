@@ -2,16 +2,16 @@
 // Created by pcz on 18-5-17.
 //
 
-#include "ClEnv.h"
+#include "CLEnv.h"
 
 namespace saoclib {
-    ClEnv::ClEnv() = default;
+    CLEnv::CLEnv() = default;
 
-    ClEnv::~ClEnv() {
+    CLEnv::~CLEnv() {
         cleanup();
     }
 
-    bool ClEnv::initOpenCL() {
+    bool CLEnv::initOpenCL() {
         cl_int status;
 
         printf("Initializing OpenCL\n");
@@ -39,7 +39,7 @@ namespace saoclib {
         return true;
     }
 
-    bool ClEnv::verifyDeviceID(cl_device_id id) const {
+    bool CLEnv::verifyDeviceID(cl_device_id id) const {
         for (unsigned i = 0; i < num_devices; i++) {
             if (devices[i] == id) {
                 return true;
@@ -48,34 +48,34 @@ namespace saoclib {
         return false;
     }
 
-    const std::string &ClEnv::getPlatformName() const {
+    const std::string &CLEnv::getPlatformName() const {
         return platformName;
     }
 
-    unsigned ClEnv::getNumDevices() const {
+    unsigned CLEnv::getNumDevices() const {
         return num_devices;
     }
 
-    const scoped_array<cl_device_id> &ClEnv::getDevices() {
+    const scoped_array<cl_device_id> &CLEnv::getDevices() {
         return devices;
     }
 
-    cl_device_id ClEnv::getDeviceID(unsigned num) const {
+    cl_device_id CLEnv::getDeviceID(unsigned num) const {
         if (num >= num_devices) {
             return NULL;
         }
         return devices[num];
     }
 
-    const cl_platform_id ClEnv::getPlatformId() const {
+    const cl_platform_id CLEnv::getPlatformId() const {
         return platform;
     }
 
-    cl_context ClEnv::getContext() const {
+    cl_context CLEnv::getContext() const {
         return context;
     }
 
-    void ClEnv::cleanup() {
+    void CLEnv::cleanup() {
         if (context) {
             clReleaseContext(context);
         }

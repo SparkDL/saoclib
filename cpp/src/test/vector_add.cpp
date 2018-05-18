@@ -3,7 +3,7 @@
 #include <cmath>
 #include <vector>
 #include <iostream>
-#include "../src/saoclib.h"
+#include "../saoclib.h"
 
 using namespace saoclib;
 
@@ -30,7 +30,7 @@ int main(int argc, char **argv) {
     }
 
 
-    /* wrap the raw data to KernelArg objects */
+    /* wrap the raw data to kernelarg objects */
     ArgBufferFloat A_data = ArgBufferFloat(a, N, KernelArgMode::mode_input);
     ArgBufferFloat B_data = ArgBufferFloat(b, N, KernelArgMode::mode_input);
     ArgBufferFloat C_data = ArgBufferFloat(c, N, KernelArgMode::mode_output);
@@ -38,12 +38,12 @@ int main(int argc, char **argv) {
 
     /* set inputs and output limits */
     KernelArgLimit arg_limits[num_args] = {
-            KernelArgLimit(KernelArgMode::mode_input, TypeTagArray::newTypeTag<float>(N)),
-            KernelArgLimit(KernelArgMode::mode_input, TypeTagArray::newTypeTag<float>(N)),
-            KernelArgLimit(KernelArgMode::mode_output, TypeTagArray::newTypeTag<float>(N))
+            KernelArgLimit(TypeTagArray::newTypeTag<float>(N), KernelArgMode::mode_input),
+            KernelArgLimit(TypeTagArray::newTypeTag<float>(N), KernelArgMode::mode_input),
+            KernelArgLimit(TypeTagArray::newTypeTag<float>(N), KernelArgMode::mode_output)
     };
     /* init an FPGA image */
-    ClEnv env;
+    CLEnv env;
     env.initOpenCL();
 
     ClImage image(&env, "vector_add");

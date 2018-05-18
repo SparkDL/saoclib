@@ -6,8 +6,9 @@
 #define SAOCLIB_CPP_KERNEL_ARG_H
 
 #include <cstddef>
-#include "KernelArgLimit.h"
 #include "AOCLUtils/aocl_utils.h"
+
+#include "KernelArgLimit.h"
 #include "TypeTagVoid.h"
 #include "TypeTagPrimitive.h"
 #include "TypeTagArray.h"
@@ -76,7 +77,7 @@ namespace saoclib {
 
     class Void : public KernelArg {
     public:
-        Void() : KernelArg(KernelArgLimit(KernelArgMode::mode_output, TypeTagVoid::getInstance())) {}
+        Void() : KernelArg(KernelArgLimit(TypeTagVoid::getInstance(), KernelArgMode::mode_output)) {}
 
         const void *getReadonlyDataPtr() const override {
             return NULL;
@@ -91,7 +92,7 @@ namespace saoclib {
     class Primitive : public KernelArg {
     public:
         Primitive(T data, KernelArgMode mode)
-                : KernelArg(KernelArgLimit(mode, TypeTagPrimitive::getTypeTag<T>())),
+                : KernelArg(KernelArgLimit(TypeTagPrimitive::getTypeTag<T>(), mode)),
                   data(data) {}
 
         const void *getReadonlyDataPtr() const override {
@@ -113,7 +114,7 @@ namespace saoclib {
         AlignedBuffer(const scoped_aligned_ptr<T> *dataContainer,
                       size_t arrayLength,
                       KernelArgMode mode)
-                : KernelArg(KernelArgLimit(mode, TypeTagArray::newTypeTag<T>(arrayLength))),
+                : KernelArg(KernelArgLimit(TypeTagArray::newTypeTag<T>(arrayLength), mode)),
                   dataContainer(dataContainer) {}
 
         ~AlignedBuffer() {

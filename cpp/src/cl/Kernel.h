@@ -8,7 +8,7 @@
 #include <vector>
 #include <cassert>
 #include "AOCLUtils/aocl_utils.h"
-#include "ClImage.h"
+#include "CLImage.h"
 #include "KernelArg.h"
 
 

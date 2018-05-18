@@ -20,18 +20,18 @@
 // by the laws of the United States of America.
 
 ///////////////////////////////////////////////////////////////////////////////////
-// This host program executes a vector addition kernel to perform:
+// This src program executes a vector addition kernel to perform:
 //  C = A + B
 // where A, B and C are vectors with N elements.
 //
-// This host program supports partitioning the problem across multiple OpenCL
+// This src program supports partitioning the problem across multiple OpenCL
 // devices if available. If there are M available devices, the problem is
-// divided so that each device operates on N/M points. The host program
+// divided so that each device operates on N/M points. The src program
 // assumes that all devices are of the same type (that is, the same binary can
 // be used), but the code can be generalized to support different device types
 // easily.
 //
-// Verification is performed against the same computation on the host CPU.
+// Verification is performed against the same computation on the src CPU.
 ///////////////////////////////////////////////////////////////////////////////////
 
 #include <cstdio>
@@ -39,7 +39,7 @@
 #include <cmath>
 #include <vector>
 #include <iostream>
-#include "../src/saoclib.h"
+#include "saoclib.h"
 
 using namespace saoclib;
 
@@ -72,23 +72,24 @@ int main(int argc, char **argv) {
     for (unsigned i = 0; i < B_size; i++) {
         (*b)[i] = 3.14;
     }
-    /* wrap the raw data to KernelArg objects */
-    ArgInt A_width_data = ArgInt::Input(A_width);
-    ArgInt B_width_data = ArgInt::Input(B_width);
-    ArgBufferFloat A_data = ArgBufferFloat::Input(a, A_size);
-    ArgBufferFloat B_data = ArgBufferFloat::Input(b, B_size);
-    ArgBufferFloat C_data = ArgBufferFloat::Output(c, C_size);
+    /* wrap the raw data to kernelarg objects */
+    ArgInt A_width_data = ArgInt(A_width, KernelArgMode::mode_input);
+    ArgInt B_width_data = ArgInt(B_width, KernelArgMode::mode_input);
+    ArgBufferFloat A_data = ArgBufferFloat(a, A_size, KernelArgMode::mode_input);
+    ArgBufferFloat B_data = ArgBufferFloat(b, B_size, KernelArgMode::mode_input);
+    ArgBufferFloat C_data = ArgBufferFloat(c, C_size, KernelArgMode::mode_output);
     KernelArg *args[5] = {&A_width_data, &B_width_data, &A_data, &B_data, &C_data};
 
     /* set inputs and output limits */
-    KernelArgLimit arg_limits[5] = {KernelArgLimit::PrimitiveInput<int>(),
-                                    KernelArgLimit::PrimitiveInput<int>(),
-                                    KernelArgLimit::AlignedBufferInput<float>(A_size),
-                                    KernelArgLimit::AlignedBufferInput<float>(B_size),
-                                    KernelArgLimit::AlignedBufferOutput<float>(C_size)};
+    KernelArgLimit arg_limits[5] =
+            {KernelArgLimit(TypeTagPrimitive::getTypeTag<int>(), KernelArgMode::mode_input),
+             KernelArgLimit(TypeTagPrimitive::getTypeTag<int>(), KernelArgMode::mode_input),
+             KernelArgLimit(TypeTagArray::newTypeTag<float>(A_size), KernelArgMode::mode_input),
+             KernelArgLimit(TypeTagArray::newTypeTag<float>(B_size), KernelArgMode::mode_input),
+             KernelArgLimit(TypeTagArray::newTypeTag<float>(C_size), KernelArgMode::mode_output)};
 
     /* init an FPGA image */
-    ClEnv env;
+    CLEnv env;
     env.initOpenCL();
 
     ClImage image(&env, "matrix_mult");
