@@ -25,7 +25,6 @@ class NDRangeKernel(work_dim: Int,
   val argLimits: Array[KernelArgLimit] = arg_limits
 
   def call(args: KernelArg*): Unit = {
-    args.foreach(println(_))
     NDRangeKernel.call(_nativeHandle, args.toArray)
   }
 

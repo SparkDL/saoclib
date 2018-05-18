@@ -59,4 +59,25 @@ namespace saoclib {
                 return "input+output";
         }
     }
+
+    bool isInput(KernelArgMode mode) {
+        switch (mode) {
+            case KernelArgMode::mode_output:
+                return false;
+            case KernelArgMode::mode_input:
+            case KernelArgMode::mode_input_output:
+                return true;
+        }
+    }
+
+    bool isOutput(KernelArgMode mode) {
+        switch (mode) {
+            case KernelArgMode::mode_input:
+                return false;
+            case KernelArgMode::mode_output:
+            case KernelArgMode::mode_input_output:
+                return true;
+        }
+    }
+
 }

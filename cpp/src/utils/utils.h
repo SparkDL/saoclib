@@ -16,5 +16,10 @@ namespace saoclib {
     const char *nativeTypeRepr(NativeTypeID typeID);
 
     const char *argModeRepr(KernelArgMode mode);
+
+
+    bool isInput(KernelArgMode mode);
+
+    bool isOutput(KernelArgMode mode);
 }
 #endif //SAOCLIB_CPP_UTILS_H
