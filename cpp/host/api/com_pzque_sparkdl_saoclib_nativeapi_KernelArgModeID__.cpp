@@ -1,5 +1,5 @@
 #include "com_pzque_sparkdl_saoclib_nativeapi_KernelArgModeID__.h"
-#include "../src/KernelArgLimit.hpp"
+#include "../src/KernelArgLimit.h"
 using namespace saoclib;
 
 /*

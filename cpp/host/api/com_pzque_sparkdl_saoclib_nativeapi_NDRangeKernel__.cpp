@@ -2,8 +2,7 @@
 // Created by pcz on 18-5-14.
 //
 #include "com_pzque_sparkdl_saoclib_nativeapi_NDRangeKernel__.h"
-#include "NativeTypeID.h"
-#include "../src/saoclib.hpp"
+#include "../src/saoclib.h"
 
 using namespace saoclib;
 

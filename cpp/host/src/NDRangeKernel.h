@@ -1,95 +1,13 @@
 //
-// Created by pcz on 18-5-7.
+// Created by pcz on 18-5-17.
 //
 
-#ifndef SAOCLIB_CPP_KERNEL_HPP
-#define SAOCLIB_CPP_KERNEL_HPP
+#ifndef SAOCLIB_CPP_NDRANGEKERNEL_H
+#define SAOCLIB_CPP_NDRANGEKERNEL_H
 
-#include <vector>
-#include <cassert>
-#include "AOCLUtils/aocl_utils.h"
-#include "ClImage.hpp"
-#include "KernelArg.hpp"
-
+#include "Kernel.h"
 
 namespace saoclib {
-    using namespace aocl_utils;
-
-    // TODO CheckError with cleanup
-    class Kernel {
-    public:
-        Kernel(const ClImage *f_image,
-               const cl_device_id device,
-               const std::string &kernel_name,
-               const KernelArgLimit *arg_limits_raw,
-               unsigned num_args) : f_image(f_image),
-                                    device(device),
-                                    kernel_name(kernel_name),
-                                    num_args(num_args) {
-            cl_int status;
-
-            // create kernel
-            kernel = clCreateKernel(f_image->getProgram(), kernel_name.c_str(), &status);
-            checkError(status, "Failed to create kernel");
-
-            // create buffer for arguments
-            this->arg_limits.reset(num_args);
-            for (unsigned i = 0; i < num_args; i++) {
-                auto limit = arg_limits_raw[i];
-                this->arg_limits[i] = limit;
-
-                if (limit.getType() == KernelArgType::AlignedBuffer) {
-                    switch (limit.getMode()) {
-                        case KernelArgMode::mode_input:
-                            this->arg_mems.push_back(clCreateBuffer(f_image->getEnv()->getContext(), CL_MEM_READ_ONLY,
-                                                                    limit.getElemSize() * limit.getArrayLength(), NULL,
-                                                                    &status));
-                            break;
-                        case KernelArgMode::mode_output:
-                            this->arg_mems.push_back(clCreateBuffer(f_image->getEnv()->getContext(), CL_MEM_WRITE_ONLY,
-                                                                    limit.getElemSize() * limit.getArrayLength(), NULL,
-                                                                    &status));
-                            break;
-                        case KernelArgMode::mode_input_output:
-                            this->arg_mems.push_back(clCreateBuffer(f_image->getEnv()->getContext(), CL_MEM_READ_WRITE,
-                                                                    limit.getElemSize() * limit.getArrayLength(), NULL,
-                                                                    &status));
-                            break;
-                    }
-                    checkError(status, "Failed to create buffer for input");
-                }
-            }
-        }
-
-        virtual ~Kernel() {
-            cleanup();
-        };
-
-        virtual bool call(KernelArg **args, unsigned num_args)=0;
-
-
-        void cleanup() {
-            if (kernel) {
-                clReleaseKernel(kernel);
-            }
-            for (auto &mem:arg_mems) {
-                if (mem) {
-                    clReleaseMemObject(mem);
-                }
-            }
-        }
-
-    protected:
-        const ClImage *f_image; /// An FPGA image instance.
-        std::string kernel_name; /// Name of kernel.
-        cl_device_id device; /// The device id of the device where the kernel will running on.
-        cl_kernel kernel;   /// OpenCL Kernel, need to be released in destructor.
-
-        scoped_array<KernelArgLimit> arg_limits; /// Type and size limits of input array.
-        unsigned num_args;
-        std::vector<cl_mem> arg_mems;  /// Input and output buffers(memory object).
-    };
-
     class NDRangeKernel : public Kernel {
     public:
         NDRangeKernel(cl_uint work_dim,
@@ -149,8 +67,8 @@ namespace saoclib {
                 auto limit = arg_limits[i];
                 auto arg = args[i];
                 printf("arg %lu: ", i);
-                limit.print();
-                assert(arg->checkValid(limit));
+                printf("%s\n", limit.toString().c_str());
+                assert(arg->verify(limit));
             }
 
             cl_int status;
@@ -163,7 +81,7 @@ namespace saoclib {
             unsigned arg_mems_index = 0;
             for (unsigned i = 0; i < num_args; i++) {
                 const KernelArg *arg = args[i];
-                if (arg->getType() == KernelArgType::AlignedBuffer && arg->getMode() == KernelArgMode::mode_input) {
+                if (arg->isArray() && arg->getMode() == KernelArgMode::mode_input) {
                     status = clEnqueueWriteBuffer(f_image->getQueueForDevice(device), arg_mems[arg_mems_index],
                                                   CL_FALSE, 0, arg->getSize(),
                                                   arg->getReadonlyDataPtr(), 0, NULL, &write_event);
@@ -178,7 +96,7 @@ namespace saoclib {
             arg_mems_index = 0;
             for (unsigned i = 0; i < num_args; i++) {
                 KernelArg *arg = args[i];
-                if (arg->getType() == KernelArgType::AlignedBuffer) {
+                if (arg->isArray()) {
                     status = clSetKernelArg(kernel, i, sizeof(cl_mem), &arg_mems[arg_mems_index]);
                     checkError(status, "Failed to set argument %d", i);
                     arg_mems_index++;
@@ -205,7 +123,7 @@ namespace saoclib {
             arg_mems_index = 0;
             for (unsigned i = 0; i < num_args; i++) {
                 KernelArg *arg = args[i];
-                if (arg->getType() == KernelArgType::AlignedBuffer) {
+                if (arg->isArray()) {
                     if (arg->getMode() == KernelArgMode::mode_output) {
                         status = clEnqueueReadBuffer(queue, arg_mems[arg_mems_index], CL_FALSE,
                                                      0, arg_limits[i].getSize(), arg->getWriteableDataPtr(),
@@ -239,9 +157,6 @@ namespace saoclib {
         scoped_array<size_t> global_work_size_list; /// work_dim elements
         scoped_array<size_t> local_work_size_list; /// work_dim elements
     };
-
-
-//class SingleItemKernel : NDRangeKernel {
-//};
 }
-#endif //SAOCLIB_CPP_KERNEL_HPP
+
+#endif //SAOCLIB_CPP_NDRANGEKERNEL_H

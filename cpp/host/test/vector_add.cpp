@@ -3,7 +3,7 @@
 #include <cmath>
 #include <vector>
 #include <iostream>
-#include "../src/saoclib.hpp"
+#include "../src/saoclib.h"
 
 using namespace saoclib;
 
@@ -29,23 +29,26 @@ int main(int argc, char **argv) {
         (*b)[i] = 3.14;
     }
 
+
     /* wrap the raw data to KernelArg objects */
-    ArgBufferFloat A_data = ArgBufferFloat::Input(a, N);
-    ArgBufferFloat B_data = ArgBufferFloat::Input(b, N);
-    ArgBufferFloat C_data = ArgBufferFloat::Output(c, N);
+    ArgBufferFloat A_data = ArgBufferFloat(a, N, KernelArgMode::mode_input);
+    ArgBufferFloat B_data = ArgBufferFloat(b, N, KernelArgMode::mode_input);
+    ArgBufferFloat C_data = ArgBufferFloat(c, N, KernelArgMode::mode_output);
     KernelArg *args[num_args] = {&A_data, &B_data, &C_data};
 
     /* set inputs and output limits */
-    KernelArgLimit arg_limits[num_args] = {KernelArgLimit::AlignedBufferInput<float>(N),
-                                           KernelArgLimit::AlignedBufferInput<float>(N),
-                                           KernelArgLimit::AlignedBufferOutput<float>(N)};
+    KernelArgLimit arg_limits[num_args] = {
+            KernelArgLimit(KernelArgMode::mode_input, TypeTagArray::newTypeTag<float>(N)),
+            KernelArgLimit(KernelArgMode::mode_input, TypeTagArray::newTypeTag<float>(N)),
+            KernelArgLimit(KernelArgMode::mode_output, TypeTagArray::newTypeTag<float>(N))
+    };
     /* init an FPGA image */
     ClEnv env;
-    env.init_opencl();
+    env.initOpenCL();
 
     ClImage image(&env, "vector_add");
-    auto device = env.getDeviceId(0);
-    image.deploy_image(&device, 1);
+    auto device = env.getDeviceID(0);
+    image.deployImage(&device, 1);
 
     /* init the kernel */
     size_t global_work_size[1] = {N};

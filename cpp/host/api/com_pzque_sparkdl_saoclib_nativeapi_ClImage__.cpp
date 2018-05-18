@@ -3,7 +3,7 @@
 //
 
 #include "com_pzque_sparkdl_saoclib_nativeapi_ClImage__.h"
-#include "../src/ClImage.hpp"
+#include "../src/ClImage.h"
 
 using namespace saoclib;
 /*
@@ -40,7 +40,7 @@ JNIEXPORT jboolean JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_ClImage_0002
     ClImage *image = reinterpret_cast<ClImage *>(p_image);
     auto num_devices = env->GetArrayLength(jdevices);
     jlong *devices = env->GetLongArrayElements(jdevices, JNI_FALSE);
-    bool result = image->deploy_image(reinterpret_cast<cl_device_id const *>(devices), num_devices);
+    bool result = image->deployImage(reinterpret_cast<cl_device_id const *>(devices), num_devices);
     env->ReleaseLongArrayElements(jdevices, devices, 0);
     if (result) {
         return JNI_TRUE;

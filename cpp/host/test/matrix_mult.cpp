@@ -39,7 +39,7 @@
 #include <cmath>
 #include <vector>
 #include <iostream>
-#include "../src/saoclib.hpp"
+#include "../src/saoclib.h"
 
 using namespace saoclib;
 
@@ -89,11 +89,11 @@ int main(int argc, char **argv) {
 
     /* init an FPGA image */
     ClEnv env;
-    env.init_opencl();
+    env.initOpenCL();
 
     ClImage image(&env, "matrix_mult");
-    auto device = env.getDeviceId(0);
-    image.deploy_image(&device, 1);
+    auto device = env.getDeviceID(0);
+    image.deployImage(&device, 1);
 
     /* init the kernel */
     size_t global_work_size[2] = {C_width, C_height};

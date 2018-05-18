@@ -3,7 +3,7 @@
 //
 
 #include "com_pzque_sparkdl_saoclib_nativeapi_ClEnv__.h"
-#include "../src/saoclib.hpp"
+#include "../src/saoclib.h"
 
 using namespace saoclib;
 
@@ -35,7 +35,7 @@ JNIEXPORT void JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_ClEnv_00024_dest
 JNIEXPORT jboolean JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_ClEnv_00024_initOpenCL
         (JNIEnv *env, jobject obj, jlong ptr) {
     auto *cl_env = reinterpret_cast<ClEnv *>(ptr);
-    bool result = cl_env->init_opencl();
+    bool result = cl_env->initOpenCL();
     if (result) {
         return JNI_TRUE;
     }
@@ -77,7 +77,7 @@ JNIEXPORT jlongArray JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_ClEnv_0002
 JNIEXPORT jlong JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_ClEnv_00024_getDeviceId
         (JNIEnv *env, jobject obj, jlong ptr, jint index) {
     auto *clEnv = reinterpret_cast<ClEnv *>(ptr);
-    return reinterpret_cast<jlong>(clEnv->getDeviceId(index));
+    return reinterpret_cast<jlong>(clEnv->getDeviceID(index));
 }
 
 void cleanup() {}
