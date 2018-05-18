@@ -7,7 +7,7 @@
 
 namespace saoclib {
 
-    bool TypeTagArray::equals(const saoclib::TypeTag *rhs) const {
+    bool TypeTagArray::equals(const std::shared_ptr<TypeTag> &rhs) const {
         return rhs->isArray()
                && elemType->equals(rhs->getElemType());
     }
@@ -32,7 +32,7 @@ namespace saoclib {
         return elemType->getTypeID();
     }
 
-    const TypeTag *TypeTagArray::getElemType() const {
+    const std::shared_ptr<TypeTag> & TypeTagArray::getElemType() const {
         return elemType;
     }
 

@@ -51,7 +51,7 @@ namespace saoclib {
 
         KernelArgMode getMode() const override;
 
-        const TypeTag *getTypeTag() const override;
+        const std::shared_ptr<TypeTag> & getTypeTag() const override;
 
         bool isVoid() const override;
 
@@ -63,7 +63,7 @@ namespace saoclib {
 
         NativeTypeID getElemTypeID() const override;
 
-        const TypeTag *getElemType() const override;
+        const std::shared_ptr<TypeTag> & getElemType() const override;
 
         size_t getSize() const override;
 
@@ -114,7 +114,7 @@ namespace saoclib {
         AlignedBuffer(const scoped_aligned_ptr<T> *dataContainer,
                       size_t arrayLength,
                       KernelArgMode mode)
-                : KernelArg(KernelArgLimit(TypeTagArray::newTypeTag<T>(arrayLength), mode)),
+                : KernelArg(KernelArgLimit(TypeTagArray::getTypeTag<T>(arrayLength), mode)),
                   dataContainer(dataContainer) {}
 
         ~AlignedBuffer() {

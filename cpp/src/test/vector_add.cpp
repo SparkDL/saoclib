@@ -38,9 +38,9 @@ int main(int argc, char **argv) {
 
     /* set inputs and output limits */
     KernelArgLimit arg_limits[num_args] = {
-            KernelArgLimit(TypeTagArray::newTypeTag<float>(N), KernelArgMode::mode_input),
-            KernelArgLimit(TypeTagArray::newTypeTag<float>(N), KernelArgMode::mode_input),
-            KernelArgLimit(TypeTagArray::newTypeTag<float>(N), KernelArgMode::mode_output)
+            KernelArgLimit(TypeTagArray::getTypeTag<float>(N), KernelArgMode::mode_input),
+            KernelArgLimit(TypeTagArray::getTypeTag<float>(N), KernelArgMode::mode_input),
+            KernelArgLimit(TypeTagArray::getTypeTag<float>(N), KernelArgMode::mode_output)
     };
     /* init an FPGA image */
     CLEnv env;

@@ -5,14 +5,19 @@
 #ifndef SAOCLIB_CPP_TYPETAGVOID_H
 #define SAOCLIB_CPP_TYPETAGVOID_H
 
+#include <memory>
 #include "TypeTag.h"
 
 namespace saoclib {
     class TypeTagVoid : public TypeTag {
     public:
-        static TypeTagVoid *getInstance();
+        TypeTagVoid();
 
-        bool equals(const TypeTag *rhs) const override;
+        virtual ~TypeTagVoid() = default;
+
+        static const std::shared_ptr<TypeTagVoid> &getInstance();
+
+        bool equals(const std::shared_ptr<TypeTag> &rhs) const override;
 
         bool isVoid() const override;
 
@@ -24,7 +29,7 @@ namespace saoclib {
 
         NativeTypeID getElemTypeID() const override;
 
-        const TypeTag *getElemType() const override;
+        const std::shared_ptr<TypeTag> &getElemType() const override;
 
         size_t getSize() const override;
 
@@ -34,8 +39,7 @@ namespace saoclib {
 
         std::string toString() const override;
 
-    private:
-        TypeTagVoid();
+
     };
 }
 

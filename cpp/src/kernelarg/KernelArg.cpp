@@ -11,7 +11,7 @@ namespace saoclib {
         return limit.getMode();
     }
 
-    const TypeTag *KernelArg::getTypeTag() const {
+    const std::shared_ptr<TypeTag> & KernelArg::getTypeTag() const {
         return limit.getTypeTag();
     }
 
@@ -35,7 +35,7 @@ namespace saoclib {
         return limit.getElemTypeID();
     }
 
-    const TypeTag *KernelArg::getElemType() const {
+    const std::shared_ptr<TypeTag> & KernelArg::getElemType() const {
         return limit.getElemType();
     }
 

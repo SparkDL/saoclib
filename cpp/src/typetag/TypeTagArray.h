@@ -12,11 +12,11 @@ namespace saoclib {
     class TypeTagArray : public TypeTag {
     public:
         template<class T>
-        static const TypeTagArray *newTypeTag(size_t arrayLength) {
-            return new TypeTagArray(TypeTagPrimitive::getTypeTag<T>(), arrayLength);
+        static std::shared_ptr<TypeTagArray> getTypeTag(size_t arrayLength) {
+            return std::make_shared<TypeTagArray>(TypeTagPrimitive::getTypeTag<T>(), arrayLength);
         }
 
-        bool equals(const TypeTag *rhs) const override;
+        bool equals(const std::shared_ptr<TypeTag> &rhs) const override;
 
         bool isVoid() const override;
 
@@ -28,7 +28,7 @@ namespace saoclib {
 
         NativeTypeID getElemTypeID() const override;
 
-        const TypeTag *getElemType() const override;
+        const std::shared_ptr<TypeTag> &getElemType() const override;
 
         size_t getSize() const override;
 
@@ -38,15 +38,15 @@ namespace saoclib {
 
         std::string toString() const override;
 
-    private:
-        TypeTagArray(const TypeTag *elemType, size_t arrayLength)
+        TypeTagArray(const std::shared_ptr<TypeTag> &elemType, size_t arrayLength)
                 : TypeTag(NativeTypeID::c_array),
                   elemType(elemType),
                   arrayLength(arrayLength) {
 
         }
 
-        const TypeTag *elemType;
+    private:
+        std::shared_ptr<TypeTag> elemType;
         size_t arrayLength;
     };
 }

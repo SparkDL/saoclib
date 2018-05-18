@@ -16,7 +16,7 @@ namespace saoclib {
 
     class KernelArgLimit : public KernelArgQuery {
     public:
-        KernelArgLimit(const TypeTag *argTypeTag, KernelArgMode mode)
+        KernelArgLimit(const std::shared_ptr<TypeTag> &argTypeTag, KernelArgMode mode)
                 : argTypeTag(argTypeTag), mode(mode) {}
 
         KernelArgLimit() = default;
@@ -31,7 +31,7 @@ namespace saoclib {
             return mode;
         }
 
-        const TypeTag *getTypeTag() const override {
+        const std::shared_ptr<TypeTag> &getTypeTag() const override {
             return argTypeTag;
         }
 
@@ -56,7 +56,7 @@ namespace saoclib {
             return argTypeTag->getElemTypeID();
         }
 
-        const TypeTag *getElemType() const override {
+        const std::shared_ptr<TypeTag> &getElemType() const override {
             return argTypeTag->getElemType();
         }
 
@@ -74,7 +74,7 @@ namespace saoclib {
 
     private:
         KernelArgMode mode = KernelArgMode::mode_input;
-        const TypeTag *argTypeTag = NULL;
+        std::shared_ptr<TypeTag> argTypeTag = NULL;
     };
 
 }

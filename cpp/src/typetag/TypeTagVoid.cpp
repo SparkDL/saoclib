@@ -2,13 +2,14 @@
 // Created by pcz on 18-5-17.
 //
 #include <string>
+#include <memory>
 #include "TypeTagVoid.h"
 
 namespace saoclib {
 
-    TypeTagVoid *TypeTagVoid::getInstance() {
-        static TypeTagVoid instance;
-        return &instance;
+    const std::shared_ptr<TypeTagVoid> &TypeTagVoid::getInstance() {
+        static auto instance = std::make_shared<TypeTagVoid>();
+        return instance;
     }
 
     bool saoclib::TypeTagVoid::isVoid() const {
@@ -31,7 +32,7 @@ namespace saoclib {
         return NativeTypeID::c_void;
     }
 
-    const TypeTag *TypeTagVoid::getElemType() const {
+    const std::shared_ptr<TypeTag> &TypeTagVoid::getElemType() const {
         return TypeTagVoid::getInstance();
     }
 
@@ -55,7 +56,7 @@ namespace saoclib {
         return "void";
     }
 
-    bool TypeTagVoid::equals(const TypeTag *rhs) const {
+    bool TypeTagVoid::equals(const std::shared_ptr<TypeTag> &rhs) const {
         return rhs->isVoid();
     }
 }

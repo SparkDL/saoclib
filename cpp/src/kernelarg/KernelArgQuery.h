@@ -21,7 +21,7 @@ namespace saoclib {
          */
         virtual KernelArgMode getMode() const = 0;
 
-        virtual const TypeTag *getTypeTag() const = 0;
+        virtual const std::shared_ptr<TypeTag> & getTypeTag() const = 0;
 
         std::string toString() const override;
     };

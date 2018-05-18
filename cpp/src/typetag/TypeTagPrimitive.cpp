@@ -5,34 +5,34 @@
 #include "TypeTagPrimitive.h"
 
 namespace saoclib {
-    const TypeTagPrimitive *TypeTagPrimitive::getByteTypeTag() {
-        static TypeTagPrimitive byteTypeTag(NativeTypeID::c_byte);
-        return &byteTypeTag;
+    const std::shared_ptr<TypeTagPrimitive> &TypeTagPrimitive::getByteTypeTag() {
+        static auto instance = std::make_shared<TypeTagPrimitive>(NativeTypeID::c_byte);
+        return instance;
     }
 
-    const TypeTagPrimitive *TypeTagPrimitive::getShortTypeTag() {
-        static TypeTagPrimitive shortTypeTag(NativeTypeID::c_short);
-        return &shortTypeTag;
+    const std::shared_ptr<TypeTagPrimitive> &TypeTagPrimitive::getShortTypeTag() {
+        static auto instance = std::make_shared<TypeTagPrimitive>(NativeTypeID::c_short);
+        return instance;
     }
 
-    const TypeTagPrimitive *TypeTagPrimitive::getIntTypeTag() {
-        static TypeTagPrimitive intTypeTag(NativeTypeID::c_int);
-        return &intTypeTag;
+    const std::shared_ptr<TypeTagPrimitive> &TypeTagPrimitive::getIntTypeTag() {
+        static auto instance = std::make_shared<TypeTagPrimitive>(NativeTypeID::c_int);
+        return instance;
     }
 
-    const TypeTagPrimitive *TypeTagPrimitive::getLongTypeTag() {
-        static TypeTagPrimitive longTypeTag(NativeTypeID::c_long);
-        return &longTypeTag;
+    const std::shared_ptr<TypeTagPrimitive> &TypeTagPrimitive::getLongTypeTag() {
+        static auto instance = std::make_shared<TypeTagPrimitive>(NativeTypeID::c_long);
+        return instance;
     }
 
-    const TypeTagPrimitive *TypeTagPrimitive::getFloatTypeTag() {
-        static TypeTagPrimitive floatTypeTag(NativeTypeID::c_float);
-        return &floatTypeTag;
+    const std::shared_ptr<TypeTagPrimitive> &TypeTagPrimitive::getFloatTypeTag() {
+        static auto instance = std::make_shared<TypeTagPrimitive>(NativeTypeID::c_float);
+        return instance;
     }
 
-    const TypeTagPrimitive *TypeTagPrimitive::getDoubleTypeTag() {
-        static TypeTagPrimitive doubleTypeTag(NativeTypeID::c_double);
-        return &doubleTypeTag;
+    const std::shared_ptr<TypeTagPrimitive> &TypeTagPrimitive::getDoubleTypeTag() {
+        static auto instance = std::make_shared<TypeTagPrimitive>(NativeTypeID::c_double);
+        return instance;
     }
 
     bool TypeTagPrimitive::isVoid() const {
@@ -55,7 +55,7 @@ namespace saoclib {
         return NativeTypeID::c_void;
     }
 
-    const TypeTag *TypeTagPrimitive::getElemType() const {
+    const std::shared_ptr<TypeTag> &TypeTagPrimitive::getElemType() const {
         return TypeTagVoid::getInstance();
     }
 
@@ -77,37 +77,37 @@ namespace saoclib {
 
     TypeTagPrimitive::TypeTagPrimitive(NativeTypeID typeID) : TypeTag(typeID) {}
 
-    bool TypeTagPrimitive::equals(const saoclib::TypeTag *rhs) const {
+    bool TypeTagPrimitive::equals(const std::shared_ptr<TypeTag> &rhs) const {
         return rhs->isPrimitive() && typeID == rhs->getTypeID();
     }
 
     template<>
-    const TypeTagPrimitive *TypeTagPrimitive::getTypeTag<byte>() {
+    const std::shared_ptr<TypeTagPrimitive> &TypeTagPrimitive::getTypeTag<byte>() {
         return getByteTypeTag();
     }
 
     template<>
-    const TypeTagPrimitive *TypeTagPrimitive::getTypeTag<short>() {
+    const std::shared_ptr<TypeTagPrimitive> &TypeTagPrimitive::getTypeTag<short>() {
         return getShortTypeTag();
     }
 
     template<>
-    const TypeTagPrimitive *TypeTagPrimitive::getTypeTag<int>() {
+    const std::shared_ptr<TypeTagPrimitive> &TypeTagPrimitive::getTypeTag<int>() {
         return getIntTypeTag();
     }
 
     template<>
-    const TypeTagPrimitive *TypeTagPrimitive::getTypeTag<long>() {
+    const std::shared_ptr<TypeTagPrimitive> &TypeTagPrimitive::getTypeTag<long>() {
         return getLongTypeTag();
     }
 
     template<>
-    const TypeTagPrimitive *TypeTagPrimitive::getTypeTag<float>() {
+    const std::shared_ptr<TypeTagPrimitive> &TypeTagPrimitive::getTypeTag<float>() {
         return getFloatTypeTag();
     }
 
     template<>
-    const TypeTagPrimitive *TypeTagPrimitive::getTypeTag<double>() {
+    const std::shared_ptr<TypeTagPrimitive> &TypeTagPrimitive::getTypeTag<double>() {
         return getDoubleTypeTag();
     }
 }

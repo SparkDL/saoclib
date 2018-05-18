@@ -12,7 +12,9 @@
 namespace saoclib {
     class TypeTag : public TypeTagQuery {
     public:
-        virtual bool equals(const TypeTag *rhs) const = 0;
+        virtual ~TypeTag() = default;
+
+        virtual bool equals(const std::shared_ptr<TypeTag> &rhs) const = 0;
 
     protected:
         TypeTag(NativeTypeID typeID);;

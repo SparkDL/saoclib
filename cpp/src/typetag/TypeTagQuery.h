@@ -7,6 +7,7 @@
 
 #include <cstddef>
 #include <string>
+#include <memory>
 #include "NativeTypeID.h"
 
 
@@ -15,6 +16,8 @@ namespace saoclib {
 
     class TypeTagQuery {
     public:
+        virtual ~TypeTagQuery() = default;
+
         virtual bool isVoid() const = 0;
 
         virtual bool isPrimitive() const = 0;
@@ -25,7 +28,7 @@ namespace saoclib {
 
         virtual NativeTypeID getElemTypeID() const =0;
 
-        virtual const TypeTag *getElemType() const = 0;
+        virtual const std::shared_ptr<TypeTag> &getElemType() const = 0;
 
         /**
          * Get the total size of data stored in the inside pointer.
