@@ -3,7 +3,7 @@
 //
 
 #include "com_pzque_sparkdl_saoclib_nativeapi_ClImage__.h"
-#include "../src/CLImage.h"
+#include "CLImage.h"
 
 using namespace saoclib;
 /*

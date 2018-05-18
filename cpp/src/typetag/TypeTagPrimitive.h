@@ -12,19 +12,23 @@ namespace saoclib {
     class TypeTagPrimitive : public TypeTag {
     public:
         template<class T>
-        static const std::shared_ptr<TypeTagPrimitive> & getTypeTag();
+        static const std::shared_ptr<TypeTagPrimitive> & getTypeTag() {
+            return fromTypeId(NativeTypeIDMapping<T>::typeID);
+        }
 
-        static const std::shared_ptr<TypeTagPrimitive> & getByteTypeTag();
+        static const std::shared_ptr<TypeTagPrimitive> &fromTypeId(NativeTypeID typeID);
 
-        static const std::shared_ptr<TypeTagPrimitive> & getShortTypeTag();
+        static const std::shared_ptr<TypeTagPrimitive> &getByteTypeTag();
 
-        static const std::shared_ptr<TypeTagPrimitive> & getIntTypeTag();
+        static const std::shared_ptr<TypeTagPrimitive> &getShortTypeTag();
 
-        static const std::shared_ptr<TypeTagPrimitive> & getLongTypeTag();
+        static const std::shared_ptr<TypeTagPrimitive> &getIntTypeTag();
 
-        static const std::shared_ptr<TypeTagPrimitive> & getFloatTypeTag();
+        static const std::shared_ptr<TypeTagPrimitive> &getLongTypeTag();
 
-        static const std::shared_ptr<TypeTagPrimitive> & getDoubleTypeTag();
+        static const std::shared_ptr<TypeTagPrimitive> &getFloatTypeTag();
+
+        static const std::shared_ptr<TypeTagPrimitive> &getDoubleTypeTag();
 
         bool equals(const std::shared_ptr<TypeTag> &rhs) const override;
 
@@ -38,7 +42,7 @@ namespace saoclib {
 
         NativeTypeID getElemTypeID() const override;
 
-        const std::shared_ptr<TypeTag> & getElemType() const override;
+        const std::shared_ptr<TypeTag> &getElemType() const override;
 
         size_t getSize() const override;
 

@@ -13,8 +13,11 @@ namespace saoclib {
     public:
         template<class T>
         static std::shared_ptr<TypeTagArray> getTypeTag(size_t arrayLength) {
-            return std::make_shared<TypeTagArray>(TypeTagPrimitive::getTypeTag<T>(), arrayLength);
+            return fromElemType(TypeTagPrimitive::getTypeTag<T>(), arrayLength);
         }
+
+        static std::shared_ptr<TypeTagArray> fromElemType(const std::shared_ptr<TypeTag> &elemType, size_t arrayLength);
+
 
         bool equals(const std::shared_ptr<TypeTag> &rhs) const override;
 

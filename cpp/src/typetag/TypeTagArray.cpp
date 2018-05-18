@@ -7,6 +7,11 @@
 
 namespace saoclib {
 
+    std::shared_ptr<TypeTagArray>
+    TypeTagArray::fromElemType(const std::shared_ptr<TypeTag> &elemType, size_t arrayLength) {
+        return std::make_shared<TypeTagArray>(elemType, arrayLength);
+    }
+
     bool TypeTagArray::equals(const std::shared_ptr<TypeTag> &rhs) const {
         return rhs->isArray()
                && elemType->equals(rhs->getElemType());
@@ -32,7 +37,7 @@ namespace saoclib {
         return elemType->getTypeID();
     }
 
-    const std::shared_ptr<TypeTag> & TypeTagArray::getElemType() const {
+    const std::shared_ptr<TypeTag> &TypeTagArray::getElemType() const {
         return elemType;
     }
 
@@ -51,4 +56,5 @@ namespace saoclib {
     std::string TypeTagArray::toString() const {
         return elemType->toString() + "[" + std::to_string(arrayLength) + "]";
     }
+
 }

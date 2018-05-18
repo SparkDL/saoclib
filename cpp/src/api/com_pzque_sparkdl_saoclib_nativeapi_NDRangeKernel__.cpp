@@ -2,7 +2,7 @@
 // Created by pcz on 18-5-14.
 //
 #include "com_pzque_sparkdl_saoclib_nativeapi_NDRangeKernel__.h"
-#include "../src/saoclib.h"
+#include "saoclib.h"
 
 using namespace saoclib;
 
@@ -10,10 +10,10 @@ static KernelArgLimit makeArgLimit(JNIEnv *env, jobject arg_limit_jobject);
 
 static KernelArg *makeArg(JNIEnv *env, jobject arg_jobject);
 
-static KernelArg *makeArgFromJArray(JNIEnv *env,
-                                    jobject value_jobject,
-                                    KernelArgMode arg_mode,
-                                    NativeTypeID elem_type_id);
+static KernelArg *makeArrayArg(JNIEnv *env,
+                               jobject value_jobject,
+                               KernelArgMode arg_mode,
+                               NativeTypeID elem_type_id);
 
 static jobject fetchArgLimit(JNIEnv *env, jobject arg_jobject);
 
@@ -73,7 +73,7 @@ JNIEXPORT jlong JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_NDRangeKernel_0
     jsize num_args = env->GetArrayLength(arg_limits_jarray);
     scoped_array<KernelArgLimit> arg_limits(num_args);
     for (jsize i = 0; i < num_args; i++) {
-        jobject arg_limit_jobject = env->GetObjectArrayElement(arg_limits_jarray, 0);
+        jobject arg_limit_jobject = env->GetObjectArrayElement(arg_limits_jarray, i);
         arg_limits[i] = makeArgLimit(env, arg_limit_jobject);
     }
 
@@ -129,11 +129,27 @@ JNIEXPORT void JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_NDRangeKernel_00
     assert(num_args > 0
            && "args array cannot be empty");
     scoped_array<KernelArg *> args(num_args);
-    scoped_array<int> output_index_list(num_args);
+    std::vector<int> output_index_list(num_args);
     scoped_array<jobject> arg_object;
     for (unsigned i = 0; i < num_args; i++) {
         auto arg_jobject = env->GetObjectArrayElement(args_jarray, i);
-        args[i] = makeArg(env, arg_jobject);
+        auto *arg = makeArg(env, arg_jobject);
+        auto mode = arg->getMode();
+        if (mode == KernelArgMode::mode_output || mode == KernelArgMode::mode_input_output) {
+            output_index_list.push_back(i);
+        }
+    }
+
+    auto *kernel = reinterpret_cast<Kernel *>(kernel_handle);
+    kernel->call(args, num_args);
+
+    // copy output result to jvm array
+    for (int index:output_index_list) {
+        if (!args[index]->isArray()) {
+            assert("false" && "only array output is supported now");
+        }
+        auto array_jobject = env->GetObjectArrayElement(args_jarray, index);
+        auto array_jarray= reinterpret_cast<jarray >
     }
 }
 
@@ -147,28 +163,25 @@ static KernelArgLimit makeArgLimit(JNIEnv *env, jobject arg_limit_jobject) {
 
     switch (arg_type_id) {
         case NativeTypeID::c_void:
-            return KernelArgLimit::Void(arg_mode);
+            return KernelArgLimit(TypeTagVoid::getInstance(), arg_mode);
         case NativeTypeID::c_byte:
-            return KernelArgLimit::Primitive<unsigned char>(arg_mode);
         case NativeTypeID::c_short:
-            return KernelArgLimit::Primitive<short>(arg_mode);
         case NativeTypeID::c_int:
-            return KernelArgLimit::Primitive<int>(arg_mode);
         case NativeTypeID::c_float:
-            return KernelArgLimit::Primitive<float>(arg_mode);
         case NativeTypeID::c_double:
-            return KernelArgLimit::Primitive<double>(arg_mode);
+            return KernelArgLimit(TypeTagPrimitive::fromTypeId(arg_type_id), arg_mode);
         case NativeTypeID::c_array: {
             // get element size
             jclass arg_type_cls = env->GetObjectClass(arg_type_jobject);
-            jmethodID mid = env->GetMethodID(arg_type_cls, "elemSize", "()J");
-            assert(mid != NULL && "cannot find method 'elemSize()'");
-            jlong elem_size = env->CallLongMethod(arg_type_jobject, mid);
+            jmethodID mid = env->GetMethodID(arg_type_cls, "elemTypeID", "()J");
+            assert(mid != NULL && "cannot find method 'elemTypeID():Long'");
+            jlong elem_type_id = env->CallLongMethod(arg_type_jobject, mid);
             // get array length
             jfieldID fid = env->GetFieldID(arg_type_cls, "length", "J");
             assert(fid != NULL && "cannot find field 'length");
             jlong array_length = env->GetLongField(arg_type_jobject, fid);
-            return KernelArgLimit::AlignedBuffer(arg_mode, elem_size, array_length);
+            auto &elem_type = TypeTagPrimitive::fromTypeId(NativeTypeID(elem_type_id));
+            return KernelArgLimit(TypeTagArray::fromElemType(elem_type, array_length), arg_mode);
         }
     }
 }
@@ -199,42 +212,42 @@ static KernelArg *makeArg(JNIEnv *env, jobject arg_jobject) {
             jclass cls = env->FindClass("java/lang/Byte");
             jmethodID getVal = env->GetMethodID(cls, "byteValue", "()B");
             signed char byte_value = env->CallByteMethod(value_jobject, getVal);
-            arg = new ArgByte(arg_mode, byte_value);
+            arg = new ArgByte(byte_value, arg_mode);
             break;
         }
         case NativeTypeID::c_short: {
             jclass cls = env->FindClass("java/lang/Short");
             jmethodID getVal = env->GetMethodID(cls, "shortValue", "()S");
             short short_value = env->CallShortMethod(value_jobject, getVal);
-            arg = new ArgShort(arg_mode, short_value);
+            arg = new ArgShort(short_value, arg_mode);
             break;
         }
         case NativeTypeID::c_int: {
             jclass cls = env->FindClass("java/lang/Integer");
             jmethodID getVal = env->GetMethodID(cls, "intValue", "()I");
             int int_value = env->CallIntMethod(value_jobject, getVal);
-            arg = new ArgInt(arg_mode, int_value);
+            arg = new ArgInt(int_value, arg_mode);
             break;
         }
         case NativeTypeID::c_long: {
             jclass cls = env->FindClass("java/lang/Long");
             jmethodID getVal = env->GetMethodID(cls, "longValue", "()J");
             long long_value = env->CallLongMethod(value_jobject, getVal);
-            arg = new ArgLong(arg_mode, long_value);
+            arg = new ArgLong(long_value, arg_mode);
             break;
         }
         case NativeTypeID::c_float: {
             jclass cls = env->FindClass("java/lang/Float");
             jmethodID getVal = env->GetMethodID(cls, "floatValue", "()F");
             float float_value = env->CallFloatMethod(value_jobject, getVal);
-            arg = new ArgFloat(arg_mode, float_value);
+            arg = new ArgFloat(float_value, arg_mode);
             break;
         }
         case NativeTypeID::c_double: {
             jclass cls = env->FindClass("java/lang/Double");
             jmethodID getVal = env->GetMethodID(cls, "doubleValue", "()D");
             double double_value = env->CallDoubleMethod(value_jobject, getVal);
-            arg = new ArgDouble(arg_mode, double_value);
+            arg = new ArgDouble(double_value, arg_mode);
             break;
         }
         case NativeTypeID::c_array: {
@@ -242,7 +255,7 @@ static KernelArg *makeArg(JNIEnv *env, jobject arg_jobject) {
             assert(getElemTypeID != NULL
                    && "cannot find method 'getElemTypeID'");
             jlong elem_type_id_raw = env->CallLongMethod(arg_jobject, getElemTypeID);
-            arg = makeArgFromJArray(env, value_jobject, arg_mode, NativeTypeID(elem_type_id_raw));
+            arg = makeArrayArg(env, value_jobject, arg_mode, NativeTypeID(elem_type_id_raw));
             break;
         }
 
@@ -251,65 +264,58 @@ static KernelArg *makeArg(JNIEnv *env, jobject arg_jobject) {
     return arg;
 }
 
-static KernelArg *makeArgFromJArray(JNIEnv *env,
-                                    jobject value_jobject,
-                                    KernelArgMode arg_mode,
-                                    NativeTypeID elem_type_id) {
+static KernelArg *makeArrayArg(JNIEnv *env,
+                               jobject value_jobject,
+                               KernelArgMode arg_mode,
+                               NativeTypeID elem_type_id) {
     switch (elem_type_id) {
         case NativeTypeID::c_byte: {
             jbyteArray value_jarray = reinterpret_cast<jbyteArray>(value_jobject);
             jsize array_length = env->GetArrayLength(value_jarray);
             auto *data_container = new scoped_aligned_ptr<jbyte>(array_length);
             env->GetByteArrayRegion(value_jarray, 0, array_length, data_container->get());
-            return new ArgBufferByte(arg_mode, data_container, array_length);
-            break;
+            return new ArgBufferByte(data_container, array_length, arg_mode);
         }
         case NativeTypeID::c_short: {
             jshortArray value_jarray = reinterpret_cast<jshortArray >(value_jobject);
             jsize array_length = env->GetArrayLength(value_jarray);
             auto *data_container = new scoped_aligned_ptr<jshort>(array_length);
             env->GetShortArrayRegion(value_jarray, 0, array_length, data_container->get());
-            return new ArgBufferShort(arg_mode, data_container, array_length);
-            break;
+            return new ArgBufferShort(data_container, array_length, arg_mode);
         }
         case NativeTypeID::c_int: {
             jintArray value_jarray = reinterpret_cast<jintArray>(value_jobject);
             jsize array_length = env->GetArrayLength(value_jarray);
             auto *data_container = new scoped_aligned_ptr<jint>(array_length);
             env->GetIntArrayRegion(value_jarray, 0, array_length, data_container->get());
-            return new ArgBufferInt(arg_mode, data_container, array_length);
-            break;
+            return new ArgBufferInt(data_container, array_length, arg_mode);
         }
         case NativeTypeID::c_long: {
             jlongArray value_jarray = reinterpret_cast<jlongArray>(value_jobject);
             jsize array_length = env->GetArrayLength(value_jarray);
             auto *data_container = new scoped_aligned_ptr<jlong>(array_length);
             env->GetLongArrayRegion(value_jarray, 0, array_length, data_container->get());
-            return new ArgBufferLong(arg_mode, data_container, array_length);
-            break;
+            return new ArgBufferLong(data_container, array_length, arg_mode);
         }
         case NativeTypeID::c_float: {
             jfloatArray value_jarray = reinterpret_cast<jfloatArray>(value_jobject);
             jsize array_length = env->GetArrayLength(value_jarray);
             auto *data_container = new scoped_aligned_ptr<jfloat>(array_length);
             env->GetFloatArrayRegion(value_jarray, 0, array_length, data_container->get());
-            return new ArgBufferFloat(arg_mode, data_container, array_length);
-            break;
+            return new ArgBufferFloat(data_container, array_length, arg_mode);
         }
         case NativeTypeID::c_double: {
             jdoubleArray value_jarray = reinterpret_cast<jdoubleArray>(value_jobject);
             jsize array_length = env->GetArrayLength(value_jarray);
             auto *data_container = new scoped_aligned_ptr<jdouble>(array_length);
             env->GetDoubleArrayRegion(value_jarray, 0, array_length, data_container->get());
-            return new ArgBufferDouble(arg_mode, data_container, array_length);
-            break;
+            return new ArgBufferDouble(data_container, array_length, arg_mode);
         }
-        case NativeTypeID::c_array: {
+        default: {
             assert(false && "Array of array is not supported now.");
-            break;
+            return NULL;
         }
     }
-
 }
 
 static jobject fetchArgLimit(JNIEnv *env, jobject arg_jobject) {

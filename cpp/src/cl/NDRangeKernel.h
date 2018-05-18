@@ -67,7 +67,8 @@ namespace saoclib {
                 auto limit = arg_limits[i];
                 auto arg = args[i];
                 printf("arg %lu: ", i);
-                printf("%s\n", limit.toString().c_str());
+                printf("expected:%s,", limit.toString().c_str());
+                printf("actual:%s\n", arg->toString().c_str());
                 assert(arg->verify(limit));
             }
 

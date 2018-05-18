@@ -16,61 +16,36 @@ namespace saoclib {
 
     class KernelArgLimit : public KernelArgQuery {
     public:
-        KernelArgLimit(const std::shared_ptr<TypeTag> &argTypeTag, KernelArgMode mode)
-                : argTypeTag(argTypeTag), mode(mode) {}
-
         KernelArgLimit() = default;
 
         KernelArgLimit(const KernelArgLimit &) = default;
 
-        bool operator==(const KernelArgLimit &rhs) const {
-            return mode == rhs.getMode() && argTypeTag->equals(rhs.getTypeTag());
-        }
+        KernelArgLimit(const std::shared_ptr<TypeTag> &argTypeTag, KernelArgMode mode);
 
-        KernelArgMode getMode() const override {
-            return mode;
-        }
+        bool operator==(const KernelArgLimit &rhs) const;
 
-        const std::shared_ptr<TypeTag> &getTypeTag() const override {
-            return argTypeTag;
-        }
+        KernelArgMode getMode() const override;
 
-        bool isVoid() const override {
-            return argTypeTag->isVoid();
-        }
+        const std::shared_ptr<TypeTag> &getTypeTag() const override;
 
-        bool isPrimitive() const override {
-            return argTypeTag->isPrimitive();
-        }
+        bool isVoid() const override;
 
-        bool isArray() const override {
-            return argTypeTag->isArray();
-        }
+        bool isPrimitive() const override;
+
+        bool isArray() const override;
 
 
-        NativeTypeID getTypeID() const override {
-            return argTypeTag->getTypeID();
-        }
+        NativeTypeID getTypeID() const override;
 
-        NativeTypeID getElemTypeID() const override {
-            return argTypeTag->getElemTypeID();
-        }
+        NativeTypeID getElemTypeID() const override;
 
-        const std::shared_ptr<TypeTag> &getElemType() const override {
-            return argTypeTag->getElemType();
-        }
+        const std::shared_ptr<TypeTag> &getElemType() const override;
 
-        size_t getSize() const override {
-            return argTypeTag->getSize();
-        }
+        size_t getSize() const override;
 
-        size_t getElemSize() const override {
-            return argTypeTag->getElemSize();
-        }
+        size_t getElemSize() const override;
 
-        size_t getArrayLength() const override {
-            return argTypeTag->getArrayLength();
-        }
+        size_t getArrayLength() const override;
 
     private:
         KernelArgMode mode = KernelArgMode::mode_input;

@@ -1,5 +1,5 @@
 #include "com_pzque_sparkdl_saoclib_nativeapi_NativeTypeID__.h"
-#include "../src/NativeTypeID.h"
+#include "NativeTypeID.h"
 
 /*
  * Class:     com_pzque_sparkdl_saoclib_nativeapi_NativeTypeID__

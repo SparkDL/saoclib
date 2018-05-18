@@ -51,7 +51,7 @@ namespace saoclib {
 
         KernelArgMode getMode() const override;
 
-        const std::shared_ptr<TypeTag> & getTypeTag() const override;
+        const std::shared_ptr<TypeTag> &getTypeTag() const override;
 
         bool isVoid() const override;
 
@@ -63,7 +63,7 @@ namespace saoclib {
 
         NativeTypeID getElemTypeID() const override;
 
-        const std::shared_ptr<TypeTag> & getElemType() const override;
+        const std::shared_ptr<TypeTag> &getElemType() const override;
 
         size_t getSize() const override;
 
@@ -92,7 +92,9 @@ namespace saoclib {
     class Primitive : public KernelArg {
     public:
         Primitive(T data, KernelArgMode mode)
-                : KernelArg(KernelArgLimit(TypeTagPrimitive::getTypeTag<T>(), mode)),
+                : KernelArg(
+                KernelArgLimit(TypeTagPrimitive::fromTypeId(NativeTypeIDMapping<T>::typeID),
+                               mode)),
                   data(data) {}
 
         const void *getReadonlyDataPtr() const override {
@@ -115,7 +117,8 @@ namespace saoclib {
                       size_t arrayLength,
                       KernelArgMode mode)
                 : KernelArg(KernelArgLimit(TypeTagArray::getTypeTag<T>(arrayLength), mode)),
-                  dataContainer(dataContainer) {}
+                  dataContainer(dataContainer) {
+        }
 
         ~AlignedBuffer() {
             if (dataContainer) {
@@ -130,7 +133,6 @@ namespace saoclib {
         void *getWriteableDataPtr() override {
             return dataContainer->get();
         }
-
 
     private:
         // remember to release this container in destructor

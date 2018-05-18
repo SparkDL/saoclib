@@ -29,9 +29,9 @@ object App {
     // construct a kernel
     val N = 100
     val limits: Array[KernelArgLimit] = Array(
-      limit(c_array(c_int, N), mode_input),
-      limit(c_array(c_int, N), mode_input),
-      limit(c_array(c_int, N), mode_output)
+      limit(c_array(c_float, N), mode_input),
+      limit(c_array(c_float, N), mode_input),
+      limit(c_array(c_float, N), mode_output)
     )
 
     val kernel = new NDRangeKernel(

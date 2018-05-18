@@ -5,5 +5,4 @@
 
 namespace saoclib {
     TypeTag::TypeTag(NativeTypeID typeID) : typeID(typeID) {}
-
 }
