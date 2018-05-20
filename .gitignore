@@ -1,5 +1,5 @@
 cmake-build-*/
-bin/
+/bin/*
 !/bin/README.md
 # Compile products
 *.pyc
@@ -38,3 +38,5 @@ nohup.out
 .ipynb_checkpoints/
 pyspark/dist/
 pyspark/build/
+
+!/bin/README.md
