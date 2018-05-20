@@ -5,7 +5,7 @@
 
 namespace saoclib {
 
-    Kernel::Kernel(const ClImage *f_image, const cl_device_id device, const std::string &kernel_name,
+    Kernel::Kernel(const CLImage *f_image, const cl_device_id device, const std::string &kernel_name,
                    const KernelArgLimit *arg_limits_raw, unsigned num_args) : f_image(f_image),
                                                                               device(device),
                                                                               kernel_name(kernel_name),

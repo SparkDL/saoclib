@@ -92,7 +92,7 @@ int main(int argc, char **argv) {
     CLEnv env;
     env.initOpenCL();
 
-    ClImage image(&env, "matrix_mult");
+    CLImage image(&env, "matrix_mult");
     auto device = env.getDeviceID(0);
     image.deployImage(&device, 1);
 

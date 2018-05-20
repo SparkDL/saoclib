@@ -7,7 +7,7 @@
 namespace saoclib {
 
     NDRangeKernel::NDRangeKernel(cl_uint work_dim, const long *global_work_size_list, const long *local_work_size_list,
-                                 const ClImage *f_image, const cl_device_id device, const std::string &kernel_name,
+                                 const CLImage *f_image, const cl_device_id device, const std::string &kernel_name,
                                  const KernelArgLimit *arg_limits_raw, unsigned num_args)
             : Kernel(f_image, device, kernel_name, arg_limits_raw, num_args),
               work_dim(work_dim) {
@@ -25,7 +25,7 @@ namespace saoclib {
     }
 
     NDRangeKernel::NDRangeKernel(cl_uint work_dim, const size_t *global_work_size_list,
-                                 const size_t *local_work_size_list, const ClImage *f_image, const cl_device_id device,
+                                 const size_t *local_work_size_list, const CLImage *f_image, const cl_device_id device,
                                  const std::string &kernel_name, const KernelArgLimit *arg_limits_raw,
                                  unsigned num_args)
             : Kernel(f_image, device, kernel_name, arg_limits_raw, num_args),

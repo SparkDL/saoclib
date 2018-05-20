@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
     CLEnv env;
     env.initOpenCL();
 
-    ClImage image(&env, "vector_add");
+    CLImage image(&env, "vector_add");
     auto device = env.getDeviceID(0);
     image.deployImage(&device, 1);
 

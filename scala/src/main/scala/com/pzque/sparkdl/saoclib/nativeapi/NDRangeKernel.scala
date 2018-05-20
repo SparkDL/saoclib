@@ -4,7 +4,7 @@ object NDRangeKernel {
   @native def newInstance(work_dim: Int,
                           global_work_size_list: Array[Long],
                           local_work_size_list: Array[Long],
-                          image_handle: ClImage.PtrClImage,
+                          image_handle: CLImage.PtrClImage,
                           device_handle: Long,
                           kernel_name: String,
                           arg_limits: Array[_ <: Object]): Long

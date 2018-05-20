@@ -10,14 +10,14 @@ object App {
     System.loadLibrary("saoclib")
 
     // init opencl essentials
-    val env = new ClEnv()
+    val env = new CLEnv()
     env.initOpenCL()
 
     // construct an opencl image from file path
-    val image = new ClImage(env.getNativeHandle, "/home/pcz/Projects/saoclib/bin/vector_add")
+    val image = new CLImage(env, "/home/pcz/Projects/saoclib/bin/vector_add")
 
-    // get available devices and
-    val device_handle_list = env.getDeviceIdList.get
+    // get available devices
+    val device_handle_list = env.getDeviceIDList.get
     print("devices: ")
     println(device_handle_list.mkString("[", ",", "]"))
     val device_handle = device_handle_list(0)

@@ -18,7 +18,7 @@ namespace saoclib {
     // TODO CheckError with cleanup
     class Kernel {
     public:
-        Kernel(const ClImage *f_image,
+        Kernel(const CLImage *f_image,
                const cl_device_id device,
                const std::string &kernel_name,
                const KernelArgLimit *arg_limits_raw,
@@ -31,7 +31,7 @@ namespace saoclib {
         virtual bool call(KernelArg **args, unsigned num_args)=0;
 
     protected:
-        const ClImage *f_image; /// An FPGA image instance.
+        const CLImage *f_image; /// An FPGA image instance.
         std::string kernel_name; /// Name of kernel.
         cl_device_id device; /// The device id of the device where the kernel will running on.
         cl_kernel kernel;   /// OpenCL Kernel, need to be released in destructor.

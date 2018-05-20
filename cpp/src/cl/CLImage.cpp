@@ -6,14 +6,14 @@
 
 namespace saoclib {
 
-    ClImage::ClImage(const CLEnv *f_env, const std::string &image_path)
+    CLImage::CLImage(const CLEnv *f_env, const std::string &image_path)
             : f_env(f_env), image_path(image_path) {}
 
-    ClImage::~ClImage() {
+    CLImage::~CLImage() {
         cleanup();
     }
 
-    bool ClImage::deployImage(const cl_device_id *devices, unsigned num_given_devices) {
+    bool CLImage::deployImage(const cl_device_id *devices, unsigned num_given_devices) {
         cleanup();
         attached_devices.reset(num_given_devices);
         attached_queues.reset(num_given_devices);
@@ -56,7 +56,7 @@ namespace saoclib {
         return true;
     }
 
-    const cl_command_queue ClImage::getQueueForDevice(cl_device_id id) const {
+    const cl_command_queue CLImage::getQueueForDevice(cl_device_id id) const {
         for (unsigned i = 0; i < num_attached_devices; i++) {
             if (attached_devices[i] == id) {
                 return attached_queues[i];
@@ -66,31 +66,31 @@ namespace saoclib {
         return NULL;
     }
 
-    const CLEnv *ClImage::getEnv() const {
+    const CLEnv *CLImage::getEnv() const {
         return f_env;
     }
 
-    const std::string &ClImage::getImagePath() const {
+    const std::string &CLImage::getImagePath() const {
         return image_path;
     }
 
-    const cl_program ClImage::getProgram() const {
+    const cl_program CLImage::getProgram() const {
         return program;
     }
 
-    unsigned int ClImage::getNumAttachedDevices() const {
+    unsigned int CLImage::getNumAttachedDevices() const {
         return num_attached_devices;
     }
 
-    const scoped_array<cl_device_id> &ClImage::getAttachedDevices() const {
+    const scoped_array<cl_device_id> &CLImage::getAttachedDevices() const {
         return attached_devices;
     }
 
-    const scoped_array<cl_command_queue> &ClImage::getAttachedQueues() const {
+    const scoped_array<cl_command_queue> &CLImage::getAttachedQueues() const {
         return attached_queues;
     }
 
-    void ClImage::cleanup() {
+    void CLImage::cleanup() {
         this->attached_devices.reset();
         this->num_attached_devices = 0;
         // release program

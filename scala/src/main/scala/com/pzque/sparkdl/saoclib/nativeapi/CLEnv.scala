@@ -1,6 +1,6 @@
 package com.pzque.sparkdl.saoclib.nativeapi
 
-object ClEnv {
+object CLEnv {
   type PtrClEnv = Long
 
   @native def newInstance(): Long
@@ -11,7 +11,7 @@ object ClEnv {
 
   @native def getNumDevices(handle: Long): Long
 
-  @native def getDeviceIdList(handle: Long): Array[Long]
+  @native def getDeviceIDList(handle: Long): Array[Long]
 
-  @native def getDeviceId(handle: Long, index: Int): Long
+  @native def getDeviceID(handle: Long, index: Int): Long
 }

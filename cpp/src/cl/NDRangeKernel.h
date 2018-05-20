@@ -14,7 +14,7 @@ namespace saoclib {
                       const long *global_work_size_list,
                       const long *local_work_size_list,
 
-                      const ClImage *f_image,
+                      const CLImage *f_image,
                       const cl_device_id device,
                       const std::string &kernel_name,
                       const KernelArgLimit *arg_limits_raw,
@@ -24,7 +24,7 @@ namespace saoclib {
                       const size_t *global_work_size_list,
                       const size_t *local_work_size_list,
 
-                      const ClImage *f_image,
+                      const CLImage *f_image,
                       const cl_device_id device,
                       const std::string &kernel_name,
                       const KernelArgLimit *arg_limits_raw,

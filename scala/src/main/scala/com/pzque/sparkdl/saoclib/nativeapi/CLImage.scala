@@ -1,6 +1,6 @@
 package com.pzque.sparkdl.saoclib.nativeapi
 
-object ClImage {
+object CLImage {
   type PtrClImage = Long
 
   @native def newInstance(handle: Long, imagePath: String): Long

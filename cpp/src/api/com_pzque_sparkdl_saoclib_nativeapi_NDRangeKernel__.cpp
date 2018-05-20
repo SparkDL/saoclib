@@ -27,7 +27,6 @@ static NativeTypeID fetchTypeID(JNIEnv *env, jobject arg_type_jobject);
  * Method:    newInstance
  * Signature: (I[I[IJJLjava/lang/String;[Ljava/lang/Object;)J
  */
-// TODO: to complete the kernel construction
 JNIEXPORT jlong JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_NDRangeKernel_00024_newInstance
         (JNIEnv *env,
          jobject obj,
@@ -81,7 +80,7 @@ JNIEXPORT jlong JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_NDRangeKernel_0
     env->ReleaseStringUTFChars(kernel_name_jstring, kernel_name_cstr);
 
     /* construct object */
-    auto image = reinterpret_cast<ClImage *>(image_handle);
+    auto image = reinterpret_cast<CLImage *>(image_handle);
     auto device = reinterpret_cast<cl_device_id>(device_handle);
     auto ret = reinterpret_cast<jlong>(new NDRangeKernel(work_dim,
                                                          global_work_size_list,
@@ -150,6 +149,11 @@ JNIEXPORT void JNICALL Java_com_pzque_sparkdl_saoclib_nativeapi_NDRangeKernel_00
         auto arg_jobject = env->GetObjectArrayElement(args_jarray, index);
         auto arg_value_jobject = fetchArgValue(env, arg_jobject);
         writeJArray(env, arg_value_jobject, arg, arg->getElemTypeID());
+    }
+
+    // release the kernel args
+    for (unsigned i = 0; i < num_args; i++) {
+        delete args[i];
     }
 }
 

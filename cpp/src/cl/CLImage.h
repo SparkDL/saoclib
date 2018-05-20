@@ -15,11 +15,11 @@ namespace saoclib {
      * @note we assume all devices are of the same type
      */
     // TODO CheckError with cleanup
-    class ClImage {
+    class CLImage {
     public:
-        ClImage(const CLEnv *f_env, const std::string &image_path);
+        CLImage(const CLEnv *f_env, const std::string &image_path);
 
-        ~ClImage();
+        ~CLImage();
 
         bool deployImage(const cl_device_id *devices, unsigned num_given_devices);
 
