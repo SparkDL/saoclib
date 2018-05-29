@@ -27,24 +27,24 @@ object App {
     // construct a kernel
     val N = 1000000
     val limits: Array[KernelArgLimit] = Array(
-      limit(c_array(c_float, N), mode_input),
-      limit(c_array(c_float, N), mode_input),
-      limit(c_array(c_float, N), mode_output)
+      limit(c_array(c_float, N), modeInput),
+      limit(c_array(c_float, N), modeInput),
+      limit(c_array(c_float, N), modeOutput)
     )
     val kernel = new NDRangeKernel(
-      work_dim = 1,
-      global_work_size_list = Array(N),
-      local_work_size_list = null,
-      cl_image = image,
-      device_id = device_id,
-      kernel_name = "vector_add",
-      arg_limits = limits
+      _workDim = 1,
+      _globalWorkSizeList = Array(N),
+      _localWorkSizeList = null,
+      _clImage = image,
+      _deviceID = device_id,
+      _kernelName = "vector_add",
+      _argLimits = limits
     )
 
     // prepare kernel arguments
-    val a: ArgArray[Float] = ArgArray.fill(N)(1f)(mode_input)
-    val b: ArgArray[Float] = ArgArray.fill(N)(2f)(mode_input)
-    val c: ArgArray[Float] = ArgArray.fill(N)(0f)(mode_output)
+    val a: ArgArray[Float] = ArgArray.fill(N)(1f)(modeInput)
+    val b: ArgArray[Float] = ArgArray.fill(N)(2f)(modeInput)
+    val c: ArgArray[Float] = ArgArray.fill(N)(0f)(modeOutput)
 
     // call kernel
     var start, end: Long = 0

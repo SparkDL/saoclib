@@ -2,9 +2,9 @@ package com.pzque.sparkdl.saoclib
 
 import scala.reflect.ClassTag
 
-sealed abstract class KernelArg(arg_limit: KernelArgLimit)
+sealed abstract class KernelArg(_argLimit: KernelArgLimit)
   extends KernelArgQuery {
-  val argLimit: KernelArgLimit = arg_limit
+  val argLimit: KernelArgLimit = _argLimit
 
   def getArgValue: AnyRef
 
@@ -60,7 +60,7 @@ sealed abstract class KernelArg(arg_limit: KernelArgLimit)
   override def toString: String = argLimit.toString
 }
 
-case class ArgVal[T <: AnyVal : TypeMapping](arg_value: T)(mode: KernelArgMode)
+case class ArgVal[T <: AnyVal : ClassTag : TypeMapping](arg_value: T)(mode: KernelArgMode)
   extends KernelArg(limit(implicitly[TypeMapping[T]].getNativeType(), mode)) {
   val argValue: T = arg_value
 
@@ -68,8 +68,11 @@ case class ArgVal[T <: AnyVal : TypeMapping](arg_value: T)(mode: KernelArgMode)
 }
 
 
-class ArgArray[T <: AnyVal : TypeMapping](arg_value: Array[T])(mode: KernelArgMode)
+class ArgArray[T <: AnyVal : ClassTag : TypeMapping](arg_value: Array[T])(mode: KernelArgMode)
   extends KernelArg(limit(c_array(implicitly[TypeMapping[T]].getNativeType(), arg_value.length), mode)) {
+
+  def this(size: Int)(mode: KernelArgMode) = this(new Array[T](size))(mode)
+
   val argValue: Array[T] = arg_value
 
   def length: Int = this.argValue.length
@@ -88,17 +91,17 @@ class ArgArray[T <: AnyVal : TypeMapping](arg_value: Array[T])(mode: KernelArgMo
 object ArgArray {
 
   // e.g. ArgArray(Array(1,2,3))(mode_input)
-  def apply[T <: AnyVal : TypeMapping : ClassTag](args: Array[T])(mode: KernelArgMode)
-
-  = new ArgArray[T](args)(mode)
+  def apply[T <: AnyVal : TypeMapping : ClassTag](argValue: Array[T])(mode: KernelArgMode)
+  : ArgArray[T]
+  = new ArgArray[T](argValue)(mode)
 
   // e.g. ArgArray(1,2,3)(mode_input)
-  def apply[T <: AnyVal : TypeMapping : ClassTag](values: T*)(mode: KernelArgMode)
+  def apply[T <: AnyVal : TypeMapping : ClassTag](elements: T*)(mode: KernelArgMode)
   : ArgArray[T]
-  = new ArgArray[T](values.toArray[T])(mode)
+  = new ArgArray[T](elements.toArray[T])(mode)
 
   // e.g ArgArray.fill(3)(0)(mode_input)
-  def fill[T <: AnyVal : TypeMapping : ClassTag](size: Int)(fill_value: T)(mode: KernelArgMode)
+  def fill[T <: AnyVal : TypeMapping : ClassTag](size: Int)(fillValue: T)(mode: KernelArgMode)
   : ArgArray[T]
-  = new ArgArray[T](Array.fill(size)(fill_value))(mode)
+  = new ArgArray[T](Array.fill(size)(fillValue))(mode)
 }

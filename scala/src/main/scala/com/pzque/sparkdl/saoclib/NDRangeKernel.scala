@@ -1,31 +1,32 @@
 package com.pzque.sparkdl.saoclib
 
-import nativeapi.NDRangeKernel
+import com.pzque.sparkdl.saoclib.nativeapi.NDRangeKernel
 
 
-class NDRangeKernel(work_dim: Int,
-                    global_work_size_list: Array[Long],
-                    local_work_size_list: Array[Long],
-                    cl_image: CLImage,
-                    device_id: Long,
-                    kernel_name: String,
-                    arg_limits: Array[KernelArgLimit])
-  extends NativeBackendObject {
+class NDRangeKernel
+(_workDim: Int,
+ _globalWorkSizeList: Array[Long],
+ _localWorkSizeList: Array[Long],
+ _clImage: CLImage,
+ _deviceID: Long,
+ _kernelName: String,
+ _argLimits: Array[KernelArgLimit]
+) extends NativeBackendObject with Kernel {
   _nativeHandle = NDRangeKernel.newInstance(
-    work_dim, global_work_size_list,
-    local_work_size_list, cl_image.getNativeHandle,
-    device_id, kernel_name, arg_limits)
+    _workDim, _globalWorkSizeList,
+    _localWorkSizeList, _clImage.getNativeHandle,
+    _deviceID, _kernelName, _argLimits)
 
-  val workDim: Int = work_dim
-  val globalWorkSize: Array[Long] = global_work_size_list
-  val localWorkSize: Array[Long] = local_work_size_list
-  val clImage: CLImage = cl_image
-  val deviceID: Long = device_id
-  val kernelName: String = kernel_name
-  val argLimits: Array[KernelArgLimit] = arg_limits
+  val workDim: Int = _workDim
+  val globalWorkSize: Array[Long] = _globalWorkSizeList
+  val localWorkSize: Array[Long] = _localWorkSizeList
+  val clImage: CLImage = _clImage
+  val deviceID: Long = _deviceID
+  val kernelName: String = _kernelName
+  val argLimits: Array[KernelArgLimit] = _argLimits
 
-  def call(args: KernelArg*): Unit = {
-    NDRangeKernel.call(_nativeHandle, args.toArray)
+  override def call(args: Array[_ <: KernelArg]): Unit = {
+    NDRangeKernel.call(_nativeHandle, args)
   }
 
   override protected def destroy(): Unit = NDRangeKernel.destroyInstance(_nativeHandle)
