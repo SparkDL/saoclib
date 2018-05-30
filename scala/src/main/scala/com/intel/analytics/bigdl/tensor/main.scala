@@ -93,8 +93,8 @@ object main {
     )
 
     // prepare kernel arguments
-    val aWArg = new ArgVal[Int](aW)(mode_input)
-    val bWArg = new ArgVal[Int](bW)(mode_input)
+    val aWArg = ArgVal[Int](aW)(mode_input)
+    val bWArg = ArgVal[Int](bW)(mode_input)
     val a = Tensor[Float](
       T(T(1f, 2f, 3f, 4f),
         T(1f, 2f, 3f, 4f),
@@ -112,9 +112,7 @@ object main {
     start = System.currentTimeMillis()
     kernel.call(aWArg, bWArg, aArg, bArg, cArg)
     end = System.currentTimeMillis()
-    println(s"Kernel cost: ${end - start}ms")
-    println("\n\n")
-
-    println(s"c: ${c}")
+    println(s"Kernel cost: ${end - start}ms\n")
+    println(s"c:\n${c}\n")
   }
 }

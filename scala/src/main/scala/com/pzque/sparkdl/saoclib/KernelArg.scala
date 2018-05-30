@@ -60,16 +60,21 @@ sealed abstract class KernelArg(_argLimit: KernelArgLimit)
   override def toString: String = argLimit.toString
 }
 
-class ArgVal[T <: AnyVal : ClassTag : TypeMapping](arg_value: T)(mode: KernelArgMode)
-  extends KernelArg(limit(implicitly[TypeMapping[T]].getNativeType(), mode)) {
+class ArgVal[T <: AnyVal : ClassTag : NativeTypeMapping](arg_value: T)(mode: KernelArgMode)
+  extends KernelArg(limit(implicitly[NativeTypeMapping[T]].getNativeType(), mode)) {
   val argValue: T = arg_value
 
   override def getArgValue: Object = arg_value.asInstanceOf[Object]
 }
 
+object ArgVal {
+  def apply[T <: AnyVal : ClassTag : NativeTypeMapping]
+  (arg_value: T)(mode: KernelArgMode): ArgVal[T]
+  = new ArgVal[T](arg_value)(mode)
+}
 
-class ArgArray[T <: AnyVal : ClassTag : TypeMapping](arg_value: Array[T])(mode: KernelArgMode)
-  extends KernelArg(limit(c_array(implicitly[TypeMapping[T]].getNativeType(), arg_value.length), mode)) {
+class ArgArray[T <: AnyVal : ClassTag : NativeTypeMapping](arg_value: Array[T])(mode: KernelArgMode)
+  extends KernelArg(limit(c_array(implicitly[NativeTypeMapping[T]].getNativeType(), arg_value.length), mode)) {
 
   def this(size: Int)(mode: KernelArgMode) = this(new Array[T](size))(mode)
 
@@ -91,17 +96,17 @@ class ArgArray[T <: AnyVal : ClassTag : TypeMapping](arg_value: Array[T])(mode: 
 object ArgArray {
 
   // e.g. ArgArray(Array(1,2,3))(mode_input)
-  def apply[T <: AnyVal : TypeMapping : ClassTag](argValue: Array[T])(mode: KernelArgMode)
+  def apply[T <: AnyVal : NativeTypeMapping : ClassTag](argValue: Array[T])(mode: KernelArgMode)
   : ArgArray[T]
   = new ArgArray[T](argValue)(mode)
 
   // e.g. ArgArray(1,2,3)(mode_input)
-  def apply[T <: AnyVal : TypeMapping : ClassTag](elements: T*)(mode: KernelArgMode)
+  def apply[T <: AnyVal : NativeTypeMapping : ClassTag](elements: T*)(mode: KernelArgMode)
   : ArgArray[T]
   = new ArgArray[T](elements.toArray[T])(mode)
 
   // e.g ArgArray.fill(3)(0)(mode_input)
-  def fill[T <: AnyVal : TypeMapping : ClassTag](size: Int)(fillValue: T)(mode: KernelArgMode)
+  def fill[T <: AnyVal : NativeTypeMapping : ClassTag](size: Int)(fillValue: T)(mode: KernelArgMode)
   : ArgArray[T]
   = new ArgArray[T](Array.fill(size)(fillValue))(mode)
 }

@@ -2,8 +2,11 @@ package com.pzque.sparkdl.saoclib
 
 import nativeapi.CLImage
 
-class CLImage(clEnv: CLEnv, imagePath: String) extends NativeBackendObject {
-  nativeHandle = CLImage.newInstance(clEnv.getNativeHandle, imagePath)
+class CLImage(_clEnv: CLEnv, _imagePath: String) extends NativeBackendObject {
+  val clEnv: CLEnv = _clEnv
+  val imagePath: String = _imagePath
+
+  nativeHandle = CLImage.newInstance(_clEnv.getNativeHandle, _imagePath)
 
   override protected def destroy(): Unit = {
     CLImage.destroyInstance(nativeHandle)

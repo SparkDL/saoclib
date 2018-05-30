@@ -4,7 +4,7 @@ import scala.reflect.ClassTag
 import com.intel.analytics.bigdl.tensor.TensorNumericMath.TensorNumeric
 import com.pzque.sparkdl.saoclib._
 
-class TensorKernel[T <: AnyVal : ClassTag : TypeMapping]
+class TensorKernel[T <: AnyVal : ClassTag : NativeTypeMapping]
 (_inputNum: Int, _kernel: Kernel, _outputSize: Array[Int])
 (implicit ev: TensorNumeric[T]) {
   val inputNum: Int = _inputNum
@@ -29,13 +29,13 @@ class TensorKernel[T <: AnyVal : ClassTag : TypeMapping]
 }
 
 object TensorKernel {
-  def tensor2array[T <: AnyVal : ClassTag : TypeMapping]
+  def tensor2array[T <: AnyVal : ClassTag : NativeTypeMapping]
   (tensor: Tensor[T])
   (implicit ev: TensorNumeric[T]): Array[T] = {
     return tensor.storage().array()
   }
 
-  def array2tensor[T <: AnyVal : ClassTag : TypeMapping]
+  def array2tensor[T <: AnyVal : ClassTag : NativeTypeMapping]
   (array: Array[T], size: Array[Int])
   (implicit ev: TensorNumeric[T]): Tensor[T] = {
     val expectedElemNum = size.product
