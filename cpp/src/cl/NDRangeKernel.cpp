@@ -54,6 +54,7 @@ namespace saoclib {
             printf("arg %lu: ", i);
             printf("expected:%s,", limit.toString().c_str());
             printf("actual:%s\n", arg->toString().c_str());
+            // TODO test this statement, it seems not work here
             assert(arg->verify(limit));
         }
 

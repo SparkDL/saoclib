@@ -2,10 +2,10 @@ import com.pzque.sparkdl.saoclib._
 
 object App {
   def main(args: Array[String]): Unit = {
-    testCL()
+    vectorAdd()
   }
 
-  def testCL() = {
+  def vectorAdd() = {
     System.loadLibrary("saoclib")
 
     // init opencl essentials
@@ -27,9 +27,9 @@ object App {
     // construct a kernel
     val N = 1000000
     val limits: Array[KernelArgLimit] = Array(
-      limit(c_array(c_float, N), modeInput),
-      limit(c_array(c_float, N), modeInput),
-      limit(c_array(c_float, N), modeOutput)
+      limit(c_array(c_float, N), mode_input),
+      limit(c_array(c_float, N), mode_input),
+      limit(c_array(c_float, N), mode_output)
     )
     val kernel = new NDRangeKernel(
       _workDim = 1,
@@ -42,9 +42,9 @@ object App {
     )
 
     // prepare kernel arguments
-    val a: ArgArray[Float] = ArgArray.fill(N)(1f)(modeInput)
-    val b: ArgArray[Float] = ArgArray.fill(N)(2f)(modeInput)
-    val c: ArgArray[Float] = ArgArray.fill(N)(0f)(modeOutput)
+    val a: ArgArray[Float] = ArgArray.fill(N)(1f)(mode_input)
+    val b: ArgArray[Float] = ArgArray.fill(N)(2f)(mode_input)
+    val c: ArgArray[Float] = ArgArray.fill(N)(0f)(mode_output)
 
     // call kernel
     var start, end: Long = 0
@@ -54,4 +54,5 @@ object App {
     println(s"Kernel cost: ${end - start}ms")
     println("\n\n")
   }
+
 }

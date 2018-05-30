@@ -60,7 +60,7 @@ sealed abstract class KernelArg(_argLimit: KernelArgLimit)
   override def toString: String = argLimit.toString
 }
 
-case class ArgVal[T <: AnyVal : ClassTag : TypeMapping](arg_value: T)(mode: KernelArgMode)
+class ArgVal[T <: AnyVal : ClassTag : TypeMapping](arg_value: T)(mode: KernelArgMode)
   extends KernelArg(limit(implicitly[TypeMapping[T]].getNativeType(), mode)) {
   val argValue: T = arg_value
 

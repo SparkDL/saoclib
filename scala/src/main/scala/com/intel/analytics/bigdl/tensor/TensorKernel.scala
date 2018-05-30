@@ -20,28 +20,28 @@ class TensorKernel[T <: AnyVal : ClassTag : TypeMapping]
     val argNum = inputNum + 1
     val args = new Array[ArgArray[T]](argNum)
     for ((t, i) <- inputs.view.zipWithIndex) {
-      args(i) = ArgArray(TensorKernel.getStorageArray(t))(modeInput)
+      args(i) = ArgArray(TensorKernel.tensor2array(t))(mode_input)
     }
-    args(argNum - 1) = ArgArray.fill(outputSize.product)(ev.fromType[Int](0))(modeOutput)
+    args(argNum - 1) = ArgArray.fill(outputSize.product)(ev.fromType[Int](0))(mode_output)
     kernel.call(args)
-    return TensorKernel.toDenseTensor(args.last.argValue, outputSize)
+    return TensorKernel.array2tensor(args.last.argValue, outputSize)
   }
 }
 
 object TensorKernel {
-  def getStorageArray[T <: AnyVal : ClassTag : TypeMapping]
+  def tensor2array[T <: AnyVal : ClassTag : TypeMapping]
   (tensor: Tensor[T])
   (implicit ev: TensorNumeric[T]): Array[T] = {
     return tensor.storage().array()
   }
 
-  def toDenseTensor[T <: AnyVal : ClassTag : TypeMapping]
+  def array2tensor[T <: AnyVal : ClassTag : TypeMapping]
   (array: Array[T], size: Array[Int])
   (implicit ev: TensorNumeric[T]): Tensor[T] = {
     val expectedElemNum = size.product
     val givenElemNum = array.length
     if (givenElemNum != expectedElemNum) {
-      throw new NegativeArraySizeException(s"cannot convert $givenElemNum elements to a ${size.mkString("*")} tensor")
+      throw new IllegalArgumentException(s"cannot convert $givenElemNum elements to a ${size.mkString("*")} tensor")
     }
     return new DenseTensor[T](
       storage = new ArrayStorage[T](array),

@@ -54,8 +54,8 @@ int main(int argc, char **argv) {
     /* prepare input data */
 
     /* set size of matrices */
-    int N = 2;
-    int BLOCK_SIZE = 64;
+    int N = 1;
+    int BLOCK_SIZE = 2;
     int A_height = N * BLOCK_SIZE, A_width = N * BLOCK_SIZE;
     int B_height = A_width, B_width = N * BLOCK_SIZE;
     int C_height = A_height, C_width = B_width;
@@ -67,10 +67,10 @@ int main(int argc, char **argv) {
     b = new scoped_aligned_ptr<float>(B_size);
     c = new scoped_aligned_ptr<float>(C_size);
     for (unsigned i = 0; i < A_size; i++) {
-        (*a)[i] = 3.14;
+        (*a)[i] = i+1;
     }
     for (unsigned i = 0; i < B_size; i++) {
-        (*b)[i] = 3.14;
+        (*b)[i] = i+1;
     }
     /* wrap the raw data to kernelarg objects */
     ArgInt A_width_data = ArgInt(A_width, KernelArgMode::mode_input);

@@ -6,7 +6,7 @@ trait KernelArgMode {
   def id: Long
 }
 
-object modeInput extends KernelArgMode {
+object mode_input extends KernelArgMode {
   val _id: Long = KernelArgModeID.id_mode_input
 
   override def id: Long = _id
@@ -14,7 +14,7 @@ object modeInput extends KernelArgMode {
   override def toString: String = "input"
 }
 
-object modeOutput extends KernelArgMode {
+object mode_output extends KernelArgMode {
   val _id: Long = KernelArgModeID.id_mode_output
 
   override def id: Long = _id
@@ -22,7 +22,7 @@ object modeOutput extends KernelArgMode {
   override def toString: String = "output"
 }
 
-object modeInputOutput extends KernelArgMode {
+object mode_input_output extends KernelArgMode {
   val _id: Long = KernelArgModeID.id_mode_input_output
 
   override def id: Long = _id
