@@ -61,7 +61,7 @@ sealed abstract class KernelArg(_argLimit: KernelArgLimit)
 }
 
 class ArgVal[T <: AnyVal : ClassTag : NativeTypeMapping](arg_value: T)(mode: KernelArgMode)
-  extends KernelArg(limit(implicitly[NativeTypeMapping[T]].getNativeType(), mode)) {
+  extends KernelArg(limit(implicitly[NativeTypeMapping[T]].nativeType, mode)) {
   val argValue: T = arg_value
 
   override def getArgValue: Object = arg_value.asInstanceOf[Object]
@@ -74,7 +74,7 @@ object ArgVal {
 }
 
 class ArgArray[T <: AnyVal : ClassTag : NativeTypeMapping](arg_value: Array[T])(mode: KernelArgMode)
-  extends KernelArg(limit(c_array(implicitly[NativeTypeMapping[T]].getNativeType(), arg_value.length), mode)) {
+  extends KernelArg(limit(c_array(implicitly[NativeTypeMapping[T]].nativeType, arg_value.length), mode)) {
 
   def this(size: Int)(mode: KernelArgMode) = this(new Array[T](size))(mode)
 
