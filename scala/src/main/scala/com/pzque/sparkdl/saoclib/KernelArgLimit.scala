@@ -1,6 +1,6 @@
 package com.pzque.sparkdl.saoclib
 
-case class KernelArgLimit(argType: NativeType, argMode: KernelArgMode)
+class KernelArgLimit(argType: NativeType, argMode: KernelArgMode)
   extends KernelArgQuery {
   def verify(arg: KernelArg): Boolean = {
     val ret = this == arg.argLimit
@@ -78,6 +78,6 @@ case class KernelArgLimit(argType: NativeType, argMode: KernelArgMode)
 
 object limit {
   def apply(arg_type: NativeType, arg_mode: KernelArgMode): KernelArgLimit = {
-    KernelArgLimit(arg_type, arg_mode)
+    new KernelArgLimit(arg_type, arg_mode)
   }
 }

@@ -16,7 +16,6 @@ object c_void extends NativeType {
   val _size: Long = 0
   val _id: Long = NativeTypeID.id_c_void
 
-
   override type ScalaType = Unit
 
   override def size: Long = _size

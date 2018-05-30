@@ -1,7 +1,7 @@
 package com.pzque.sparkdl.saoclib
 
 /**
-  * this trait is used to map Scala value type to native C type
+  * This trait is used to map Scala value type to native C type
   *
   * @tparam T
   */
