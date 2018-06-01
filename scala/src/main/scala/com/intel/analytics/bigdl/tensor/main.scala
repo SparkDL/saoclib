@@ -1,12 +1,41 @@
 package com.intel.analytics.bigdl.tensor
 
+import com.intel.analytics.bigdl.nn.{FMath, Linear, FLinear}
 import com.intel.analytics.bigdl.utils.T
 import com.pzque.sparkdl.saoclib._
 
 object main {
 
   def main(args: Array[String]): Unit = {
-    matrixMult()
+    System.loadLibrary("saoclib")
+    val w = Tensor[Float](T(
+      T(1f, 2f, 3f),
+      T(1f, 2f, 3f),
+      T(1f, 2f, 3f),
+      T(1f, 2f, 3f)
+    ))
+
+    val x = Tensor[Float](T(
+      T(1f, 2f, 3f),
+      T(1f, 2f, 3f)
+    ))
+
+    val c = Tensor[Float](2, 4)
+    FMath.matrixMult(x, w.t(), c)
+    println(w.t())
+
+  }
+
+  def testM(): Unit = {
+    val a = Tensor[Float](T(
+      T(1f, 2f, 3f, 4f),
+      T(1f, 2f, 3f, 4f),
+      T(1f, 2f, 3f, 4f),
+      T(1f, 2f, 3f, 4f)
+    ))
+    val c = Tensor[Float](4, 4)
+    FMath.matrixMult(a, a, c)
+    println(c)
   }
 
   def as[T](array: Array[T]): String = {
@@ -42,6 +71,32 @@ object main {
     println(as(x.storage().array()))
   }
 
+  def testLinear() = {
+
+    val weight = Tensor[Float](T(
+      T(1f, 2f, 3f),
+      T(1f, 2f, 3f),
+      T(1f, 2f, 3f),
+      T(1f, 2f, 3f)
+    ))
+    val bias = Tensor[Float](T(0.1f, 0.1f, 0.1f, 0.1f))
+    val linear = Linear[Float](3, 4, true)
+    val flinear = new FLinear[Float](3, 4, true)
+
+    linear.setWeightsBias(Array(weight, bias))
+    flinear.setWeightsBias(Array(weight, bias))
+    // x * w.T + b
+    val x = Tensor[Float](T(
+      T(1f, 2f, 3f),
+      T(1f, 2f, 3f)
+    ))
+    val expected = linear.updateOutput(x)
+    val actual = flinear.updateOutput(x)
+    println(s"w:\n${weight}")
+    println(s"b:\n${bias}")
+    println(s"x:\n${x}")
+    println(s"expected:\n${expected}\nactual:\n${actual}")
+  }
 
   def matrixMult() = {
     System.loadLibrary("saoclib")
