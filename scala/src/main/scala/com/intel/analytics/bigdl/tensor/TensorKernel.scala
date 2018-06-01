@@ -32,7 +32,10 @@ object TensorKernel {
   def tensor2array[T <: AnyVal : ClassTag : NativeTypeMapping]
   (tensor: Tensor[T])
   (implicit ev: TensorNumeric[T]): Array[T] = {
-    return tensor.storage().array()
+    if (tensor.isContiguous()) {
+      return tensor.storage().array()
+    }
+    return tensor.contiguous().storage().array()
   }
 
   def array2tensor[T <: AnyVal : ClassTag : NativeTypeMapping]

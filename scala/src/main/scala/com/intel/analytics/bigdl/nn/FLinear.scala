@@ -10,8 +10,7 @@ class FLinear[T <: AnyVal : ClassTag]
 (inputSize: Int,
  outputSize: Int,
  withBias: Boolean = true
-)(implicit ev: TensorNumeric[T],tm:NativeTypeMapping[T]) extends Linear[T](inputSize, outputSize, withBias) {
-
+)(implicit ev: TensorNumeric[T], tm: NativeTypeMapping[T]) extends Linear[T](inputSize, outputSize, withBias) {
 
   override def updateOutput(input: Tensor[T]): Tensor[T] = {
     require(input.dim() == 1 || input.dim() == 2,
@@ -37,7 +36,6 @@ class FLinear[T <: AnyVal : ClassTag]
       }
 
       FMath.matrixMult(input, weight.t(), output)
-      println(s"gg:\n$output")
       if (withBias) output.addr(ev.one, addBuffer, bias)
     }
     output

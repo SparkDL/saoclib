@@ -24,14 +24,19 @@ object FMath {
 
 
   def matrixMult[T <: AnyVal : ClassTag]
-  (x: Tensor[T], y: Tensor[T], output: Tensor[T])
+  (m1: Tensor[T], m2: Tensor[T], output: Tensor[T])
   (implicit ev: TensorNumeric[T], tm: NativeTypeMapping[T]) = {
+    require(m1.dim() == 2 && m2.dim() == 2,
+      s"matrices expected, got ${m1.dim()}, ${m2.dim()} tensors")
+    require(m1.size(2) == m2.size(1),
+      s"size mismatch, m1:${m1.size().mkString("x")} m2:${m2.size().mkString("x")}")
+
     // construct a kernel
     val BLOCK_SIZE: Int = 1
-    val aH: Int = x.size(1)
-    val aW: Int = x.size(2)
-    val bH: Int = y.size(1)
-    val bW: Int = y.size(2)
+    val aH: Int = m1.size(1)
+    val aW: Int = m1.size(2)
+    val bH: Int = m2.size(1)
+    val bW: Int = m2.size(2)
     val cH: Int = aH
     val cW: Int = bW
     val aSize = aH * aW
@@ -55,12 +60,15 @@ object FMath {
       _argLimits = limits
     )
 
+    val a = TensorKernel.tensor2array(m1)
+    val b = TensorKernel.tensor2array(m2)
+    val c = TensorKernel.tensor2array(output)
     // prepare kernel arguments
     val aWArg = ArgVal[Int](aW)(mode_input)
     val bWArg = ArgVal[Int](bW)(mode_input)
-    val aArg: ArgArray[T] = ArgArray(TensorKernel.tensor2array(x))(mode_input)
-    val bArg: ArgArray[T] = ArgArray(TensorKernel.tensor2array(y))(mode_input)
-    val cArg: ArgArray[T] = ArgArray(TensorKernel.tensor2array(output))(mode_output)
+    val aArg: ArgArray[T] = ArgArray(a)(mode_input)
+    val bArg: ArgArray[T] = ArgArray(b)(mode_input)
+    val cArg: ArgArray[T] = ArgArray(c)(mode_output)
 
     // call kernel
     var start, end: Long = 0

@@ -20,6 +20,7 @@ object LeNet5 {
       .add(Linear(100, classNum).setName("fc2"))
       .add(LogSoftMax())
   }
+
   def graph(classNum: Int): Module[Float] = {
     val input = Reshape(Array(1, 28, 28)).inputs()
     val conv1 = SpatialConvolution(1, 6, 5, 5).setName("conv1_5x5").inputs(input)

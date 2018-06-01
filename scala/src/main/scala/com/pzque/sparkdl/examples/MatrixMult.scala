@@ -1,104 +1,12 @@
-package com.intel.analytics.bigdl.tensor
+package com.pzque.sparkdl.examples
 
-import com.intel.analytics.bigdl.nn.{FMath, Linear, FLinear}
+import com.intel.analytics.bigdl.tensor.{Tensor, TensorKernel}
 import com.intel.analytics.bigdl.utils.T
 import com.pzque.sparkdl.saoclib._
 
-object main {
 
+object MatrixMult {
   def main(args: Array[String]): Unit = {
-    System.loadLibrary("saoclib")
-    val w = Tensor[Float](T(
-      T(1f, 2f, 3f),
-      T(1f, 2f, 3f),
-      T(1f, 2f, 3f),
-      T(1f, 2f, 3f)
-    ))
-
-    val x = Tensor[Float](T(
-      T(1f, 2f, 3f),
-      T(1f, 2f, 3f)
-    ))
-
-    val c = Tensor[Float](2, 4)
-    FMath.matrixMult(x, w.t(), c)
-    println(w.t())
-
-  }
-
-  def testM(): Unit = {
-    val a = Tensor[Float](T(
-      T(1f, 2f, 3f, 4f),
-      T(1f, 2f, 3f, 4f),
-      T(1f, 2f, 3f, 4f),
-      T(1f, 2f, 3f, 4f)
-    ))
-    val c = Tensor[Float](4, 4)
-    FMath.matrixMult(a, a, c)
-    println(c)
-  }
-
-  def as[T](array: Array[T]): String = {
-    array.mkString("[", ",", "]")
-  }
-
-  def test(): Unit = {
-    val a = Array(1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f)
-    val storage = new ArrayStorage[Float](a)
-    val ten = new DenseTensor[Float](
-      storage = storage,
-      storageOffset = 1,
-      size = Array[Int](3, 3),
-      stride = Array[Int](3, 1))
-
-    println(ten)
-
-    var x = Tensor[Float](
-      T(
-        T(T(1f, 2f, 3f),
-          T(4f, 5f, 6f)
-        ),
-        T(T(7f, 8f, 9f),
-          T(10f, 11f, 12f)
-        )))
-
-
-    println(s"storageOffset:${x.storageOffset()}")
-    println(s"size:${as(x.size())}")
-    println(s"stride:${as(x.stride())}")
-
-    println(x)
-    println(as(x.storage().array()))
-  }
-
-  def testLinear() = {
-
-    val weight = Tensor[Float](T(
-      T(1f, 2f, 3f),
-      T(1f, 2f, 3f),
-      T(1f, 2f, 3f),
-      T(1f, 2f, 3f)
-    ))
-    val bias = Tensor[Float](T(0.1f, 0.1f, 0.1f, 0.1f))
-    val linear = Linear[Float](3, 4, true)
-    val flinear = new FLinear[Float](3, 4, true)
-
-    linear.setWeightsBias(Array(weight, bias))
-    flinear.setWeightsBias(Array(weight, bias))
-    // x * w.T + b
-    val x = Tensor[Float](T(
-      T(1f, 2f, 3f),
-      T(1f, 2f, 3f)
-    ))
-    val expected = linear.updateOutput(x)
-    val actual = flinear.updateOutput(x)
-    println(s"w:\n${weight}")
-    println(s"b:\n${bias}")
-    println(s"x:\n${x}")
-    println(s"expected:\n${expected}\nactual:\n${actual}")
-  }
-
-  def matrixMult() = {
     System.loadLibrary("saoclib")
 
     // init opencl essentials

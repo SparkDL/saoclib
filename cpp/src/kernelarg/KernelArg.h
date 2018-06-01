@@ -120,10 +120,8 @@ namespace saoclib {
                   dataContainer(dataContainer) {
         }
 
+        // TODO check if 'dataContainer' needs to be released
         ~AlignedBuffer() {
-            if (dataContainer) {
-                delete dataContainer;
-            }
         }
 
         const void *getReadonlyDataPtr() const override {

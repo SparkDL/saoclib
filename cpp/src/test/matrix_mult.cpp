@@ -48,14 +48,41 @@ using namespace saoclib;
  */
 void cleanup() {};
 
+float *matrixMult(float *a, int aH, int aW,
+                  float *b, int bH, int bW);
 
 // Entry point.
 int main(int argc, char **argv) {
+    const int aH = 2, aW = 3, bH = 3, bW = 4;
+    const int cH = aH, cW = bW;
+    float a[aH][aW] = {
+            {1, 2, 3},
+            {1, 2, 3}
+    };
+    float b[bH][bW] = {
+            {1, 1, 1, 1},
+            {2, 2, 2, 2},
+            {3, 3, 3, 3}
+    };
+
+    auto ret = matrixMult((float *) a, aH, aW, (float *) b, bH, bW);
+
+
+    for (int i = 0; i < cH; i++) {
+        for (int j = 0; j < cW; j++) {
+            printf("%f,", ret[i * cW + j]);
+        }
+        printf("\n");
+    }
+}
+
+
+static void test() {
     /* prepare input data */
 
     /* set size of matrices */
-    int N = 1;
-    int BLOCK_SIZE = 2;
+    int N = 4;
+    int BLOCK_SIZE = 1;
     int A_height = N * BLOCK_SIZE, A_width = N * BLOCK_SIZE;
     int B_height = A_width, B_width = N * BLOCK_SIZE;
     int C_height = A_height, C_width = B_width;
@@ -67,10 +94,10 @@ int main(int argc, char **argv) {
     b = new scoped_aligned_ptr<float>(B_size);
     c = new scoped_aligned_ptr<float>(C_size);
     for (unsigned i = 0; i < A_size; i++) {
-        (*a)[i] = i+1;
+        (*a)[i] = i + 1;
     }
     for (unsigned i = 0; i < B_size; i++) {
-        (*b)[i] = i+1;
+        (*b)[i] = i + 1;
     }
     /* wrap the raw data to kernelarg objects */
     ArgInt A_width_data = ArgInt(A_width, KernelArgMode::mode_input);
@@ -108,8 +135,59 @@ int main(int argc, char **argv) {
     for (unsigned i = 0; i < C_size; i++) {
         printf("%f,", (*c)[i]);
     }
-
-    return 0;
 }
 
+float *matrixMult(float *a, int aH, int aW,
+                  float *b, int bH, int bW) {
+
+    /* prepare input data */
+
+    /* set size of matrices */
+    int N = 4;
+    int BLOCK_SIZE = 1;
+    int cH = aH, cW = bW;
+    size_t aSize = aH * aW, bSize = bH * bW, cSize = cH * cW;
+
+    /* prepare raw data */
+    scoped_aligned_ptr<float> *aSap, *bSap, *cSap;
+    aSap = new scoped_aligned_ptr<float>();
+    bSap = new scoped_aligned_ptr<float>();
+    aSap->reset(a);
+    bSap->reset(b);
+    cSap = new scoped_aligned_ptr<float>(cSize);
+
+    /* wrap the raw data to kernelarg objects */
+    ArgInt A_width_data = ArgInt(aW, KernelArgMode::mode_input);
+    ArgInt B_width_data = ArgInt(bW, KernelArgMode::mode_input);
+    ArgBufferFloat A_data = ArgBufferFloat(aSap, aSize, KernelArgMode::mode_input);
+    ArgBufferFloat B_data = ArgBufferFloat(bSap, bSize, KernelArgMode::mode_input);
+    ArgBufferFloat C_data = ArgBufferFloat(cSap, cSize, KernelArgMode::mode_output);
+    KernelArg *args[5] = {&A_width_data, &B_width_data, &A_data, &B_data, &C_data};
+
+    /* set inputs and output limits */
+    KernelArgLimit arg_limits[5] =
+            {KernelArgLimit(TypeTagPrimitive::getTypeTag<int>(), KernelArgMode::mode_input),
+             KernelArgLimit(TypeTagPrimitive::getTypeTag<int>(), KernelArgMode::mode_input),
+             KernelArgLimit(TypeTagArray::getTypeTag<float>(aSize), KernelArgMode::mode_input),
+             KernelArgLimit(TypeTagArray::getTypeTag<float>(bSize), KernelArgMode::mode_input),
+             KernelArgLimit(TypeTagArray::getTypeTag<float>(cSize), KernelArgMode::mode_output)};
+
+    /* init an FPGA image */
+    CLEnv env;
+    env.initOpenCL();
+
+    CLImage image(&env, "matrix_mult");
+    auto device = env.getDeviceID(0);
+    image.deployImage(&device, 1);
+
+    /* init the kernel */
+    size_t global_work_size[2] = {cW, cH};
+    size_t local_work_size[2] = {BLOCK_SIZE, BLOCK_SIZE};
+    NDRangeKernel kernel(2, global_work_size, local_work_size,
+                         &image, device, "matrixMult", arg_limits, 5);
+    /* call kernel with inputs and output */
+    kernel.call(args, 5);
+
+    return cSap->get();
+}
 

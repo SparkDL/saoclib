@@ -1,11 +1,12 @@
+package com.pzque.sparkdl.examples
+
 import com.pzque.sparkdl.saoclib._
 
-object App {
+/**
+  * add 2 vectors
+  */
+object VectorAdd {
   def main(args: Array[String]): Unit = {
-    vectorAdd()
-  }
-
-  def vectorAdd() = {
     System.loadLibrary("saoclib")
 
     // init opencl essentials
@@ -54,5 +55,4 @@ object App {
     println(s"Kernel cost: ${end - start}ms")
     println("\n\n")
   }
-
 }
