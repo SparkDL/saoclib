@@ -6,7 +6,7 @@ import com.pzque.sparkdl.saoclib._
 
 import scala.reflect.ClassTag
 
-class FLinear[T <: AnyVal : ClassTag]
+class FpgaLinear[T <: AnyVal : ClassTag]
 (inputSize: Int,
  outputSize: Int,
  withBias: Boolean = true
@@ -41,4 +41,13 @@ class FLinear[T <: AnyVal : ClassTag]
     output
   }
 
+}
+
+object FpgaLinear {
+  def apply[T <: AnyVal : ClassTag]
+  (inputSize: Int,
+   outputSize: Int,
+   withBias: Boolean = true
+  )(implicit ev: TensorNumeric[T], tm: NativeTypeMapping[T]): FpgaLinear[T] =
+    new FpgaLinear(inputSize, outputSize, withBias)
 }

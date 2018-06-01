@@ -1,10 +1,10 @@
 package com.pzque.sparkdl.examples
 
-import com.intel.analytics.bigdl.nn.{FLinear, Linear}
+import com.intel.analytics.bigdl.nn.{FpgaLinear, Linear}
 import com.intel.analytics.bigdl.tensor.Tensor
 import com.intel.analytics.bigdl.utils.T
 
-object FpgaLinear {
+object FpgaLinearTest {
   def main(args: Array[String]): Unit = {
     System.loadLibrary("saoclib")
     val weight = Tensor[Float](T(
@@ -15,7 +15,7 @@ object FpgaLinear {
     ))
     val bias = Tensor[Float](T(0.1f, 0.1f, 0.1f, 0.1f))
     val linear = Linear[Float](3, 4, true)
-    val flinear = new FLinear[Float](3, 4, true)
+    val flinear = new FpgaLinear[Float](3, 4, true)
 
     linear.setWeightsBias(Array(weight, bias))
     flinear.setWeightsBias(Array(weight, bias))

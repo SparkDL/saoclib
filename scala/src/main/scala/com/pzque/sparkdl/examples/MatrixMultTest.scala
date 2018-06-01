@@ -5,7 +5,7 @@ import com.intel.analytics.bigdl.utils.T
 import com.pzque.sparkdl.saoclib._
 
 
-object MatrixMult {
+object MatrixMultTest {
   def main(args: Array[String]): Unit = {
     System.loadLibrary("saoclib")
 

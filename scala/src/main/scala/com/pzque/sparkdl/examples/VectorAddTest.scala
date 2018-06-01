@@ -5,7 +5,7 @@ import com.pzque.sparkdl.saoclib._
 /**
   * add 2 vectors
   */
-object VectorAdd {
+object VectorAddTest {
   def main(args: Array[String]): Unit = {
     System.loadLibrary("saoclib")
 
