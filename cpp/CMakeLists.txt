@@ -36,6 +36,7 @@ file(GLOB typetag "src/typetag/*")
 file(GLOB kernelarg "src/kernelarg/*")
 file(GLOB cl "src/cl/*")
 file(GLOB api "src/api/*")
+file(GLOB test "src/test/*")
 
 set(srcs ${utils} ${typetag} ${kernelarg} ${cl})
 
@@ -47,6 +48,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../bin)
 # target executable
 add_executable(matrix_mult.exe src/test/matrix_mult.cpp ${srcs})
 add_executable(vector_add.exe src/test/vector_add.cpp ${srcs})
+add_executable(two_vec_ops.exe src/test/two_vec_ops.cpp ${srcs})
+add_executable(single_vec_ops.exe src/test/single_vec_ops.cpp ${srcs})
 
 # target dynamic library
 add_library(saoclib SHARED ${api} ${srcs})
