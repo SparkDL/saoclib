@@ -79,7 +79,7 @@ __kernel void vsDiv(__global const float *restrict x,
                     __global float *restrict z) {
     // get index of the work item
     int index = get_global_id(0);
-    z[index] = native_divide(x[index], y[index]);
+    z[index] = x[index] / y[index];
 }
 
 __kernel void vsPowx(__global const float *restrict x,
