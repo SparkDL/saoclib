@@ -65,8 +65,31 @@ y = abs(a)
 void vsAbs(int n, float *a, float *y)
 ```
 
+## vsdot
+y = abs(a)
+```c++
+void cblas_sdot(int n, float *sx, float incx, float *sy, float incy)
+```
+
+- N
+  N is INTEGER
+  number of elements in input vector(s)
+- SX
+  SX is REAL array, dimension ( 1 + ( N - 1 )*abs( INCX ) )
+- INCX	
+  INCX is INTEGER
+  storage spacing between elements of SX
+- SY
+  SY is REAL array, dimension ( 1 + ( N - 1 )*abs( INCY ) )
+- INCY
+  INCY is INTEGER
+  storage spacing between elements of SY
+
 ## cblas_saxpy
 
+```c++
+void cblas_saxpy(int n, float *a, float *y)
+```
 ## cblas_sdot
 
 ## cblas_sscal
