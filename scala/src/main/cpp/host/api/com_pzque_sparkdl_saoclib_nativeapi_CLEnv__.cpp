@@ -3,7 +3,7 @@
 //
 
 #include "com_pzque_sparkdl_saoclib_nativeapi_CLEnv__.h"
-#include "../src/saoclib.h"
+#include "../host/saoclib.h"
 
 using namespace saoclib;
 

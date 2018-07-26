@@ -35,8 +35,8 @@
 // This kernel is intended to be compiled with the following compiler flags:
 //  --no-interleaving default
 //    This flag indicates that the global memory is divided into two logical
-//    banks and allows the src program to assign buffers to specific buffers.
-//    This allows the src to manage the load on each memory bank, usually
+//    banks and allows the host program to assign buffers to specific buffers.
+//    This allows the host to manage the load on each memory bank, usually
 //    to maximize the memory bandwidth usage.
 //
 //    This flag is used for matrix multiplication because there are
@@ -77,8 +77,8 @@
 // There are two values that need to be defined in the preprocessor.
 //  BLOCK_SIZE
 //    The dimension of the block used in the core computation
-//    is BLOCK_SIZE x BLOCK_SIZE. This is defined in the src
-//    include file because the src needs to know too (just to
+//    is BLOCK_SIZE x BLOCK_SIZE. This is defined in the host
+//    include file because the host needs to know too (just to
 //    ensure that the matrix sizes are a multiple of the block
 //    size.
 //  SIMD_WORK_ITEMS

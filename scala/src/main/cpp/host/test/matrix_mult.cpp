@@ -20,18 +20,18 @@
 // by the laws of the United States of America.
 
 ///////////////////////////////////////////////////////////////////////////////////
-// This src program executes a vector addition kernel to perform:
+// This host program executes a vector addition kernel to perform:
 //  C = A + B
 // where A, B and C are vectors with N elements.
 //
-// This src program supports partitioning the problem across multiple OpenCL
+// This host program supports partitioning the problem across multiple OpenCL
 // devices if available. If there are M available devices, the problem is
-// divided so that each device operates on N/M points. The src program
+// divided so that each device operates on N/M points. The host program
 // assumes that all devices are of the same type (that is, the same binary can
 // be used), but the code can be generalized to support different device types
 // easily.
 //
-// Verification is performed against the same computation on the src CPU.
+// Verification is performed against the same computation on the host CPU.
 ///////////////////////////////////////////////////////////////////////////////////
 
 #include <cstdio>

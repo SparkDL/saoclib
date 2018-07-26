@@ -20,36 +20,36 @@ include_directories($ENV{JAVA_HOME}/include
         $ENV{JAVA_HOME}/include/win32
         $ENV{JAVA_HOME}/include/linux)
 include_directories(common/inc)
-include_directories(src
-        src/api
-        src/cl
-        src/kernelarg
-        src/typetag
-        src/utils)
+include_directories(host
+        host/api
+        host/cl
+        host/kernelarg
+        host/typetag
+        host/utils)
 include_directories(/usr/lib/jvm/default-java/)
 
 set(libs rt pthread)
 link_libraries(${libs})
 
-file(GLOB utils "common/src/AOCLUtils/*.cpp" "src/utils/*")
-file(GLOB typetag "src/typetag/*")
-file(GLOB kernelarg "src/kernelarg/*")
-file(GLOB cl "src/cl/*")
-file(GLOB api "src/api/*")
-file(GLOB test "src/test/*")
+file(GLOB utils "common/src/AOCLUtils/*.cpp" "host/utils/*")
+file(GLOB typetag "host/typetag/*")
+file(GLOB kernelarg "host/kernelarg/*")
+file(GLOB cl "host/cl/*")
+file(GLOB api "host/api/*")
+file(GLOB test "host/test/*")
 
 set(srcs ${utils} ${typetag} ${kernelarg} ${cl})
 
 # output directory
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../bin)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../bin)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../../../target/classes)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../../../target/classes)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../../../target/classes)
 
 # target executable
-add_executable(matrix_mult.exe src/test/matrix_mult.cpp ${srcs})
-add_executable(vector_add.exe src/test/vector_add.cpp ${srcs})
-add_executable(two_vec_ops.exe src/test/two_vec_ops.cpp ${srcs})
-add_executable(single_vec_ops.exe src/test/single_vec_ops.cpp ${srcs})
+add_executable(matrix_mult.exe host/test/matrix_mult.cpp ${srcs})
+add_executable(vector_add.exe host/test/vector_add.cpp ${srcs})
+add_executable(two_vec_ops.exe host/test/two_vec_ops.cpp ${srcs})
+add_executable(single_vec_ops.exe host/test/single_vec_ops.cpp ${srcs})
 
 # target dynamic library
-add_library(saoclib SHARED ${api} ${srcs})
+add_library(aoclmkl SHARED ${api} ${srcs})

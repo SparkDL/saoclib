@@ -1,5 +1,5 @@
 # cl
-All .cl deivce files are here.
+All .device deivce files are here.
 
 ## 1. Setting  user environment variables
 a. Copy the 'opencl-intel-fpga-env.sh' to '/etc/profile.d'

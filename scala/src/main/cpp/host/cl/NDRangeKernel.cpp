@@ -61,9 +61,9 @@ namespace saoclib {
         cl_int status;
         const double start_time = getCurrentTimestamp();
 
-        // Transfer inputs to device. Each of the src buffers supplied to
+        // Transfer inputs to device. Each of the host buffers supplied to
         // clEnqueueWriteBuffer here is already aligned to ensure that DMA is used
-        // for the src-to-device transfer.
+        // for the host-to-device transfer.
         cl_event write_event;
         unsigned arg_mems_index = 0;
         for (unsigned i = 0; i < num_args; i++) {

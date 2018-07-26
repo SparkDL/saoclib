@@ -2,14 +2,14 @@
 
 hstr="""
 Usage:\n
-\tbuild.sh\t\t\t: build all .cl files \n
-\tbuild.sh all\t\t\t: build all .cl files \n
+\tbuild.sh\t\t\t: build all .device files \n
+\tbuild.sh all\t\t\t: build all .device files \n
 \tbuild.sh file\t\t\t: build specific target file \n
 \tbuild.sh [file]+\t\t\t: build multiple files \n
 e.g. \n
 \tbuild \n
-\tbuild vector_add.cl \n
-\tbuild vector_add.cl matrix_mult.cl
+\tbuild vector_add.device \n
+\tbuild vector_add.device matrix_mult.device
 """
 function echohelp() {
 	echo -e $hstr

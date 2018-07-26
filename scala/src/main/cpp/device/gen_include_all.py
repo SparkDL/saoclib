@@ -19,25 +19,25 @@ def gen(directory,file_path):
     print('Kernel files in directory "{}" are included into "{}" successfully.'.format(directory,file_path))
     
 usage = """
-This script is used to include all .cl files to a single .cl file.
+This script is used to include all .device files to a single .device file.
 usage:
     python *this_file*
     ( equals to
-        python *this_file* kernels aocl_blas.cl )
+        python *this_file* kernels aocl_blas.device )
     or
     python *this_file* KERNELS_DIRECTORY TARGET_PATH
 examples:
-    python *this_file* kernels aocl_blas.cl
-    python *this_file* piped_kernels piped_aocl_blas.cl
+    python *this_file* kernels aocl_blas.device
+    python *this_file* piped_kernels piped_aocl_blas.device
 """
 def main():
     args = len(sys.argv)
     if args == 1:
         kernels_root = 'kernels'
-        target_path = 'aocl_blas.cl'
+        target_path = 'aocl_blas.device'
     elif args == 3:
         kernels_root = 'kernels'
-        target_path = 'aocl_blas.cl'
+        target_path = 'aocl_blas.device'
     else:
         print(usage)
         exit(-1)
