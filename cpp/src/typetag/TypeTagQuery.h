@@ -10,7 +10,6 @@
 #include <memory>
 #include "NativeTypeID.h"
 
-
 namespace saoclib {
     class TypeTag;
 

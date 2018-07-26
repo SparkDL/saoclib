@@ -6,7 +6,6 @@
 #include "TypeTagPrimitive.h"
 
 namespace saoclib {
-
     std::shared_ptr<TypeTagArray>
     TypeTagArray::fromElemType(const std::shared_ptr<TypeTag> &elemType, size_t arrayLength) {
         return std::make_shared<TypeTagArray>(elemType, arrayLength);
@@ -56,5 +55,4 @@ namespace saoclib {
     std::string TypeTagArray::toString() const {
         return elemType->toString() + "[" + std::to_string(arrayLength) + "]";
     }
-
 }

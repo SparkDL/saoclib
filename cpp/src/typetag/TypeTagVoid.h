@@ -38,8 +38,6 @@ namespace saoclib {
         size_t getArrayLength() const override;
 
         std::string toString() const override;
-
-
     };
 }
 

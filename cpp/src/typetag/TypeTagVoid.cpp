@@ -6,7 +6,6 @@
 #include "TypeTagVoid.h"
 
 namespace saoclib {
-
     const std::shared_ptr<TypeTagVoid> &TypeTagVoid::getInstance() {
         static auto instance = std::make_shared<TypeTagVoid>();
         return instance;

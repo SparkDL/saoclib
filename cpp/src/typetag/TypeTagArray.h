@@ -44,9 +44,7 @@ namespace saoclib {
                 : TypeTag(NativeTypeID::c_array),
                   elemType(elemType),
                   arrayLength(arrayLength) {
-
         }
-
     private:
         std::shared_ptr<TypeTag> elemType;
         size_t arrayLength;
