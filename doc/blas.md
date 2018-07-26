@@ -72,17 +72,25 @@ void cblas_sdot(int n, float *sx, float incx, float *sy, float incy)
 ```
 
 - N
+
   N is INTEGER
+
   number of elements in input vector(s)
 - SX
+
   SX is REAL array, dimension ( 1 + ( N - 1 )*abs( INCX ) )
-- INCX	
+- INCX
+
   INCX is INTEGER
+
   storage spacing between elements of SX
 - SY
+
   SY is REAL array, dimension ( 1 + ( N - 1 )*abs( INCY ) )
 - INCY
+
   INCY is INTEGER
+  
   storage spacing between elements of SY
 
 ## cblas_saxpy
