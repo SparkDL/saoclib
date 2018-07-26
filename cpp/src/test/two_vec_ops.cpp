@@ -15,11 +15,12 @@ void cleanup() {};
 
 // Entry point.
 int main(int argc, char **argv) {
-    if (argc != 2) {
-        printf("please assign the operation op_name\n");
+    if (argc != 3) {
+        printf("usage: *THIS_FILE* image_path function_name\n");
         exit(-1);
     }
-    const char * op_name = argv[1];
+    const char *image_path = argv[1];
+    const char *op_name = argv[2];
     /* assign the size of vector */
     const size_t N = 100;
     const unsigned num_args = 3;
@@ -51,7 +52,7 @@ int main(int argc, char **argv) {
     CLEnv env;
     env.initOpenCL();
 
-    CLImage image(&env, "vsblas");
+    CLImage image(&env, image_path);
     auto device = env.getDeviceID(0);
     image.deployImage(&device, 1);
 
