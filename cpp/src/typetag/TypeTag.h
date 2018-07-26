@@ -12,12 +12,12 @@
 namespace saoclib {
     class TypeTag : public TypeTagQuery {
     public:
-        virtual ~TypeTag() = default;
+        ~TypeTag() override = default;
 
         virtual bool equals(const std::shared_ptr<TypeTag> &rhs) const = 0;
 
     protected:
-        TypeTag(NativeTypeID typeID);;
+        explicit TypeTag(NativeTypeID typeID);
         NativeTypeID typeID = NativeTypeID::c_void;
     };
 }

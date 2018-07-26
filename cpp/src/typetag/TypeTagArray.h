@@ -18,7 +18,6 @@ namespace saoclib {
 
         static std::shared_ptr<TypeTagArray> fromElemType(const std::shared_ptr<TypeTag> &elemType, size_t arrayLength);
 
-
         bool equals(const std::shared_ptr<TypeTag> &rhs) const override;
 
         bool isVoid() const override;
