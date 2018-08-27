@@ -8,10 +8,7 @@
 #include <cstddef>
 #include "AOCLUtils/aocl_utils.h"
 
-#include "KernelArgLimit.h"
-#include "TypeTagVoid.h"
-#include "TypeTagPrimitive.h"
-#include "TypeTagArray.h"
+#include "KernelArgSignature.h"
 
 namespace saoclib {
     using namespace aocl_utils;
@@ -19,18 +16,17 @@ namespace saoclib {
     /**
      * This class is used to describe and store kernel parameters/arguments.
      */
-    class KernelArg : public KernelArgQuery {
+    class KernelArg {
     public:
-
-        KernelArg(KernelArgLimit limit);
+        explicit KernelArg(KernelArgSignature signature) : signature(signature) {};
 
         /**
          * Check if the data meets given Limit, including type and size.
          * @param rhs
          * @return if valid
          */
-        virtual bool verify(const KernelArgLimit &rhs) const {
-            return (limit == rhs);
+        bool verify(const KernelArgSignature &rhs) const {
+            return (signature == rhs);
         }
 
         /**
@@ -49,52 +45,19 @@ namespace saoclib {
          */
         virtual void *getWriteableDataPtr() =0;
 
-        KernelArgMode getMode() const override;
-
-        const std::shared_ptr<TypeTag> &getTypeTag() const override;
-
-        bool isVoid() const override;
-
-        bool isPrimitive() const override;
-
-        bool isArray() const override;
-
-        NativeTypeID getTypeID() const override;
-
-        NativeTypeID getElemTypeID() const override;
-
-        const std::shared_ptr<TypeTag> &getElemType() const override;
-
-        size_t getSize() const override;
-
-        size_t getElemSize() const override;
-
-        size_t getArrayLength() const override;
+        const KernelArgSignature &getSignature() const {
+            return signature;
+        }
 
     private:
-        KernelArgLimit limit;
-    };
-
-    class Void : public KernelArg {
-    public:
-        Void() : KernelArg(KernelArgLimit(TypeTagVoid::getInstance(), KernelArgMode::mode_output)) {}
-
-        const void *getReadonlyDataPtr() const override {
-            return NULL;
-        }
-
-        void *getWriteableDataPtr() override {
-            return NULL;
-        }
+        KernelArgSignature signature;
     };
 
     template<class T>
     class Primitive : public KernelArg {
     public:
         Primitive(T data, KernelArgMode mode)
-                : KernelArg(
-                KernelArgLimit(TypeTagPrimitive::fromTypeId(NativeTypeIDMapping<T>::typeID),
-                               mode)),
+                : KernelArg(KernelArgSignature::primitive<T>(mode)),
                   data(data) {}
 
         const void *getReadonlyDataPtr() const override {
@@ -107,21 +70,20 @@ namespace saoclib {
 
     private:
         T data;
-        static const size_t size = sizeof(T);
     };
 
     template<class T>
-    class AlignedBuffer : public KernelArg {
+    class Array : public KernelArg {
     public:
-        AlignedBuffer(T *dataContainer,
-                      size_t arrayLength,
-                      KernelArgMode mode)
-                : KernelArg(KernelArgLimit(TypeTagArray::getTypeTag<T>(arrayLength), mode)),
+        Array(T *dataContainer,
+              size_t arrayLength,
+              KernelArgMode mode)
+                : KernelArg(KernelArgSignature::array<T>(mode, arrayLength)),
                   dataContainer(dataContainer) {
         }
 
         // TODO check if 'dataContainer' needs to be released
-        ~AlignedBuffer() {
+        ~Array() {
         }
 
         const void *getReadonlyDataPtr() const override {
@@ -135,22 +97,21 @@ namespace saoclib {
     private:
         // remember to release this container in destructor
         T *dataContainer;
-        static const size_t elemSize = sizeof(T);
     };
 
 
-    typedef Primitive<signed char> ArgByte;
-    typedef Primitive<short> ArgShort;
-    typedef Primitive<int> ArgInt;
-    typedef Primitive<long> ArgLong;
-    typedef Primitive<float> ArgFloat;
-    typedef Primitive<double> ArgDouble;
+    typedef Primitive<signed char> ByteArg;
+    typedef Primitive<short> ShortArg;
+    typedef Primitive<int> IntArg;
+    typedef Primitive<long> LongArg;
+    typedef Primitive<float> FloatArg;
+    typedef Primitive<double> DoubleArg;
 
-    typedef AlignedBuffer<signed char> ArgBufferByte;
-    typedef AlignedBuffer<short> ArgBufferShort;
-    typedef AlignedBuffer<int> ArgBufferInt;
-    typedef AlignedBuffer<long> ArgBufferLong;
-    typedef AlignedBuffer<float> ArgBufferFloat;
-    typedef AlignedBuffer<double> ArgBufferDouble;
+    typedef Array<signed char> ByteArrayArg;
+    typedef Array<short> ShortArrayArg;
+    typedef Array<int> IntArrayArg;
+    typedef Array<long> LongArrayArg;
+    typedef Array<float> FloatArrayArg;
+    typedef Array<double> DoubleArrayArg;
 }
 #endif //SAOCLIB_CPP_KERNEL_ARG_H

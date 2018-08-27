@@ -78,6 +78,7 @@ namespace saoclib {
     void CLEnv::cleanup() {
         if (context) {
             clReleaseContext(context);
+            context = NULL;
         }
     }
 

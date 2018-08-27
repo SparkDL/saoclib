@@ -1,4 +1,4 @@
-#include "../config.h"
+#include "config.h"
 
 __kernel void saxpy(int n,
                     float sa,

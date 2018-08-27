@@ -1,4 +1,4 @@
-#include "../config.h"
+#include "config.h"
 
 __kernel void vsSub(int n,
                     __global const float *restrict a,

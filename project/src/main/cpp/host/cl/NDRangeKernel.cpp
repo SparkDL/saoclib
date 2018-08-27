@@ -2,140 +2,218 @@
 // Created by pcz on 18-5-17.
 //
 
+#include <iostream>
 #include "NDRangeKernel.h"
 
 namespace saoclib {
 
-    NDRangeKernel::NDRangeKernel(cl_uint work_dim, const long *global_work_size_list, const long *local_work_size_list,
-                                 const CLImage *f_image, const cl_device_id device, const std::string &kernel_name,
-                                 const KernelArgLimit *arg_limits_raw, unsigned num_args)
-            : Kernel(f_image, device, kernel_name, arg_limits_raw, num_args),
-              work_dim(work_dim) {
-        this->global_work_size_list.reset(work_dim);
-        for (unsigned i = 0; i < work_dim; i++) {
-            this->global_work_size_list[i] = global_work_size_list[i];
-        }
-
-        if (local_work_size_list != NULL) {
-            this->local_work_size_list.reset(work_dim);
-            for (unsigned i = 0; i < work_dim; i++) {
-                this->local_work_size_list[i] = local_work_size_list[i];
-            }
-        }
-    }
-
-    NDRangeKernel::NDRangeKernel(cl_uint work_dim, const size_t *global_work_size_list,
-                                 const size_t *local_work_size_list, const CLImage *f_image, const cl_device_id device,
-                                 const std::string &kernel_name, const KernelArgLimit *arg_limits_raw,
+    NDRangeKernel::NDRangeKernel(const CLBinary *binary,
+                                 const cl_device_id device,
+                                 const std::string &kernel_name,
+                                 const KernelArgSignature *signatures,
                                  unsigned num_args)
-            : Kernel(f_image, device, kernel_name, arg_limits_raw, num_args),
-              work_dim(work_dim) {
-        this->global_work_size_list.reset(work_dim);
-        for (unsigned i = 0; i < work_dim; i++) {
-            this->global_work_size_list[i] = global_work_size_list[i];
-        }
+            : Kernel(binary, device, kernel_name, signatures, num_args) {}
 
-        if (local_work_size_list != NULL) {
-            this->local_work_size_list.reset(work_dim);
-            for (unsigned i = 0; i < work_dim; i++) {
-                this->local_work_size_list[i] = local_work_size_list[i];
-            }
-        }
-    }
+    NDRangeKernel::~NDRangeKernel() {}
 
-    bool NDRangeKernel::call(KernelArg **args, unsigned num_args) {
-        printf("Calling kernel '%s'\n", kernel_name.c_str());
-        cl_command_queue queue = f_image->getQueueForDevice(device);
-        // assure given parameters meets the limits
-        assert(num_args == this->num_args && "Wrong arguments count");
-        for (size_t i = 0; i < num_args; i++) {
-            auto limit = arg_limits[i];
-            auto arg = args[i];
-            printf("arg %lu: ", i);
-            printf("expected:%s,", limit.toString().c_str());
-            printf("actual:%s\n", arg->toString().c_str());
-            // TODO test this statement, it seems not work here
-            assert(arg->verify(limit));
-        }
+    bool NDRangeKernel::call(cl_uint work_dim,
+                             const size_t *global_work_size_list,
+                             const size_t *local_work_size_list,
+                             KernelArg **args,
+                             unsigned numArgs) {
+        log("\nCalling %s\n", kernelName.c_str());
+        cl_command_queue queue = binary->getDeviceQueue(device);
 
-        cl_int status;
+        /*
+         * Check kernel arguments signature
+         */
+        assert(numArgs == this->numArgs && "Wrong arguments count");
+        // checkArgs(args);
+
         const double start_time = getCurrentTimestamp();
 
-        // Transfer inputs to device. Each of the host buffers supplied to
-        // clEnqueueWriteBuffer here is already aligned to ensure that DMA is used
-        // for the host-to-device transfer.
-        cl_event write_event;
-        unsigned arg_mems_index = 0;
-        for (unsigned i = 0; i < num_args; i++) {
+        /*
+         * Transfer inputs to device. Each of the host buffers supplied to
+         * clEnqueueWriteBuffer here is already aligned to ensure that DMA is used
+         * for the host-to-device transfer.
+         */
+        executeTime(
+                [=]() {
+                    this->setInputs(args, numArgs);
+                },
+                (kernelName + "-setInputs").c_str()
+        );
+
+        /*
+         * Enqueue kernel.
+         */
+        executeTime(
+                [=]() {
+                    this->callKernel(work_dim, global_work_size_list, local_work_size_list);
+                },
+                (kernelName + "-callKernel").c_str()
+        );
+
+
+        /*
+         * Read the result. This the final operation.
+         */
+        executeTime(
+                [=]() {
+                    this->getOutputs(args, numArgs);
+                },
+                (kernelName + "-getOutputs").c_str()
+        );
+
+        const double end_time = getCurrentTimestamp();
+        // Wall-clock time taken.
+        log("Total time(%s): %0.3f ms\n\n", kernelName.c_str(), (end_time - start_time) * 1e3);
+    }
+
+    void NDRangeKernel::setInputs(KernelArg **args, int numArgs) {
+        cl_int status;
+        std::vector<cl_event> write_events;
+        for (unsigned i = 0; i < numArgs; i++) {
+            cl_event event = NULL;
             const KernelArg *arg = args[i];
-            if (arg->isArray() && arg->isInput()) {
-                status = clEnqueueWriteBuffer(f_image->getQueueForDevice(device), arg_mems[arg_mems_index],
-                                              CL_FALSE, 0, arg->getSize(),
-                                              arg->getReadonlyDataPtr(), 0, NULL, &write_event);
-                checkError(status, "Failed to transfer input %d", i);
-                arg_mems_index++;
+            auto &sig = arg->getSignature();
+            if (sig.isArray()) {
+                createBuffer(i, sig.getMode(), sig.getSize());
+                if (sig.isInput()) {
+                    writeBuffer(i, arg, &event);
+                    write_events.push_back(event);
+                }
             }
         }
-        // wait for writing action to finish
-        clWaitForEvents(1, &write_event);
+        clWaitForEvents(write_events.size(), write_events.data());
+        for (auto &e:write_events) {
+            clReleaseEvent(e);
+        }
 
-        // set kernel arguments.
-        arg_mems_index = 0;
-        for (unsigned i = 0; i < num_args; i++) {
+        for (unsigned i = 0; i < numArgs; i++) {
             KernelArg *arg = args[i];
-            if (arg->isArray()) {
-                status = clSetKernelArg(kernel, i, sizeof(cl_mem), &arg_mems[arg_mems_index]);
+            if (arg->getSignature().isArray()) {
+                status = clSetKernelArg(kernel, i, sizeof(cl_mem), &buffers[i]);
                 checkError(status, "Failed to set argument %d", i);
-                arg_mems_index++;
             } else {
                 const void *p_data = arg->getReadonlyDataPtr();
-                size_t size = arg->getSize();
+                size_t size = arg->getSignature().getSize();
                 status = clSetKernelArg(kernel, i, size, p_data);
                 checkError(status, "Failed to set argument %d", i);
             }
         }
+    }
 
-        // Enqueue kernel.
+    void NDRangeKernel::callKernel(cl_uint work_dim,
+                                   const size_t *global_work_size_list,
+                                   const size_t *local_work_size_list) {
+        auto queue = this->binary->getDeviceQueue(device);
+        cl_int status;
         cl_event kernel_event;
-        status = clEnqueueNDRangeKernel(queue, kernel, work_dim, NULL,
-                                        global_work_size_list.get(), local_work_size_list.get(), 0,
+        status = clEnqueueNDRangeKernel(queue,
+                                        kernel,
+                                        work_dim,
+                                        NULL,
+                                        global_work_size_list,
+                                        local_work_size_list,
+                                        0,
                                         NULL, &kernel_event);
         checkError(status, "Failed to launch kernel");
         // Wait for kernel to finish.
         clWaitForEvents(1, &kernel_event);
 
-        // Read the result. This the final operation.
-        scoped_array<cl_event> read_events(num_args);
-        unsigned num_read_events = 0;
-        arg_mems_index = 0;
-        for (unsigned i = 0; i < num_args; i++) {
-            KernelArg *arg = args[i];
-            if (arg->isArray()) {
-                if (arg->isOutput()) {
-                    status = clEnqueueReadBuffer(queue, arg_mems[arg_mems_index], CL_FALSE,
-                                                 0, arg_limits[i].getSize(), arg->getWriteableDataPtr(),
-                                                 0, NULL, &read_events[num_read_events]);
-                    checkError(status, "Failed to read buffer for output");
-                    num_read_events++;
-                }
-                arg_mems_index++;
-            }
-        }
-        clWaitForEvents(num_read_events, read_events.get());
-
-        const double end_time = getCurrentTimestamp();
-        // Wall-clock time taken.
-        printf("\nTime: %0.3f ms\n", (end_time - start_time) * 1e3);
-
         // Get kernel times using the OpenCL event profiling API.
-        cl_ulong time_ns = getStartEndTime(kernel_event);
-        printf("Kernel time (device %p): %0.3f ms\n", device, double(time_ns) * 1e-6);
+        // cl_ulong time_ns = getStartEndTime(kernel_event);
+        // printf("Kernel time (device %p): %0.3f ms\n", device, double(time_ns) * 1e-6);
 
-        // Release all events.
-        for (unsigned i = 0; i < num_read_events; i++) {
-            clReleaseEvent(read_events[i]);
-        }
-        clReleaseEvent(write_event);
         clReleaseEvent(kernel_event);
     }
+
+    void NDRangeKernel::getOutputs(KernelArg **args, int numArgs) {
+        cl_int status;
+        auto queue = this->binary->getDeviceQueue(device);
+        std::vector<cl_event> read_events;
+        for (unsigned i = 0; i < numArgs; i++) {
+            KernelArg *arg = args[i];
+            auto &sig = arg->getSignature();
+            if (sig.isArray() && sig.isOutput()) {
+                cl_event event;
+                status = clEnqueueReadBuffer(queue,
+                                             buffers[i],
+                                             CL_FALSE,
+                                             0,
+                                             sig.getSize(),
+                                             arg->getWriteableDataPtr(),
+                                             0,
+                                             NULL,
+                                             &event);
+                read_events.push_back(event);
+                checkError(status, "Failed to read buffer for output");
+            }
+        }
+        clWaitForEvents(read_events.size(), read_events.data());
+        for (auto &e:read_events) {
+            clReleaseEvent(e);
+        }
+    }
+
+
+    void NDRangeKernel::createBuffer(int i, KernelArgMode mode, size_t size) {
+        cl_int status;
+        auto context = this->binary->getEnv()->getContext();
+        // Only create new buffer when the old buffer is not sufficient
+        if (size > this->bufferSizes[i]) {
+            switch (mode) {
+                case KernelArgMode::input:
+                    this->buffers[i] = clCreateBuffer(context,
+                                                      CL_MEM_READ_ONLY,
+                                                      size,
+                                                      NULL,
+                                                      &status);
+                    break;
+                case KernelArgMode::output:
+                    this->buffers[i] = clCreateBuffer(context,
+                                                      CL_MEM_WRITE_ONLY,
+                                                      size,
+                                                      NULL,
+                                                      &status);
+                    break;
+                case KernelArgMode::input_output:
+                    this->buffers[i] = clCreateBuffer(context,
+                                                      CL_MEM_READ_WRITE,
+                                                      size,
+                                                      NULL,
+                                                      &status);
+                    break;
+            }
+            this->bufferSizes[i] = size;
+        }
+    }
+
+    void NDRangeKernel::writeBuffer(int i, const KernelArg *arg, cl_event *event) {
+        auto queue = this->binary->getDeviceQueue(device);
+        cl_int status;
+        status = clEnqueueWriteBuffer(queue,
+                                      buffers[i],
+                                      CL_FALSE,
+                                      0,
+                                      arg->getSignature().getSize(),
+                                      arg->getReadonlyDataPtr(),
+                                      0,
+                                      NULL,
+                                      event);
+        checkError(status, "Failed to transfer input %d", i);
+    }
+
+    bool NDRangeKernel::checkArgs(KernelArg **args) {
+        for (int i = 0; i < numArgs; i++) {
+            auto limit = signatures[i];
+            auto arg = args[i];
+            if (!arg->verify(limit)) {
+                return false;
+            }
+        }
+    }
+
+
 }

@@ -1,12 +1,11 @@
 #include "../config.h"
 
 __kernel
-__attribute__((num_compute_units(LEVEL1_NUM_COMPUTE_UNITS)))
-void saxpy(float sa,
-           __global const float *restrict sx,
+void saxpy(float a,
+           __global const float *restrict x,
            int incx,
-           __global float *restrict sy,
+           __global float *restrict y,
            int incy) {
     int i = get_global_id(0);
-    sy[incy * i] += sx[incx * i] * sa;
+    y[incy * i] += x[incx * i] * a;
 }

@@ -11,7 +11,6 @@ Purpose:
  */
 __kernel
 __attribute((reqd_work_group_size(SLICE_SIZE, SLICE_SIZE, 1)))
-__attribute__((num_compute_units(GER_NUM_COMPUTE_UNITS)))
 void sger(int m,
           int n,
           float alpha,

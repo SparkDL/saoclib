@@ -7,16 +7,20 @@
 
 #include <cstddef>
 #include <cassert>
+#include <functional>
 #include "NativeTypeID.h"
 #include "KernelArgMode.h"
 
 namespace saoclib {
+    void log(const char *format, ...);
+
+    void executeTime(const std::function<void()> &function, const char *name);
+
     size_t primitiveTypeSize(NativeTypeID typeID);
 
     const char *nativeTypeRepr(NativeTypeID typeID);
 
     const char *argModeRepr(KernelArgMode mode);
-
 
     bool isInput(KernelArgMode mode);
 

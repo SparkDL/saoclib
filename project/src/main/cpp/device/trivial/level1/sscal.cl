@@ -1,4 +1,4 @@
-#include "../config.h"
+#include "config.h"
 
 __kernel void sscal(int n,
                     float scale,

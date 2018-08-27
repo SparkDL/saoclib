@@ -1,4 +1,4 @@
-#include "../config.h"
+#include "config.h"
 
 __kernel void sdot(int n,
                    __global const float *restrict sx,

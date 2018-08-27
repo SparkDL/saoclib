@@ -1,4 +1,4 @@
-#include "../config.h"
+#include "config.h"
 
 __kernel void vsSqrt(int n,
                     __global const float *restrict a,
