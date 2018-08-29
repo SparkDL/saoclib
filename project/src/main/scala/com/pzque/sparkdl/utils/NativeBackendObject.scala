@@ -1,4 +1,4 @@
-package com.pzque.sparkdl.saoclib
+package com.pzque.sparkdl.utils
 
 abstract class NativeBackendObject extends AutoCloseable {
   protected var nativeHandle: Long = 0

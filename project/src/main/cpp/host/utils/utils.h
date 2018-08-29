@@ -12,7 +12,9 @@
 #include "KernelArgMode.h"
 
 namespace saoclib {
-    void log(const char *format, ...);
+    void log(const std::string &format, ...);
+
+    std::string getThreadString();
 
     void executeTime(const std::function<void()> &function, const char *name);
 

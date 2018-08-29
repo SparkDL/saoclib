@@ -41,7 +41,7 @@ void *alignedMalloc(size_t size);
 void alignedFree(void *ptr);
 
 // Error functions
-void printError(cl_int error);
+std::string printError(cl_int error);
 void _checkError(int line,
 								 const char *file,
 								 cl_int error,

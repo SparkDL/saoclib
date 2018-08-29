@@ -1,5 +1,6 @@
 package com.pzque.sparkdl.saoclib
 
+import com.pzque.sparkdl.utils.NativeBackendObject
 import nativeapi.CLEnv
 
 

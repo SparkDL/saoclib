@@ -7,12 +7,13 @@
 
 namespace saoclib {
 
-    NDRangeKernel::NDRangeKernel(const CLBinary *binary,
+    NDRangeKernel::NDRangeKernel(const CLProgram *binary,
                                  const cl_device_id device,
+                                 const cl_command_queue queue,
                                  const std::string &kernel_name,
                                  const KernelArgSignature *signatures,
                                  unsigned num_args)
-            : Kernel(binary, device, kernel_name, signatures, num_args) {}
+            : Kernel(binary, device, queue, kernel_name, signatures, num_args) {}
 
     NDRangeKernel::~NDRangeKernel() {}
 
@@ -22,8 +23,6 @@ namespace saoclib {
                              KernelArg **args,
                              unsigned numArgs) {
         log("\nCalling %s\n", kernelName.c_str());
-        cl_command_queue queue = binary->getDeviceQueue(device);
-
         /*
          * Check kernel arguments signature
          */
@@ -107,7 +106,6 @@ namespace saoclib {
     void NDRangeKernel::callKernel(cl_uint work_dim,
                                    const size_t *global_work_size_list,
                                    const size_t *local_work_size_list) {
-        auto queue = this->binary->getDeviceQueue(device);
         cl_int status;
         cl_event kernel_event;
         status = clEnqueueNDRangeKernel(queue,
@@ -131,7 +129,6 @@ namespace saoclib {
 
     void NDRangeKernel::getOutputs(KernelArg **args, int numArgs) {
         cl_int status;
-        auto queue = this->binary->getDeviceQueue(device);
         std::vector<cl_event> read_events;
         for (unsigned i = 0; i < numArgs; i++) {
             KernelArg *arg = args[i];
@@ -160,7 +157,7 @@ namespace saoclib {
 
     void NDRangeKernel::createBuffer(int i, KernelArgMode mode, size_t size) {
         cl_int status;
-        auto context = this->binary->getEnv()->getContext();
+        auto context = this->binary->getContext()->getRawContext();
         // Only create new buffer when the old buffer is not sufficient
         if (size > this->bufferSizes[i]) {
             switch (mode) {
@@ -191,7 +188,6 @@ namespace saoclib {
     }
 
     void NDRangeKernel::writeBuffer(int i, const KernelArg *arg, cl_event *event) {
-        auto queue = this->binary->getDeviceQueue(device);
         cl_int status;
         status = clEnqueueWriteBuffer(queue,
                                       buffers[i],

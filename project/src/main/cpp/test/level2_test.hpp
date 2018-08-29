@@ -25,14 +25,15 @@ TEST(level2, sger) {
         int n = 10;
         float alpha = 1.0;
         int lda = 10;
-        cblas_sger(CblasColMajor, m, n, alpha, x, incx, y, incy, a, lda);
+        testEnv->getAccelerator()->cblas_sger(CblasColMajor, m, n, alpha, x, incx, y, incy, a, lda);
         int total = lda * n;
         for (int i = 0; i < total; i++) {
             if (i % n == 0) {
                 std::cout << std::endl;
             }
-            std::cout << a[i] << ",";
+            std::cout << a[i] << ",0";
         }
+        std::cout << std::endl;
 
         EXPECT_EQ(1, 1);
     }

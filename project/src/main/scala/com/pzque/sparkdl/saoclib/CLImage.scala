@@ -1,5 +1,6 @@
 package com.pzque.sparkdl.saoclib
 
+import com.pzque.sparkdl.utils.NativeBackendObject
 import nativeapi.CLImage
 
 class CLImage(_clEnv: CLEnv, _imagePath: String) extends NativeBackendObject {

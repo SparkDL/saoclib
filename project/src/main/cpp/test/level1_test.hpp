@@ -3,10 +3,9 @@
 #include <cmath>
 #include <random>
 
-using namespace aclblas;
-
 static const int n = 1000;
 static const float abs_error = 0.0001f;
+extern BlasTestEnvironment *const testEnv;
 
 TEST(level1, vsAdd) {
     float *a = new float[n];
@@ -17,7 +16,7 @@ TEST(level1, vsAdd) {
         a[i] = random();
         b[i] = random();
     }
-    vsAdd(n, a, b, c);
+    testEnv->getAccelerator()->vsAdd(n, a, b, c);
     for (int i = 0; i < n; i++) {
         ASSERT_FLOAT_EQ(a[i] + b[i], c[i]);
     }
@@ -36,7 +35,7 @@ TEST(level1, vsSub) {
         a[i] = random();
         b[i] = random();
     }
-    vsSub(n, a, b, c);
+    testEnv->getAccelerator()->vsSub(n, a, b, c);
     for (int i = 0; i < n; i++) {
         ASSERT_FLOAT_EQ(a[i] - b[i], c[i]);
     }
@@ -55,7 +54,7 @@ TEST(level1, vsMul) {
         a[i] = random();
         b[i] = random();
     }
-    vsMul(n, a, b, c);
+    testEnv->getAccelerator()->vsMul(n, a, b, c);
     for (int i = 0; i < n; i++) {
         ASSERT_FLOAT_EQ(a[i] * b[i], c[i]);
     }
@@ -74,7 +73,7 @@ TEST(level1, vsDiv) {
         a[i] = random();
         b[i] = random();
     }
-    vsDiv(n, a, b, c);
+    testEnv->getAccelerator()->vsDiv(n, a, b, c);
     for (int i = 0; i < n; i++) {
         ASSERT_FLOAT_EQ(a[i] / b[i], c[i]);
     }
@@ -91,7 +90,7 @@ TEST(level1, vsSqrt) {
     for (int i = 0; i < n; i++) {
         a[i] = random();
     }
-    vsSqrt(n, a, y);
+    testEnv->getAccelerator()->vsSqrt(n, a, y);
     for (int i = 0; i < n; i++) {
         ASSERT_FLOAT_EQ(std::sqrt(a[i]), y[i]);
     }
@@ -107,7 +106,7 @@ TEST(level1, vsExp) {
     for (int i = 0; i < n; i++) {
         a[i] = random() + 0.1f;
     }
-    vsExp(n, a, y);
+    testEnv->getAccelerator()->vsExp(n, a, y);
     for (int i = 0; i < n; i++) {
         ASSERT_FLOAT_EQ(std::exp(a[i]), y[i]);
     }
@@ -123,7 +122,7 @@ TEST(level1, vsLn) {
     for (int i = 0; i < n; i++) {
         a[i] = random() + 0.1f;
     }
-    vsLn(n, a, y);
+    testEnv->getAccelerator()->vsLn(n, a, y);
     for (int i = 0; i < n; i++) {
         ASSERT_FLOAT_EQ(std::log(a[i]), y[i]);
     }
@@ -139,7 +138,7 @@ TEST(level1, vsLog1p) {
     for (int i = 0; i < n; i++) {
         a[i] = random() + 0.1f;
     }
-    vsLog1p(n, a, y);
+    testEnv->getAccelerator()->vsLog1p(n, a, y);
     for (int i = 0; i < n; i++) {
         ASSERT_FLOAT_EQ(std::log1p(a[i]), y[i]);
     }
@@ -155,7 +154,7 @@ TEST(level1, vsTanh) {
     for (int i = 0; i < n; i++) {
         a[i] = random() + 0.1f;
     }
-    vsTanh(n, a, y);
+    testEnv->getAccelerator()->vsTanh(n, a, y);
     for (int i = 0; i < n; i++) {
         ASSERT_FLOAT_EQ(std::tanh(a[i]), y[i]);
     }
@@ -172,7 +171,7 @@ TEST(level1, vsPowx) {
     for (int i = 0; i < n; i++) {
         a[i] = random() + 0.1f;
     }
-    vsPowx(n, a, b, y);
+    testEnv->getAccelerator()->vsPowx(n, a, b, y);
     for (int i = 0; i < n; i++) {
         ASSERT_FLOAT_EQ(std::pow(a[i], b), y[i]);
     }
@@ -205,7 +204,7 @@ TEST(level1, saxpy) {
             y_expect[yi] += a * x[xi];
         }
 
-        cblas_saxpy(n, a, x, incx, y_real, incy);
+        testEnv->getAccelerator()->cblas_saxpy(n, a, x, incx, y_real, incy);
 
         for (int i = 0; i < n; i++) {
             int yi = incy * i;
@@ -227,8 +226,8 @@ TEST(level1, sdot) {
         float *y = new float[n * incy];
 
         for (int i = 0; i < n; i++) {
-            x[i] = (random() % n) / (float) n;
-            y[i] = (random() % n) / (float) n;
+            x[i] = (random() % n) / (float) n + 0.001f;
+            y[i] = (random() % n) / (float) n + 0.001f;
         }
 
         float expect = 0;
@@ -242,7 +241,7 @@ TEST(level1, sdot) {
             expect1 += x[xi] * y[yi];
         }
 
-        float result = cblas_sdot(n, x, incx, y, incy);
+        float result = testEnv->getAccelerator()->cblas_sdot(n, x, incx, y, incy);
 
         if (result - expect > abs_error) {
             printf("n:%d,incx:%d,incy:%d", n, incx, incy);
@@ -264,7 +263,7 @@ TEST(level1, sscal) {
         x[i] = random() + 0.1f;
         x_expect[i] = scale * x[i];
     }
-    cblas_sscal(n, scale, x, incx);
+    testEnv->getAccelerator()->cblas_sscal(n, scale, x, incx);
     for (int i = 0; i < n; i++) {
         int xi = i * incx;
         if (x_expect[xi] != x[xi]) {

@@ -8,7 +8,7 @@
 #include <vector>
 #include <cassert>
 #include "AOCLUtils/aocl_utils.h"
-#include "CLBinary.h"
+#include "CLProgram.h"
 #include "KernelArg.h"
 
 
@@ -18,13 +18,14 @@ namespace saoclib {
     // TODO CheckError with cleanup
     class Kernel {
     public:
-        Kernel(const CLBinary *binary,
+        Kernel(const CLProgram *program,
                const cl_device_id device,
+               const cl_command_queue queue,
                const std::string &kernelName,
                const KernelArgSignature *signatures,
                unsigned numArgs);
 
-        virtual ~Kernel();;
+        virtual ~Kernel();
 
         void cleanup();
 
@@ -35,20 +36,32 @@ namespace saoclib {
                           unsigned num_args)=0;
 
     protected:
-        const CLBinary *binary; /// An FPGA image instance.
-        std::string kernelName; /// Name of kernel.
-        cl_device_id device; /// The device id of the device where the kernel will running on.
-        cl_kernel kernel;   /// OpenCL Kernel, need to be released in destructor.
+        /// An FPGA image instance.
+        const CLProgram *binary;
 
-        scoped_array<KernelArgSignature> signatures; /// Type and size limits of input array.
+        /// Name of kernel.
+        std::string kernelName;
+
+        /// The device where the kernel will running on.
+        cl_device_id device;
+
+        /// Queue used to invoke kernel
+        cl_command_queue queue;
+
+        /// OpenCL Kernel, need to be released in destructor.
+        cl_kernel kernel;
+
+        /// Signature of kernel parameters
+        scoped_array<KernelArgSignature> signatures;
+
+        /// Number of kernel parameters
         unsigned numArgs;
-        std::vector<cl_mem> buffers;  /// Input and output buffers(memory object).
+
+        /// Input and output buffers(memory object) used to communicate with device
+        std::vector<cl_mem> buffers;
+
+        /// Buffer size
         std::vector<size_t> bufferSizes;
     };
-
-
-
-//class SingleItemKernel : NDRangeKernel {
-//};
 }
 #endif //SAOCLIB_CPP_KERNEL_HPP

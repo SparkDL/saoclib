@@ -1,6 +1,7 @@
 package com.pzque.sparkdl.saoclib
 
 import com.pzque.sparkdl.saoclib.nativeapi.NDRangeKernel
+import com.pzque.sparkdl.utils.NativeBackendObject
 
 
 class NDRangeKernel

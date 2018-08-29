@@ -13,8 +13,8 @@
 #include "kernelarg/KernelArg.h"
 
 
-#include "cl/CLEnv.h"
-#include "cl/CLBinary.h"
+#include "cl/CLContext.h"
+#include "cl/CLProgram.h"
 #include "cl/Kernel.h"
 #include "cl/NDRangeKernel.h"
 

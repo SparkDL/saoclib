@@ -2,6 +2,14 @@
 // Created by pcz on 18-5-17.
 //
 
+#ifdef _WIN32
+#include <process.h>
+#else
+
+#include <unistd.h>
+
+#endif
+
 #include <AOCLUtils/opencl.h>
 #include <cstdarg>
 #include <thread>
@@ -9,19 +17,39 @@
 #include <sstream>
 #include "utils.h"
 
-
 namespace saoclib {
 
-    void log(const char *format, ...) {
+    void log(const std::string &format, ...) {
 #ifndef NDEBUG
+        auto pid = getpid();
+        std::string copiedFormat = format;
         std::thread::id tid = std::this_thread::get_id();
         std::stringstream stream;
-        stream << "Thread(" << tid << "):" << format;
+
+        for (int i = 0; i < copiedFormat.length(); i++) {
+            auto e = copiedFormat[i];
+            if (std::isblank(e) || e == '\n') {
+                stream << e;
+                copiedFormat.erase(i, 1);
+            } else {
+                break;
+            }
+        }
+
+        stream << "Process(" << pid << ")-" << "Thread(" << tid << "): " << copiedFormat;
+
         va_list args;
         va_start(args, format);
         vprintf(stream.str().c_str(), args);
         va_end(args);
 #endif
+    }
+
+    std::string getThreadString() {
+        std::thread::id tid = std::this_thread::get_id();
+        std::stringstream stream;
+        stream << tid;
+        return stream.str();
     }
 
     void executeTime(const std::function<void()> &function, const char *name) {
@@ -101,5 +129,6 @@ namespace saoclib {
                 return true;
         }
     }
+
 
 }

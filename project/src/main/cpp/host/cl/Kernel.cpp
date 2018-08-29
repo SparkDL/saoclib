@@ -5,13 +5,15 @@
 
 namespace saoclib {
 
-    Kernel::Kernel(const CLBinary *binary,
+    Kernel::Kernel(const CLProgram *program,
                    const cl_device_id device,
+                   const cl_command_queue queue,
                    const std::string &kernelName,
                    const KernelArgSignature *signatures,
                    unsigned numArgs)
-            : binary(binary),
+            : binary(program),
               device(device),
+              queue(queue),
               kernelName(kernelName),
               numArgs(numArgs),
               buffers(numArgs),
@@ -23,7 +25,7 @@ namespace saoclib {
         cl_int status;
 
         // Create kernel
-        kernel = clCreateKernel(binary->getProgram(), kernelName.c_str(), &status);
+        kernel = clCreateKernel(program->getProgram(), kernelName.c_str(), &status);
         checkError(status, "Failed to create kernel");
 
         // Create buffer for arguments

@@ -10,8 +10,9 @@
 namespace saoclib {
     class NDRangeKernel : public Kernel {
     public:
-        NDRangeKernel(const CLBinary *binary,
+        NDRangeKernel(const CLProgram *binary,
                       const cl_device_id device,
+                      const cl_command_queue queue,
                       const std::string &kernel_name,
                       const KernelArgSignature *signatures,
                       unsigned num_args);
