@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 using namespace saoclib;
-static const char *binaryPath = "/home/pcz/develop/saoclib/project/target/aclblas";
+static const char *binaryPath = "/home/pcz/aclblas";
 static ACLResourceManager manager(binaryPath);
 
 /*

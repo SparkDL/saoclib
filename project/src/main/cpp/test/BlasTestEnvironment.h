@@ -19,7 +19,8 @@ public:
     }
 
     void SetUp() override {
-        static const char *binaryPath = "/home/pcz/develop/saoclib/project/target/aclblas";
+        // static const char *binaryPath = "/home/pcz/develop/saoclib/project/target/aclblas";
+        static const char *binaryPath = "/home/pcz/aclblas";
         static ACLResourceManager manager(binaryPath);
         std::string reason;
         bool ok = manager.allocateAccelerator(&acc, reason);
@@ -30,7 +31,6 @@ public:
     }
 
     void TearDown() override {
-        delete acc;
     }
 
 private:

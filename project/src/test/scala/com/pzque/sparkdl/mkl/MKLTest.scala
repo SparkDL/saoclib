@@ -7,8 +7,8 @@ import scala.util.Random
 
 object MKLTest {
   def main(args: Array[String]): Unit = {
-    var m = 4
-    var n = 5
+    var m = 1000
+    var n = 500
     var alpha = 1f
     var incx = 1
     var incy = 1
@@ -29,12 +29,12 @@ object MKLTest {
       start = System.currentTimeMillis()
       mkl.vsger(m, n, alpha, x, 0, incx, y, 0, incy, a1, 0, lda)
       end = System.currentTimeMillis()
-      //println(f"aclblas cost: ${end - start}ms")
+      println(f"aclblas cost: ${end - start}ms")
 
       start = System.currentTimeMillis()
       iMKL.vsger(m, n, alpha, x, 0, incx, y, 0, incy, a2, 0, lda)
       end = System.currentTimeMillis()
-      //println(f"mkl cost: ${end - start}ms");
+      println(f"mkl cost: ${end - start}ms");
 
       //println(a1.sameElements(a2))
       if (!a1.sameElements(a2)) {

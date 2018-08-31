@@ -22,8 +22,9 @@ namespace saoclib {
     ACLResourceManager::~ACLResourceManager() {
         delete program;
         delete context;
-        for (auto p:accelerators) {
+        for (auto &p:accelerators) {
             delete p;
+            p = NULL;
         }
     }
 
