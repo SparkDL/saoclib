@@ -17,7 +17,7 @@
 #include <sstream>
 #include "utils.h"
 
-namespace saoclib {
+namespace acl {
 
     void log(const std::string &format, ...) {
 #ifndef NDEBUG

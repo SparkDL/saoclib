@@ -6,10 +6,10 @@
 #define SAOCLIB_CPP_CLPROGRAM_H
 
 #include <cassert>
-#include "CLContext.h"
+#include "Context.h"
 #include "AOCLUtils/aocl_utils.h"
 
-namespace saoclib {
+namespace acl {
     using namespace aocl_utils;
 
     // TODO CheckError with cleanup
@@ -17,19 +17,19 @@ namespace saoclib {
      * This class must be *thread safe*
      * @note we assume all devices are of the same type
      */
-    class CLProgram {
+    class Program {
     public:
         /**
          *
          * @param context : The CLContext object which manages the OpenCL devices.
          * @param imagePath : The OpenCL binary path, *.aocx
          */
-        CLProgram(CLContext *context, const std::string &imagePath);
+        Program(Context *context, const std::string &imagePath);
 
         /**
          * Destructor
          */
-        ~CLProgram();
+        ~Program();
 
 
         /**
@@ -43,7 +43,7 @@ namespace saoclib {
          * Getter of context
          * @return
          */
-        const CLContext *getContext() const;
+        const Context *getContext() const;
 
         /**
          * Getter of binaryPath
@@ -83,7 +83,7 @@ namespace saoclib {
 
     protected:
         /// CLContext object that manages OpenCL devices on this machine
-        const CLContext *context = NULL;
+        const Context *context = NULL;
 
         /// Binary path: xxx.aocx
         const std::string binaryPath;

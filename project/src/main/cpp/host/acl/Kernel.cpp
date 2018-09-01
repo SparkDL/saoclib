@@ -3,9 +3,9 @@
 //
 #include "Kernel.h"
 
-namespace saoclib {
+namespace acl {
 
-    Kernel::Kernel(const CLProgram *program,
+    Kernel::Kernel(const Program *program,
                    const cl_device_id device,
                    const cl_command_queue queue,
                    const std::string &kernelName,

@@ -8,17 +8,17 @@
 #include <vector>
 #include <cassert>
 #include "AOCLUtils/aocl_utils.h"
-#include "CLProgram.h"
+#include "Program.h"
 #include "KernelArg.h"
 
 
-namespace saoclib {
+namespace acl {
     using namespace aocl_utils;
 
     // TODO CheckError with cleanup
     class Kernel {
     public:
-        Kernel(const CLProgram *program,
+        Kernel(const Program *program,
                const cl_device_id device,
                const cl_command_queue queue,
                const std::string &kernelName,
@@ -37,7 +37,7 @@ namespace saoclib {
 
     protected:
         /// An FPGA image instance.
-        const CLProgram *binary;
+        const Program *binary;
 
         /// Name of kernel.
         std::string kernelName;

@@ -2,18 +2,18 @@
 // Created by pcz on 18-5-17.
 //
 
-#include "CLContext.h"
+#include "Context.h"
 
-namespace saoclib {
-    CLContext::CLContext() {
+namespace acl {
+    Context::Context() {
 
     };
 
-    CLContext::~CLContext() {
+    Context::~Context() {
         cleanup();
     }
 
-    bool CLContext::initOpenCL() {
+    bool Context::initOpenCL() {
         cl_int status;
 
         printf("Initializing OpenCL\n");
@@ -41,7 +41,7 @@ namespace saoclib {
         checkError(status, "Failed to create context");
         return true;
     }
-    bool CLContext::isManagedDevice(cl_device_id id) const {
+    bool Context::isManagedDevice(cl_device_id id) const {
         for (unsigned i = 0; i < getNumDevices(); i++) {
             if (devices[i] == id) {
                 return true;
@@ -50,39 +50,38 @@ namespace saoclib {
         return false;
     }
 
-    const std::string &CLContext::getPlatformName() const {
+    const std::string &Context::getPlatformName() const {
         return platformName;
     }
 
-    int CLContext::getNumDevices() const {
+    int Context::getNumDevices() const {
         return devices.size();
     }
 
-    const std::vector<cl_device_id> &CLContext::getDevices() const {
+    const std::vector<cl_device_id> &Context::getDevices() const {
         return devices;
     }
 
-    cl_device_id CLContext::getDeviceID(unsigned i) const {
+    cl_device_id Context::getDeviceID(unsigned i) const {
         if (i >= getNumDevices()) {
             return NULL;
         }
         return devices[i];
     }
 
-    const cl_platform_id CLContext::getPlatformID() const {
+    const cl_platform_id Context::getPlatformID() const {
         return platformID;
     }
 
-    cl_context CLContext::getRawContext() const {
+    cl_context Context::getRawContext() const {
         return context;
     }
 
-    void CLContext::cleanup() {
+    void Context::cleanup() {
         if (context) {
             clReleaseContext(context);
             context = NULL;
         }
     }
-
 
 }

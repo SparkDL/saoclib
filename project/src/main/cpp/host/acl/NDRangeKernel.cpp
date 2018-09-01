@@ -5,9 +5,9 @@
 #include <iostream>
 #include "NDRangeKernel.h"
 
-namespace saoclib {
+namespace acl {
 
-    NDRangeKernel::NDRangeKernel(const CLProgram *binary,
+    NDRangeKernel::NDRangeKernel(const Program *binary,
                                  const cl_device_id device,
                                  const cl_command_queue queue,
                                  const std::string &kernel_name,
@@ -69,39 +69,6 @@ namespace saoclib {
         log("Total time(%s): %0.3f ms\n\n", kernelName.c_str(), (end_time - start_time) * 1e3);
     }
 
-    void NDRangeKernel::setInputs(KernelArg **args, int numArgs) {
-        cl_int status;
-        std::vector<cl_event> write_events;
-        for (unsigned i = 0; i < numArgs; i++) {
-            cl_event event = NULL;
-            const KernelArg *arg = args[i];
-            auto &sig = arg->getSignature();
-            if (sig.isArray()) {
-                createBuffer(i, sig.getMode(), sig.getSize());
-                if (sig.isInput()) {
-                    writeBuffer(i, arg, &event);
-                    write_events.push_back(event);
-                }
-            }
-        }
-        clWaitForEvents(write_events.size(), write_events.data());
-        for (auto &e:write_events) {
-            clReleaseEvent(e);
-        }
-
-        for (unsigned i = 0; i < numArgs; i++) {
-            KernelArg *arg = args[i];
-            if (arg->getSignature().isArray()) {
-                status = clSetKernelArg(kernel, i, sizeof(cl_mem), &buffers[i]);
-                checkError(status, "Failed to set argument %d", i);
-            } else {
-                const void *p_data = arg->getReadonlyDataPtr();
-                size_t size = arg->getSignature().getSize();
-                status = clSetKernelArg(kernel, i, size, p_data);
-                checkError(status, "Failed to set argument %d", i);
-            }
-        }
-    }
 
     void NDRangeKernel::callKernel(cl_uint work_dim,
                                    const size_t *global_work_size_list,
@@ -127,30 +94,39 @@ namespace saoclib {
         clReleaseEvent(kernel_event);
     }
 
+    void NDRangeKernel::setInputs(KernelArg **args, int numArgs) {
+        std::vector<cl_event> write_events;
+        for (unsigned i = 0; i < numArgs; i++) {
+            cl_event event = NULL;
+            KernelArg *arg = args[i];
+            auto &sig = arg->getSignature();
+            if (sig.isArray()) {
+                createBuffer(i, sig.getMode(), sig.getSize());
+                arg->bindBuffer(&buffers[i]);
+                if (sig.isInput()) {
+                    arg->asyncWrite(i, queue, &event);
+                    write_events.push_back(event);
+                }
+            }
+        }
+        clWaitForEvents(write_events.size(), write_events.data());
+        for (auto &e:write_events) {
+            clReleaseEvent(e);
+        }
+
+        for (unsigned i = 0; i < numArgs; i++) {
+            KernelArg *arg = args[i];
+            arg->setArg(kernel, i);
+        }
+    }
+
     void NDRangeKernel::getOutputs(KernelArg **args, int numArgs) {
-        cl_int status;
-        std::vector<cl_event> read_events;
         for (unsigned i = 0; i < numArgs; i++) {
             KernelArg *arg = args[i];
             auto &sig = arg->getSignature();
             if (sig.isArray() && sig.isOutput()) {
-                cl_event event;
-                status = clEnqueueReadBuffer(queue,
-                                             buffers[i],
-                                             CL_FALSE,
-                                             0,
-                                             sig.getSize(),
-                                             arg->getWriteableDataPtr(),
-                                             0,
-                                             NULL,
-                                             &event);
-                read_events.push_back(event);
-                checkError(status, "Failed to read buffer for output");
+                arg->syncRead(i, queue);
             }
-        }
-        clWaitForEvents(read_events.size(), read_events.data());
-        for (auto &e:read_events) {
-            clReleaseEvent(e);
         }
     }
 
@@ -187,20 +163,6 @@ namespace saoclib {
         }
     }
 
-    void NDRangeKernel::writeBuffer(int i, const KernelArg *arg, cl_event *event) {
-        cl_int status;
-        status = clEnqueueWriteBuffer(queue,
-                                      buffers[i],
-                                      CL_FALSE,
-                                      0,
-                                      arg->getSignature().getSize(),
-                                      arg->getReadonlyDataPtr(),
-                                      0,
-                                      NULL,
-                                      event);
-        checkError(status, "Failed to transfer input %d", i);
-    }
-
     bool NDRangeKernel::checkArgs(KernelArg **args) {
         for (int i = 0; i < numArgs; i++) {
             auto limit = signatures[i];
@@ -210,6 +172,4 @@ namespace saoclib {
             }
         }
     }
-
-
 }

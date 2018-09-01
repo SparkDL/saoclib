@@ -35,7 +35,7 @@ include_directories(device/kernels
         host
         host/aclblas
         host/java
-        host/cl
+        host/acl
         host/kernelarg
         host/typetag
         host/utils)
@@ -45,7 +45,7 @@ link_libraries(${libs})
 
 file(GLOB utils "common/src/AOCLUtils/*" "common/inc/AOCLUtils/*" "host/utils/*" "device/kernels/config.h")
 file(GLOB kernelarg "host/kernelarg/*")
-file(GLOB cl "host/cl/*")
+file(GLOB cl "host/acl/*")
 file(GLOB api "host/java/*")
 file(GLOB blas "host/aclblas/*")
 file(GLOB test "test/*")

@@ -4,18 +4,18 @@
 
 #include "ACLResourceManager.h"
 
-namespace saoclib {
+namespace acl {
 
     ACLResourceManager::ACLResourceManager(const char *binaryPath) {
-        context = new CLContext;
-        program = new CLProgram(context, binaryPath);
+        context = new Context;
+        program = new Program(context, binaryPath);
     }
 
-    const CLContext *ACLResourceManager::getContext() const {
+    const Context *ACLResourceManager::getContext() const {
         return context;
     }
 
-    const CLProgram *ACLResourceManager::getProgram() const {
+    const Program *ACLResourceManager::getProgram() const {
         return program;
     }
 

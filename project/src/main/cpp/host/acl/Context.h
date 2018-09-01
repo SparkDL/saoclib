@@ -3,25 +3,25 @@
 
 #include "AOCLUtils/aocl_utils.h"
 
-namespace saoclib {
+namespace acl {
     using namespace aocl_utils;
 
     // TODO CheckError with cleanup
     /**
      * @note this class must be thread safe
      */
-    class CLContext {
+    class Context {
     public:
         /**
          * Constructor
          * @return
          */
-        CLContext();
+        Context();
 
         /**
          * Destructor
          */
-        ~CLContext();
+        ~Context();
 
         /**
          * Init OpenCL resources,

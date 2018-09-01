@@ -1,3 +1,4 @@
+#include <atomic>
 #include "gtest/gtest.h"
 #include "BlasTestEnvironment.h"
 #include "level1_test.hpp"
@@ -9,6 +10,12 @@ BlasTestEnvironment *const testEnv = new BlasTestEnvironment();
 
 #include "AOCLUtils/scoped_ptrs.h"
 #include "utils.h"
+
+void buffer_test() {
+    std::vector<int, aligned_allocator<int>> a;
+    a.push_back(1);
+    printf("%d", (long) a.data() % 4096 == 0);
+}
 
 void test() {
     const int n = 10000;

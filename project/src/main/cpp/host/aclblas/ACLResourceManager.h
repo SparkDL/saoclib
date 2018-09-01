@@ -6,19 +6,19 @@
 #define SAOCLIB_CPP_ACLBLASPROGRAM_H
 
 #include <mutex>
-#include "CLProgram.h"
+#include "Program.h"
 #include "ACLBlasAccelerator.h"
 
-namespace saoclib {
+namespace acl {
 
     // TODO this class must be thread safe
     class ACLResourceManager {
     public:
         ACLResourceManager(const char *binaryPath);
 
-        const CLContext *getContext() const;
+        const Context *getContext() const;
 
-        const CLProgram *getProgram() const;
+        const Program *getProgram() const;
 
         ~ACLResourceManager();
 
@@ -34,8 +34,8 @@ namespace saoclib {
         std::vector<cl_device_id> freeDevices;
         std::vector<cl_device_id> busyDevices;
         std::vector<ACLBlasAccelerator *> accelerators;
-        CLContext *context;
-        CLProgram *program;
+        Context *context;
+        Program *program;
     };
 }
 

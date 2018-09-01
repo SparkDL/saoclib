@@ -7,10 +7,10 @@
 
 #include "Kernel.h"
 
-namespace saoclib {
+namespace acl {
     class NDRangeKernel : public Kernel {
     public:
-        NDRangeKernel(const CLProgram *binary,
+        NDRangeKernel(const Program *binary,
                       const cl_device_id device,
                       const cl_command_queue queue,
                       const std::string &kernel_name,
@@ -51,8 +51,6 @@ namespace saoclib {
          * @return
          */
         void createBuffer(int i, KernelArgMode mode, size_t size);
-
-        void writeBuffer(int i, const KernelArg *arg, cl_event *event);
 
         bool checkArgs(KernelArg **args);
     };

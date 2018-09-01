@@ -4,7 +4,7 @@
 
 #include "KernelArgSignature.h"
 
-namespace saoclib {
+namespace acl {
     bool KernelArgSignature::operator==(const KernelArgSignature &rhs) const {
         return mode == rhs.mode
                && typeID == rhs.typeID

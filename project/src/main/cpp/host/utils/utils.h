@@ -11,7 +11,7 @@
 #include "NativeTypeID.h"
 #include "KernelArgMode.h"
 
-namespace saoclib {
+namespace acl {
     void log(const std::string &format, ...);
 
     std::string getThreadString();

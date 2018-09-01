@@ -6,7 +6,7 @@
 #include "ACLBlasAccelerator.h"
 #include "ACLResourceManager.h"
 
-namespace saoclib {
+namespace acl {
     using Sig = KernelArgSignature;
     using Mode = KernelArgMode;
 

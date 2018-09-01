@@ -8,7 +8,7 @@ import scala.util.Random
 object MKLTest {
   def main(args: Array[String]): Unit = {
     var m = 1000
-    var n = 500
+    var n = 5000
     var alpha = 1f
     var incx = 1
     var incy = 1

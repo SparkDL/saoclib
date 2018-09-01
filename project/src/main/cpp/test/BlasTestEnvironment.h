@@ -8,19 +8,18 @@
 #include "ACLResourceManager.h"
 #include "gtest/gtest.h"
 
-using namespace saoclib;
+using namespace acl;
 
 class BlasTestEnvironment :
         public testing::Environment {
 public:
 
-    saoclib::ACLBlasAccelerator *getAccelerator() {
+    acl::ACLBlasAccelerator *getAccelerator() {
         return acc;
     }
 
     void SetUp() override {
-        // static const char *binaryPath = "/home/pcz/develop/saoclib/project/target/aclblas";
-        static const char *binaryPath = "/home/pcz/aclblas";
+        static const char *binaryPath = "/home/pcz/develop/saoclib/project/target/aclblas";
         static ACLResourceManager manager(binaryPath);
         std::string reason;
         bool ok = manager.allocateAccelerator(&acc, reason);

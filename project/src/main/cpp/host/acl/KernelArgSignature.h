@@ -13,7 +13,7 @@
 #include "NativeTypeID.h"
 #include "KernelArgMode.h"
 
-namespace saoclib {
+namespace acl {
 
     class KernelArgSignature {
     public:

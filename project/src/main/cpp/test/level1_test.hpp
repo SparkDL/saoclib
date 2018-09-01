@@ -225,21 +225,20 @@ TEST(level1, sdot) {
         float *x = new float[n * incx];
         float *y = new float[n * incy];
 
+        for (int i = 0; i < n ; i++) {
+            x[i * incx] = (random() % n + 0.01f) / (float) n;
+        }
         for (int i = 0; i < n; i++) {
-            x[i] = (random() % n) / (float) n + 0.001f;
-            y[i] = (random() % n) / (float) n + 0.001f;
+            y[i * incy] = (random() % n + 0.01f) / (float) n;
         }
 
         float expect = 0;
-        float expect1 = 0;
         for (int i = 0; i < n; i++) {
             int xi = i * incx;
             int yi = i * incy;
             expect += x[xi] * y[yi];
         }
-        for (int i = 0, xi = 0, yi = 0; i < n; i++, xi += incx, yi += incy) {
-            expect1 += x[xi] * y[yi];
-        }
+
 
         float result = testEnv->getAccelerator()->cblas_sdot(n, x, incx, y, incy);
 

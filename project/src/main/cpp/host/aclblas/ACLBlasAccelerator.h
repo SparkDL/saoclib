@@ -6,12 +6,12 @@
 #define SAOCLIB_CPP_ACCELERATOR_H
 
 #include "AOCLUtils/aocl_utils.h"
-#include "CLContext.h"
-#include "CLProgram.h"
+#include "Context.h"
+#include "Program.h"
 #include "NDRangeKernel.h"
 #include "aclblas.h"
 
-namespace saoclib {
+namespace acl {
     using namespace aocl_utils;
     using Sig = KernelArgSignature;
     using Mode = KernelArgMode;

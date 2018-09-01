@@ -3,19 +3,19 @@
 //
 
 #include <utils/utils.h>
-#include "CLProgram.h"
+#include "Program.h"
 
-namespace saoclib {
+namespace acl {
 
-    CLProgram::CLProgram(CLContext *context, const std::string &imagePath)
+    Program::Program(Context *context, const std::string &imagePath)
             : context(context),
               binaryPath(imagePath) {}
 
-    CLProgram::~CLProgram() {
+    Program::~Program() {
         cleanup();
     }
 
-    bool CLProgram::deploy(const std::vector<cl_device_id> &devices) {
+    bool Program::deploy(const std::vector<cl_device_id> &devices) {
         cl_int status;
         int numGivenDevices = devices.size();
         int numContextDevices = context->getNumDevices();
@@ -55,32 +55,32 @@ namespace saoclib {
         return true;
     }
 
-    const CLContext *CLProgram::getContext() const {
+    const Context *Program::getContext() const {
         return context;
     }
 
-    const std::string &CLProgram::getBinaryPath() const {
+    const std::string &Program::getBinaryPath() const {
         return binaryPath;
     }
 
-    const cl_program CLProgram::getProgram() const {
+    const cl_program Program::getProgram() const {
         return program;
     }
 
-    int CLProgram::getNumDeployedDevices() const {
+    int Program::getNumDeployedDevices() const {
         return static_cast<int>(deployedDevices.size());
     }
 
-    const std::vector<cl_device_id> &CLProgram::getDeployedDevices() const {
+    const std::vector<cl_device_id> &Program::getDeployedDevices() const {
         return deployedDevices;
     }
 
-    cl_device_id CLProgram::getDeployedDevice(int index) const {
+    cl_device_id Program::getDeployedDevice(int index) const {
         assert(index < getNumDeployedDevices() && "index must less than deployed device number");
         return deployedDevices[index];
     }
 
-    void CLProgram::cleanup() {
+    void Program::cleanup() {
         this->deployedDevices.resize(0);
         // release program
         if (program) {

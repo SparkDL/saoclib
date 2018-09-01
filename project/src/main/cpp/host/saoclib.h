@@ -7,14 +7,14 @@
 
 #include "utils/utils.h"
 
-#include "kernelarg/NativeTypeID.h"
-#include "kernelarg/KernelArgMode.h"
-#include "kernelarg/KernelArgSignature.h"
-#include "kernelarg/KernelArg.h"
+#include "cl/NativeTypeID.h"
+#include "cl/KernelArgMode.h"
+#include "cl/KernelArgSignature.h"
+#include "cl/KernelArg.h"
 
 
-#include "cl/CLContext.h"
-#include "cl/CLProgram.h"
+#include "cl/Context.h"
+#include "cl/Program.h"
 #include "cl/Kernel.h"
 #include "cl/NDRangeKernel.h"
 

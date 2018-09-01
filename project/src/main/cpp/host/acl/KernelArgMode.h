@@ -5,7 +5,7 @@
 #ifndef SAOCLIB_CPP_KERNELARGMODE_H
 #define SAOCLIB_CPP_KERNELARGMODE_H
 
-namespace saoclib {
+namespace acl {
     enum class KernelArgMode : long {
         input = 0,
         output = 1,
