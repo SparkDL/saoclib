@@ -50,7 +50,7 @@ file(GLOB api "host/java/*")
 file(GLOB blas "host/aclblas/*")
 file(GLOB test "test/*")
 
-set(srcs ${utils} ${typetag} ${kernelarg} ${cl} ${blas})
+set(srcs "host/acl.h" ${utils} ${typetag} ${kernelarg} ${cl} ${blas})
 
 # output directory
 # set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../../../target/classes)
@@ -74,3 +74,5 @@ add_library(aclmkl SHARED ${api} ${srcs} ${blas})
 ADD_CUSTOM_TARGET(copy_library ALL
         COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/libaclmkl.so ${release_dir}
         DEPENDS aclmkl)
+
+add_executable(level3_test.exe test/level3_test.cpp ${srcs})

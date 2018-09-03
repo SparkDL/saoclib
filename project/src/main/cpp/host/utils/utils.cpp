@@ -20,7 +20,7 @@
 namespace acl {
 
     void log(const std::string &format, ...) {
-#ifndef NDEBUG
+#ifndef NDEBUGE
         auto pid = getpid();
         std::string copiedFormat = format;
         std::thread::id tid = std::this_thread::get_id();

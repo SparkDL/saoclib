@@ -5,7 +5,7 @@
 #ifndef SAOCLIB_CONFIG_H
 #define SAOCLIB_CONFIG_H
 
-#define BLOCK_SIZE 64
+#define BLOCK_SIZE 256
 
 #define SLICE_SIZE 16
 

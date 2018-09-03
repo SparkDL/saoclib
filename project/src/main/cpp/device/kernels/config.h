@@ -7,6 +7,8 @@
 
 #define BLOCK_SIZE 64
 
+#define SIMD_WORK_ITEMS 16
+
 #define SLICE_SIZE 16
 
 #define LEVEL1_NUM_COMPUTE_UNITS 1

@@ -104,8 +104,9 @@ namespace acl {
                 createBuffer(i, sig.getMode(), sig.getSize());
                 arg->bindBuffer(&buffers[i]);
                 if (sig.isInput()) {
-                    arg->asyncWrite(i, queue, &event);
-                    write_events.push_back(event);
+                    // arg->syncWrite(i, queue);
+                     arg->asyncWrite(i, queue, &event);
+                     write_events.push_back(event);
                 }
             }
         }

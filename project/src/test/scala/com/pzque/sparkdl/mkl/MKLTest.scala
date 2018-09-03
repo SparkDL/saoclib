@@ -7,7 +7,7 @@ import scala.util.Random
 
 object MKLTest {
   def main(args: Array[String]): Unit = {
-    var m = 1000
+    var m = 5000
     var n = 5000
     var alpha = 1f
     var incx = 1
@@ -22,7 +22,7 @@ object MKLTest {
     var a2 = Array.fill(lda * n)(0f)
 
     val mkl = MKLLoader.MKL.get()
-    for (i <- 0 to 100) {
+    for (i <- 0 to 5) {
 
       var start: Double = 0
       var end: Double = 0
