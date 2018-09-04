@@ -52,12 +52,14 @@ namespace acl {
         return stream.str();
     }
 
-    void executeTime(const std::function<void()> &function, const char *name) {
+    double executeTime(const std::function<void()> &function, const char *name) {
         double start, end;
         start = aocl_utils::getCurrentTimestamp();
         function();
         end = aocl_utils::getCurrentTimestamp();
-        log("Operation %s cost: %0.3fms\n", name, (end - start) * 1000);
+        auto time = end - start;
+        log("Operation %s cost: %0.3fms\n", name, time * 1000);
+        return time;
     }
 
     size_t primitiveTypeSize(NativeTypeID typeID) {

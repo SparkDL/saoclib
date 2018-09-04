@@ -6,9 +6,13 @@
 #define SAOCLIB_CPP_LEVEL3_TEST_HPP
 
 #include <iostream>
+#include <cmath>
 #include "acl.h"
+#include "utils.h"
 
-#define BLOCK_SIZE 2
+#define BLOCK_SIZE 64
+#define SIMD_WORK_ITEMS 16
+
 using namespace acl;
 using Sig = KernelArgSignature;
 using Mode = KernelArgMode;
@@ -23,12 +27,12 @@ void sgemm(int transa, int transb,
            float *c, int ldc);
 
 int main(int argc, char **argv) {
-    const int f = 2;
+    const int f = 1;
     int transa = 0;
     int transb = 0;
-    int M = f * BLOCK_SIZE;
-    int N = f * BLOCK_SIZE;
-    int K = f * BLOCK_SIZE;
+    int M = f * BLOCK_SIZE + 1;
+    int N = f * BLOCK_SIZE + 1;
+    int K = f * BLOCK_SIZE + 1;
     float alpha = 1;
     float beta = 1;
     int lda = M;
@@ -39,17 +43,25 @@ int main(int argc, char **argv) {
     auto b = new float[ldb * N];
     auto c = new float[ldc * N];
     for (int i = 0; i < lda * K; i++) {
-        a[i] = i;
+        a[i] = 1;
         std::cout << a[i] << ",";
     }
-    std::cout<<std::endl;
+    std::cout << std::endl;
     for (int i = 0; i < ldb * N; i++) {
-        b[i] = i;
+        b[i] = 1;
         std::cout << a[i] << ",";
     }
-    std::cout<<std::endl;
+    std::cout << std::endl;
 
-    sgemm(transa, transb, M, N, K, alpha, a, lda, b, ldb, beta, c, ldc);
+    double time = executeTime(
+            [=]() -> void {
+                sgemm(transa, transb, M, N, K, alpha, a, lda, b, ldb, beta, c, ldc);
+            },
+            "sgemm"
+    );
+
+    double flops = 2.0 * M * N * K / time;
+    printf("\nThroughput: %0.5f GFLOPS\n\n", flops * 1e-9);
 
     for (int i = 0; i < ldc * N; i++) {
         if (i % ldc == 0) {
@@ -65,7 +77,7 @@ bool init() {
     const int sgemmNumArgs = 13;
     Context *context = new Context();
     context->initOpenCL();
-    Program *program = new Program(context, "/home/pcz/develop/saoclib/project/target/sgemm_v2");
+    Program *program = new Program(context, "/home/pcz/develop/saoclib/project/target/sgemm");
     program->deploy(context->getDevices());
 
     KernelArgSignature signature[sgemmNumArgs] = {
@@ -128,8 +140,10 @@ void sgemm(int transa, int transb,
                          &beta_arg,
                          &c_arg, &ldc_arg};
     const size_t work_dim = 2;
-    const size_t global_work_size[work_dim] = {M / BLOCK_SIZE, N / BLOCK_SIZE};
-    const size_t local_work_size[work_dim] = {1, 1};
+    int m_factor = std::ceil(M / float(BLOCK_SIZE));
+    int n_factor = std::ceil(N / float(BLOCK_SIZE));
+    const size_t global_work_size[work_dim] = {m_factor * BLOCK_SIZE, n_factor * BLOCK_SIZE};
+    const size_t local_work_size[work_dim] = {BLOCK_SIZE, BLOCK_SIZE};
     kernel->call(work_dim,
                  global_work_size,
                  local_work_size,

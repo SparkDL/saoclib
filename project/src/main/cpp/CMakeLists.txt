@@ -33,7 +33,7 @@ include_directories($ENV{JAVA_HOME}/include
 include_directories(common/inc)
 include_directories(device/kernels
         host
-        host/aclblas
+        host/aclmkl
         host/java
         host/acl
         host/kernelarg
@@ -47,10 +47,10 @@ file(GLOB utils "common/src/AOCLUtils/*" "common/inc/AOCLUtils/*" "host/utils/*"
 file(GLOB kernelarg "host/kernelarg/*")
 file(GLOB cl "host/acl/*")
 file(GLOB api "host/java/*")
-file(GLOB blas "host/aclblas/*")
+file(GLOB blas "host/aclmkl/*")
 file(GLOB test "test/*")
 
-set(srcs "host/acl.h" ${utils} ${typetag} ${kernelarg} ${cl} ${blas})
+set(srcs "host/acl/acl.h" ${utils} ${typetag} ${kernelarg} ${cl} ${blas})
 
 # output directory
 # set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../../../target/classes)

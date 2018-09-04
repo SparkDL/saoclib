@@ -14,12 +14,12 @@ class BlasTestEnvironment :
         public testing::Environment {
 public:
 
-    acl::ACLBlasAccelerator *getAccelerator() {
+    acl::ACLMKLAccelerator *getAccelerator() {
         return acc;
     }
 
     void SetUp() override {
-        static const char *binaryPath = "/home/pcz/develop/saoclib/project/target/aclblas";
+        static const char *binaryPath = "/home/pcz/develop/saoclib/project/target/aclmkl";
         static ACLResourceManager manager(binaryPath);
         std::string reason;
         bool ok = manager.allocateAccelerator(&acc, reason);
@@ -34,7 +34,7 @@ public:
 
 private:
 
-    ACLBlasAccelerator *acc;
+    ACLMKLAccelerator *acc;
 };
 
 

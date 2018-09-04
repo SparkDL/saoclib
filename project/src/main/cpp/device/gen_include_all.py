@@ -19,25 +19,24 @@ def gen(directory,file_path):
     print('Kernel files in directory "{}" are included into "{}" successfully.'.format(directory,file_path))
     
 usage = """
-This script is used to include all .acl files to a single .acl file.
+This script is used to include all cl files to a single cl file.
 usage:
     python *this_file*
     ( equals to
-        python *this_file* kernels aclblas.acl )
+        python *this_file* kernels aclmkl.cl )
     or
     python *this_file* KERNELS_DIRECTORY TARGET_PATH
 examples:
-    python *this_file* kernels aclblas.acl
-    python *this_file* piped_kernels piped_aclblas.acl
+    python *this_file* kernels aclmkl.cl   
 """
 def main():
     args = len(sys.argv)
     if args == 1:
         kernels_root = 'kernels'
-        target_path = 'aclblas.acl'
+        target_path = 'aclmkl.cl'
     elif args == 3:
         kernels_root = 'kernels'
-        target_path = 'aclblas.acl'
+        target_path = 'aclmkl.cl'
     else:
         print(usage)
         exit(-1)

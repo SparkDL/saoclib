@@ -10,7 +10,7 @@
 #include <iostream>
 #include <gtest/gtest.h>
 
-#include "aclblas.h"
+#include "aclmkl.h"
 
 
 TEST(level2, sger) {

@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "aclblas.h"
+#include "aclmkl.h"
 #include <cmath>
 #include <random>
 

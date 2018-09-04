@@ -11,16 +11,9 @@
 
 #define SLICE_SIZE 16
 
-#define LEVEL1_NUM_COMPUTE_UNITS 1
+#define pos(row, col, ld) ((ld)*(col)+(row))
 
-#define GER_NUM_COMPUTE_UNITS 1
-
-#define GEMM_NUM_COMPUTE_UNITS 1
-
-#define UNROLL_FACTOR 64
-
-#define II_CYCLES 12
-
+#define tpos(row, col, ld) ((ld)*(row)+(col))
 
 // vector operations
 #define ABS 101

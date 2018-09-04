@@ -16,7 +16,7 @@ namespace acl {
 
     std::string getThreadString();
 
-    void executeTime(const std::function<void()> &function, const char *name);
+    double executeTime(const std::function<void()> &function, const char *name);
 
     size_t primitiveTypeSize(NativeTypeID typeID);
 
