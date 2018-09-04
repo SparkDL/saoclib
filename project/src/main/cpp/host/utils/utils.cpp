@@ -20,7 +20,7 @@
 namespace acl {
 
     void log(const std::string &format, ...) {
-#ifndef NDEBUGE
+#ifndef NDEBUG
         auto pid = getpid();
         std::string copiedFormat = format;
         std::thread::id tid = std::this_thread::get_id();
@@ -129,6 +129,15 @@ namespace acl {
             case KernelArgMode::output:
             case KernelArgMode::input_output:
                 return true;
+        }
+    }
+
+    bool isTrans(CBLAS_TRANSPOSE trans) {
+        switch (trans) {
+            case CblasTrans:
+                return true;
+            default:
+                return false;
         }
     }
 

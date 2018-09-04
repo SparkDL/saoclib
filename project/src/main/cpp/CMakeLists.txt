@@ -44,9 +44,7 @@ set(libs rt pthread)
 link_libraries(${libs})
 
 file(GLOB utils "common/src/AOCLUtils/*" "common/inc/AOCLUtils/*" "host/utils/*" "device/kernels/config.h")
-file(GLOB kernelarg "host/kernelarg/*")
 file(GLOB cl "host/acl/*")
-file(GLOB api "host/java/*")
 file(GLOB blas "host/aclmkl/*")
 file(GLOB test "test/*")
 
@@ -74,5 +72,3 @@ add_library(aclmkl SHARED ${api} ${srcs} ${blas})
 ADD_CUSTOM_TARGET(copy_library ALL
         COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/libaclmkl.so ${release_dir}
         DEPENDS aclmkl)
-
-add_executable(level3_test.exe test/level3_test.cpp ${srcs})

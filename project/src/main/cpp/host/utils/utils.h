@@ -10,6 +10,7 @@
 #include <functional>
 #include "NativeTypeID.h"
 #include "KernelArgMode.h"
+#include "aclmkl.h"
 
 namespace acl {
     void log(const std::string &format, ...);
@@ -27,5 +28,7 @@ namespace acl {
     bool isInput(KernelArgMode mode);
 
     bool isOutput(KernelArgMode mode);
+    
+    bool isTrans(CBLAS_TRANSPOSE trans);
 }
 #endif //SAOCLIB_CPP_UTILS_H

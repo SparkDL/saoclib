@@ -9,9 +9,9 @@
 
 #include <iostream>
 #include <gtest/gtest.h>
-
 #include "aclmkl.h"
 
+extern BlasTestEnvironment *const testEnv;
 
 TEST(level2, sger) {
     for (int i = 0; i < 10; i++) {
@@ -38,3 +38,55 @@ TEST(level2, sger) {
         EXPECT_EQ(1, 1);
     }
 }
+
+TEST(level2, sgemv) {
+    using namespace acl;
+
+    int m = 5;
+    int n = 5;
+    float alpha = 1;
+    float beta = 1;
+    int lda = m;
+
+    auto a = new float[lda * n];
+    auto x = new float[n];
+    auto y = new float[m];
+    for (int i = 0; i < lda * n; i++) {
+        a[i] = i;
+        std::cout << a[i] << ",";
+    }
+    std::cout << std::endl;
+    for (int i = 0; i < n; i++) {
+        x[i] = i;
+        std::cout << a[i] << ",";
+    }
+    std::cout << std::endl;
+    for (int i = 0; i < m; i++) {
+        y[i] = 0;
+        std::cout << y[i] << ",";
+    }
+    std::cout << std::endl;
+
+    double time = executeTime(
+            [=]() -> void {
+                testEnv->getAccelerator()
+                        ->cblas_sgemv(CblasColMajor,
+                                      CblasNoTrans,
+                                      m, n,
+                                      alpha,
+                                      a, lda,
+                                      x, 1,
+                                      beta,
+                                      y, 1);
+            },
+            "sgemv"
+    );
+
+    for (int i = 0; i < m; i++) {
+        std::cout << y[i] << ",";
+    }
+    std::cout << std::endl;
+
+    ASSERT_TRUE(true);
+}
+

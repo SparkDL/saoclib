@@ -4,6 +4,4 @@
 #include "kernels/level1/sopvv.cl"
 #include "kernels/level1/sscal.cl"
 #include "kernels/level1/vsPowx.cl"
-#include "kernels/level2/sgemv.cl"
-#include "kernels/level2/sger.cl"
 #include "kernels/level3/sgemm.cl"

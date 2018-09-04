@@ -64,6 +64,24 @@ namespace acl {
                         float *y, int incy,
                         float *a, int lda);
 
+        void cblas_sgemv(CBLAS_ORDER order,
+                         CBLAS_TRANSPOSE trans,
+                         int m, int n,
+                         float alpha,
+                         float *a, int lda,
+                         float *x, int incx,
+                         float beta,
+                         float *y, int incy);
+
+        void cblas_sgemm(CBLAS_ORDER order,
+                         CBLAS_TRANSPOSE transa, CBLAS_TRANSPOSE transb,
+                         int M, int N, int K,
+                         float alpha,
+                         float *a, int lda,
+                         float *b, int ldb,
+                         float beta,
+                         float *c, int ldc);
+
     private:
         NDRangeKernel *saxpyKernel;
         NDRangeKernel *sdotKernel;
@@ -71,8 +89,6 @@ namespace acl {
         NDRangeKernel *sopvvKernel;
         NDRangeKernel *sscalKernel;
         NDRangeKernel *vsPowxKernel;
-        NDRangeKernel *sgemvKernel;
-        NDRangeKernel *sgerKernel;
         NDRangeKernel *sgemmKernel;
 
         NDRangeKernel *newAxpyKernel();
@@ -86,10 +102,6 @@ namespace acl {
         NDRangeKernel *newSscalKernel();
 
         NDRangeKernel *newVspowxKernel();
-
-        NDRangeKernel *newSgemvKernel();
-
-        NDRangeKernel *newSgerKernel();
 
         NDRangeKernel *newSgemmKernel();
 

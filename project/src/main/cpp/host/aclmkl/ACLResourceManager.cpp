@@ -42,7 +42,7 @@ namespace acl {
         }
 
         log("*** Allocating Accelerator ***\n");
-        log("Free Devices:%d,Busy devices:%d\n", freeDevices.size(), busyDevices.size());
+        log("Free Devices:%d,Busy devices:%d\n\n", freeDevices.size(), busyDevices.size());
 
         devicesLock.lock();
         if (freeDevices.empty()) {

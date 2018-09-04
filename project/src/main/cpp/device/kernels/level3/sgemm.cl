@@ -9,19 +9,19 @@ void sgemm(int transa, int transb,
            __global volatile float *restrict b, int ldb,
            float beta,
            __global float *restrict c, int ldc) {
-    bool is_transa = transa == 1;
-    bool is_transb = transb == 1;
-
     // Local storage for a block of input matrices A and B
     __local float a_cache[BLOCK_SIZE][BLOCK_SIZE];
     __local float b_cache[BLOCK_SIZE][BLOCK_SIZE];
 
-    int global_row = get_global_id(0);
-    int global_col = get_global_id(1);
-
+    // Global ID index, thread (x,y) calculate the result of c[y,x]
+    int global_col = get_global_id(0);
+    int global_row = get_global_id(1);
     // Local ID index (offset within a block)
-    int local_row = get_local_id(0);
-    int local_col = get_local_id(1);
+    int local_col = get_local_id(0);
+    int local_row = get_local_id(1);
+
+    bool is_transa = transa == 1;
+    bool is_transb = transb == 1;
 
     int n_tiles = K / BLOCK_SIZE;
     if (K - n_tiles * BLOCK_SIZE > 0) {
@@ -29,6 +29,7 @@ void sgemm(int transa, int transb,
     }
 
     float running_sum = 0.0f;
+
     for (int i = 0, global_a_col = local_col, global_b_row = local_row;
          i < n_tiles;
          i++, global_a_col += BLOCK_SIZE, global_b_row += BLOCK_SIZE) {
@@ -53,7 +54,7 @@ void sgemm(int transa, int transb,
                 b_cache[local_col][local_row] = b[pos(global_b_row, global_b_col, ldb)];
             }
         } else {
-            b_cache[local_row][local_col] = 0;
+            b_cache[local_col][local_row] = 0;
         }
 
         // Wait for the entire block to be loaded.
@@ -76,3 +77,7 @@ void sgemm(int transa, int transb,
         c[target_pos] = alpha * running_sum + beta * v;
     }
 }
+
+
+
+

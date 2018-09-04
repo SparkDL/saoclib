@@ -8,7 +8,7 @@ object ACLMKL extends MKLInterface {
   var msg = ""
   private var accelerators: Array[Long] = ACLMKLNative.allocateAccelerators(msg)
   if (accelerators.isEmpty) {
-    println(f"Failed to allocate FPGA accelerator for reason: $msg\n Fall back to Intel MKL Library")
+    println(f"Failed to allocate FPGA accelerator for reason: $msg\n\tFall back to Intel MKL Library")
   }
 
   private var isBusy: AtomicIntegerArray = new AtomicIntegerArray(Array.fill(accelerators.length)(0))
@@ -168,6 +168,7 @@ object ACLMKL extends MKLInterface {
 
   override def vsgemv(trans: Char, m: Int, n: Int, alpha: Float, a: Array[Float], aOffset: Int, lda: Int, x: Array[Float], xOffest: Int, incx: Int, beta: Float, y: Array[Float], yOffest: Int, incy: Int): Unit
   = {
+    println(f"vsgemv - trans:$trans, incx:$incx, incy:$incy")
     val (index, accHandle) = getAccelerator
     if (accHandle == 0) {
       MKL.vsgemv(trans, m, n, alpha, a, aOffset, lda, x, xOffest, incx, beta, y, yOffest, incy)

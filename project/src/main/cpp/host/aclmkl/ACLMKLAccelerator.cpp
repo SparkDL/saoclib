@@ -21,8 +21,6 @@ namespace acl {
         sopvvKernel = newSopvvKernel();
         sscalKernel = newSscalKernel();
         vsPowxKernel = newVspowxKernel();
-        sgemvKernel = newSgemvKernel();
-        sgerKernel = newSgerKernel();
         sgemmKernel = newSgemmKernel();
     }
 
@@ -160,49 +158,87 @@ namespace acl {
 
     void
     ACLMKLAccelerator::cblas_sger(CBLAS_ORDER order,
-                                   int m, int n, float alpha,
-                                   float *x, int incx,
-                                   float *y, int incy,
-                                   float *a, int lda) {
-        static const int numArgs = 9;
-        long xLength = m * incx;
-        long yLength = n * incy;
-        long aLength = n * lda;
-        log("\nm:%d,n:%d,alpha:%0.3f,incx:%d,incy:%d\n", m, n, alpha, incx, incy);
-        log("xLength:%d,yLength:%d,aLength:%d\n", xLength, yLength, aLength);
-        assert(xLength != 0 && yLength != 0 && aLength != 0);
+                                  int m, int n, float alpha,
+                                  float *x, int incx,
+                                  float *y, int incy,
+                                  float *a, int lda) {
+        assert(incx == 1 && incy == 1 && "Only incx=1 and incy=1 is supported now.");
+        int M = m, K = 1, N = n;
+        cblas_sgemm(order,
+                    CblasNoTrans, CblasTrans,
+                    M, N, K,
+                    alpha,
+                    x, M,
+                    y, 1,
+                    1,
+                    a, lda);
+    }
 
-        /* wrap the raw data to kernelarg objects */
-        IntArg arg_m = IntArg(m, Mode::input);
-        IntArg arg_n = IntArg(n, Mode::input);
-        FloatArg arg_alpha = FloatArg(alpha, Mode::input);
-        FloatArrayArg arg_x = FloatArrayArg(x, xLength, Mode::input);
-        IntArg arg_incx = IntArg(incx, Mode::input);
-        FloatArrayArg arg_y = FloatArrayArg(y, yLength, Mode::input);
-        IntArg arg_incy = IntArg(incy, Mode::input);
-        FloatArrayArg arg_a = FloatArrayArg(a, aLength, Mode::input_output);
-        IntArg arg_lda = IntArg(lda, Mode::input);
+    void ACLMKLAccelerator::cblas_sgemv(CBLAS_ORDER order,
+                                        CBLAS_TRANSPOSE trans,
+                                        int m, int n,
+                                        float alpha,
+                                        float *a, int lda,
+                                        float *x, int incx,
+                                        float beta,
+                                        float *y, int incy) {
+        assert(incx == 1 && incy == 1 && "Only incx=1 and incy=1 is supported now.");
+        int M = m, K = n, N = 1;
+        cblas_sgemm(order,
+                    trans, CblasNoTrans,
+                    M, N, K,
+                    alpha,
+                    a, lda,
+                    x, K,
+                    beta,
+                    y, K);
+    }
 
-        KernelArg *args[numArgs] = {&arg_m, &arg_n,
-                                    &arg_alpha,
-                                    &arg_x, &arg_incx,
-                                    &arg_y, &arg_incy,
-                                    &arg_a, &arg_lda};
+    void ACLMKLAccelerator::cblas_sgemm(CBLAS_ORDER order,
+                                        CBLAS_TRANSPOSE transa, CBLAS_TRANSPOSE transb,
+                                        int M, int N, int K,
+                                        float alpha,
+                                        float *a, int lda,
+                                        float *b, int ldb,
+                                        float beta,
+                                        float *c, int ldc) {
+        assert(order == CblasColMajor && "Only col major order is supported now.");
 
-        /* init the kernel */
-        int global_x = xLength / SLICE_SIZE;
-        if (xLength - global_x > 0) {
-            global_x++;
+        auto transa_arg = IntArg((int) isTrans(transa), Mode::input);
+        auto transb_arg = IntArg((int) isTrans(transb), Mode::input);
+        auto M_arg = IntArg(M, Mode::input);
+        auto N_arg = IntArg(N, Mode::input);
+        auto K_arg = IntArg(K, Mode::input);
+        auto alpha_arg = FloatArg(alpha, Mode::input);
+        auto a_arg = FloatArrayArg(a, lda * K, Mode::input);
+        auto lda_arg = IntArg(lda, Mode::input);
+        auto b_arg = FloatArrayArg(b, ldb * N, Mode::input);
+        auto ldb_arg = IntArg(ldb, Mode::input);
+        auto beta_arg = FloatArg(beta, Mode::input);
+        auto c_arg = FloatArrayArg(c, ldc * N, Mode::input_output);
+        auto ldc_arg = IntArg(ldc, Mode::input);
+        KernelArg *args[] = {&transa_arg, &transb_arg,
+                             &M_arg, &N_arg, &K_arg,
+                             &alpha_arg,
+                             &a_arg, &lda_arg,
+                             &b_arg, &ldb_arg,
+                             &beta_arg,
+                             &c_arg, &ldc_arg};
+        const size_t work_dim = 2;
+        int m_factor = M / BLOCK_SIZE;
+        if (M - m_factor * BLOCK_SIZE > 0) {
+            m_factor++;
         }
-        int global_y = yLength / SLICE_SIZE;
-        if (yLength - global_y > 0) {
-            global_y++;
+        int n_factor = N / BLOCK_SIZE;
+        if (N - n_factor * BLOCK_SIZE > 0) {
+            n_factor++;
         }
-
-        /* call kernel with inputs and output */
-        size_t global_work_size[2] = {global_x * SLICE_SIZE, global_y * SLICE_SIZE};
-        size_t local_work_size[2] = {SLICE_SIZE, SLICE_SIZE};
-        sgerKernel->call(2, global_work_size, local_work_size, args, numArgs);
+        const size_t global_work_size[work_dim] = {n_factor * BLOCK_SIZE, m_factor * BLOCK_SIZE};
+        const size_t local_work_size[work_dim] = {BLOCK_SIZE, BLOCK_SIZE};
+        sgemmKernel->call(work_dim,
+                          global_work_size,
+                          local_work_size,
+                          args, 13);
     }
 
     NDRangeKernel *ACLMKLAccelerator::newAxpyKernel() {
@@ -278,7 +314,6 @@ namespace acl {
                                  sopvvNumArgs);
     }
 
-
     NDRangeKernel *ACLMKLAccelerator::newSscalKernel() {
         static const int sscalNumArgs = 3;
 
@@ -313,13 +348,12 @@ namespace acl {
                                  vsPowxNumArgs);
     }
 
-    NDRangeKernel *ACLMKLAccelerator::newSgemvKernel() {
-        return nullptr;
-    }
-
-    NDRangeKernel *ACLMKLAccelerator::newSgerKernel() {
-        static const int sgerNumArgs = 9;
-        static KernelArgSignature signature[sgerNumArgs] = {
+    NDRangeKernel *ACLMKLAccelerator::newSgemmKernel() {
+        static const int sgemmNumArgs = 13;
+        static KernelArgSignature signature[sgemmNumArgs] = {
+                Sig::primitive<int>(Mode::input),
+                Sig::primitive<int>(Mode::input),
+                Sig::primitive<int>(Mode::input),
                 Sig::primitive<int>(Mode::input),
                 Sig::primitive<int>(Mode::input),
                 Sig::primitive<float>(Mode::input),
@@ -327,6 +361,7 @@ namespace acl {
                 Sig::primitive<int>(Mode::input),
                 Sig::array<float>(Mode::input, 0),
                 Sig::primitive<int>(Mode::input),
+                Sig::primitive<float>(Mode::input),
                 Sig::array<float>(Mode::input_output, 0),
                 Sig::primitive<int>(Mode::input)
         };
@@ -334,13 +369,8 @@ namespace acl {
         return new NDRangeKernel(manager->getProgram(),
                                  device,
                                  queue,
-                                 "sger",
+                                 "sgemm",
                                  signature,
-                                 sgerNumArgs);
+                                 sgemmNumArgs);
     }
-
-    NDRangeKernel *ACLMKLAccelerator::newSgemmKernel() {
-        return nullptr;
-    }
-
 }
