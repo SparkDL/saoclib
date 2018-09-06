@@ -20,6 +20,8 @@ public:
 
     void SetUp() override {
         static const char *binaryPath = "/home/pcz/develop/saoclib/project/target/aclmkl";
+        //static const char *binaryPath = "/home/pcz/aocx/aclblas";
+
         static ACLResourceManager manager(binaryPath);
         std::string reason;
         bool ok = manager.allocateAccelerator(&acc, reason);

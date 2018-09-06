@@ -45,12 +45,12 @@ namespace acl {
 
         /**
          * Create buffer for the i'th argument
-         * @param i : argument index
+         * @param argi : argument index
          * @param mode : input/output/input_output
          * @param size : buffer size
          * @return
          */
-        void createBuffer(int i, KernelArgMode mode, size_t size);
+        void createBuffer(int argi, int bufferi, KernelArgMode mode, size_t size);
 
         bool checkArgs(KernelArg **args);
     };

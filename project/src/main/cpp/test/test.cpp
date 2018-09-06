@@ -3,6 +3,7 @@
 #include "level1_test.hpp"
 #include "level2_test.hpp"
 #include "level3_test.hpp"
+#include "utils_test.hpp"
 
 void cleanup() {}
 

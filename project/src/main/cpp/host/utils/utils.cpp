@@ -52,13 +52,23 @@ namespace acl {
         return stream.str();
     }
 
-    double executeTime(const std::function<void()> &function, const char *name) {
+    int paddedSize(int rawSize, int blockSize) {
+        int padding = blockSize - rawSize % blockSize;
+        if (padding == blockSize) {
+            padding = 0;
+        }
+        return rawSize + padding;
+    }
+
+    double executeTime(const std::function<void()> &function, const char *name, int repeat) {
         double start, end;
         start = aocl_utils::getCurrentTimestamp();
-        function();
+        for (int i = 0; i < repeat; i++) {
+            function();
+        }
         end = aocl_utils::getCurrentTimestamp();
         auto time = end - start;
-        log("Operation %s cost: %0.3fms\n", name, time * 1000);
+        log("Operation %s, repeat %d, average cost: %0.4fms\n", name, repeat, time * 1000 / repeat);
         return time;
     }
 
@@ -141,5 +151,15 @@ namespace acl {
         }
     }
 
+    void printMatrix(const char *name, float *a, int rows, int cols) {
+        printf("\n%s:\n", name);
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                printf("%.2f,", a[rows * j + i]);
+            }
+            printf("\n");
+        }
+        printf("\n");
+    }
 
 }

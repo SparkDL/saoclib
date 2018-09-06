@@ -2,6 +2,7 @@
 // Created by pcz on 18-5-17.
 //
 
+#include <utils/utils.h>
 #include "Context.h"
 
 namespace acl {
@@ -29,11 +30,11 @@ namespace acl {
         // Query available OpenCL devices.
         unsigned numDevices;
         auto *all_devices = aocl_utils::getDevices(platformID, CL_DEVICE_TYPE_ALL, &numDevices);
-        printf("Platform: %s\n", platformName.c_str());
-        printf("Using %d device(s)\n", numDevices);
+        log("Platform: %s\n", platformName.c_str());
+        log("Using %d device(s)\n", numDevices);
         for (unsigned i = 0; i < numDevices; ++i) {
             devices.push_back(all_devices[i]);
-            printf("  %s\n", getDeviceName(devices[i]).c_str());
+            log("  %s\n", getDeviceName(devices[i]).c_str());
         }
 
         // Create an OpenCL context.
@@ -41,6 +42,7 @@ namespace acl {
         checkError(status, "Failed to create context");
         return true;
     }
+
     bool Context::isManagedDevice(cl_device_id id) const {
         for (unsigned i = 0; i < getNumDevices(); i++) {
             if (devices[i] == id) {

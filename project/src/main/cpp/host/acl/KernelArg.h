@@ -52,6 +52,8 @@ namespace acl {
             return signature;
         }
 
+        virtual size_t bufferSize()=0;
+
         virtual void setArg(cl_kernel kernel, int argi)=0;
 
         virtual void bindBuffer(cl_mem *buffer)=0;
@@ -82,6 +84,10 @@ namespace acl {
             checkError(status, "Failed to set argument %d", argi);
         }
 
+        size_t bufferSize() override {
+            return sizeof(T);
+        }
+
         void bindBuffer(cl_mem *buffer) override {}
 
         void syncRead(int argi, cl_command_queue queue) override {}
@@ -107,10 +113,17 @@ namespace acl {
                   needCopy((long) rawData % 1024 != 0) {
         }
 
+
+        size_t bufferSize() override {
+            return sizeof(T) * length;
+        }
+
         void setArg(cl_kernel kernel, int argi) override {
             cl_int status;
             status = clSetKernelArg(kernel, argi, sizeof(cl_mem), buffer);
-            checkError(status, "Failed to set argument %d", argi);
+            std::stringstream stream;
+            stream << "Failed to set argument " << argi;
+            checkError(status, stream.str().c_str());
         }
 
         void bindBuffer(cl_mem *buffer) override {
@@ -120,38 +133,38 @@ namespace acl {
         void syncRead(int argi, cl_command_queue queue) override {
             cl_int status;
             void *ptr = rawData;
-            if (needCopy) {
-                container.resize(length);
+            if (this->isNeedCopy()) {
+                this->resizeContainer();
                 ptr = container.data();
             }
             status = clEnqueueReadBuffer(queue,
                                          *buffer,
                                          CL_TRUE,
                                          0,
-                                         signature.getSize(),
+                                         this->bufferSize(),
                                          ptr,
                                          0,
                                          NULL,
                                          NULL);
             checkError(status, "Failed to transfer input %d", argi);
-            if (needCopy) {
-                memcpy(rawData, ptr, sizeof(T) * length);
+            if (this->isNeedCopy()) {
+                this->readContainer();
             }
         }
 
         void syncWrite(int argi, cl_command_queue queue) override {
             cl_int status;
             void *ptr = rawData;
-            if (needCopy) {
-                container.resize(length);
-                container.assign(rawData, rawData + length);
+            if (this->isNeedCopy()) {
+                this->resizeContainer();
+                this->writeContainer();
                 ptr = container.data();
             }
             status = clEnqueueWriteBuffer(queue,
                                           *buffer,
                                           CL_TRUE,
                                           0,
-                                          signature.getSize(),
+                                          this->bufferSize(),
                                           ptr,
                                           0,
                                           NULL,
@@ -162,38 +175,38 @@ namespace acl {
         void asyncRead(int argi, cl_command_queue queue, cl_event *waitEvent) override {
             cl_int status;
             void *ptr = rawData;
-            if (needCopy) {
-                container.resize(length);
+            if (this->isNeedCopy()) {
+                this->resizeContainer();
                 ptr = container.data();
             }
             status = clEnqueueReadBuffer(queue,
                                          *buffer,
                                          CL_FALSE,
                                          0,
-                                         signature.getSize(),
+                                         this->bufferSize(),
                                          ptr,
                                          0,
                                          NULL,
                                          waitEvent);
             checkError(status, "Failed to transfer input %d", argi);
-            if (needCopy) {
-                memcpy(rawData, ptr, sizeof(T) * length);
+            if (this->isNeedCopy()) {
+                this->readContainer();
             }
         }
 
         void asyncWrite(int argi, cl_command_queue queue, cl_event *waitEvent) override {
             cl_int status;
             void *ptr = rawData;
-            if (needCopy) {
-                container.resize(length);
-                container.assign(rawData, rawData + length);
+            if (this->isNeedCopy()) {
+                this->resizeContainer();
+                this->writeContainer();
                 ptr = container.data();
             }
             status = clEnqueueWriteBuffer(queue,
                                           *buffer,
                                           CL_FALSE,
                                           0,
-                                          signature.getSize(),
+                                          this->bufferSize(),
                                           ptr,
                                           0,
                                           NULL,
@@ -201,12 +214,97 @@ namespace acl {
             checkError(status, "Failed to transfer input %d", argi);
         }
 
-    private:
+        virtual bool isNeedCopy() {
+            return needCopy;
+        }
+
+        virtual void resizeContainer() {
+            container.resize(length);
+        }
+
+        virtual void writeContainer() {
+            container.assign(rawData, rawData + length);
+        }
+
+        virtual void readContainer() {
+            memcpy(rawData, container.data(), sizeof(T) * length);
+        }
+
+    protected:
         T *rawData = NULL;
         size_t length;
         bool needCopy = false;
         std::vector<T, aligned_allocator<T>> container;
         cl_mem *buffer = NULL;
+    };
+
+    template<class T, int BLOCK = 64>
+    class Matrix : public Array<T> {
+    public:
+        Matrix(T *rawData,
+               int realRows,
+               int rows,
+               int cols,
+               bool transpose,
+               KernelArgMode mode)
+                : Array<T>(rawData, rows * cols, mode),
+                  transpose(transpose),
+                  dataRealRows(realRows),
+                  dataRows(rows),
+                  dataCols(cols) {
+            paddedRows = paddedSize(dataRows, BLOCK);
+            paddedCols = paddedSize(dataCols, BLOCK);
+            needCopy = !((long) rawData % 1024 == 0 && paddedRows == dataRows && paddedCols == dataCols);
+        }
+
+        int getPaddedRows() {
+            return paddedRows;
+        }
+
+        int getPaddedCols() {
+            return paddedCols;
+        }
+
+        size_t bufferSize() {
+            return sizeof(T) * paddedRows * paddedCols;
+        }
+
+        bool isNeedCopy() override {
+            return needCopy;
+        }
+
+        void resizeContainer() override {
+            this->container.resize(paddedRows * paddedCols);
+        }
+
+        void writeContainer() override {
+            if (transpose) {
+                matrixTransposeCopy<T>(this->rawData, dataRows, dataCols, dataRealRows,
+                                       this->container.data(), paddedRows, paddedCols, paddedRows);
+            } else {
+                matrixCopy<T>(this->rawData, dataRows, dataCols, dataRealRows,
+                              this->container.data(), paddedRows, paddedCols, paddedRows);
+            }
+        }
+
+        void readContainer() override {
+            if (transpose) {
+                matrixTransposeCopy<T>(this->container.data(), paddedRows, paddedCols, paddedRows,
+                                       this->rawData, dataRows, dataCols, dataRealRows);
+            } else {
+                matrixCopy<T>(this->container.data(), paddedRows, paddedCols, paddedRows,
+                              this->rawData, dataRows, dataCols, dataRealRows);
+            }
+        }
+
+    private:
+        bool needCopy;
+        bool transpose;
+        int dataRealRows;
+        int dataRows;
+        int dataCols;
+        int paddedRows;
+        int paddedCols;
     };
 
     typedef Primitive<signed char> ByteArg;

@@ -88,25 +88,27 @@ namespace acl {
         clWaitForEvents(1, &kernel_event);
 
         // Get kernel times using the OpenCL event profiling API.
-        // cl_ulong time_ns = getStartEndTime(kernel_event);
-        // printf("Kernel time (device %p): %0.3f ms\n", device, double(time_ns) * 1e-6);
+        cl_ulong time_ns = getStartEndTime(kernel_event);
+        log("Kernel time (device %p): %0.3f ms\n", device, double(time_ns) * 1e-6);
 
         clReleaseEvent(kernel_event);
     }
 
     void NDRangeKernel::setInputs(KernelArg **args, int numArgs) {
         std::vector<cl_event> write_events;
+        int bufferi = 0;
         for (unsigned i = 0; i < numArgs; i++) {
             cl_event event = NULL;
             KernelArg *arg = args[i];
             auto &sig = arg->getSignature();
             if (sig.isArray()) {
-                createBuffer(i, sig.getMode(), sig.getSize());
+                createBuffer(i, bufferi, sig.getMode(), arg->bufferSize());
+                bufferi++;
                 arg->bindBuffer(&buffers[i]);
                 if (sig.isInput()) {
                     // arg->syncWrite(i, queue);
-                     arg->asyncWrite(i, queue, &event);
-                     write_events.push_back(event);
+                    arg->asyncWrite(i, queue, &event);
+                    write_events.push_back(event);
                 }
             }
         }
@@ -132,35 +134,59 @@ namespace acl {
     }
 
 
-    void NDRangeKernel::createBuffer(int i, KernelArgMode mode, size_t size) {
+    void NDRangeKernel::createBuffer(int argi, int bufferi, KernelArgMode mode, size_t size) {
         cl_int status;
         auto context = this->binary->getContext()->getRawContext();
+        auto mem_flag = CL_CHANNEL_AUTO_INTELFPGA;
+        switch (bufferi) {
+            case 0:
+                mem_flag = CL_CHANNEL_1_INTELFPGA;
+                break;
+            case 1:
+                mem_flag = CL_CHANNEL_2_INTELFPGA;
+                break;
+            case 2:
+                mem_flag = CL_CHANNEL_3_INTELFPGA;
+                break;
+            case 3:
+                mem_flag = CL_CHANNEL_4_INTELFPGA;
+                break;
+            case 4:
+                mem_flag = CL_CHANNEL_5_INTELFPGA;
+                break;
+            case 5:
+                mem_flag = CL_CHANNEL_6_INTELFPGA;
+                break;
+            case 6:
+                mem_flag = CL_CHANNEL_7_INTELFPGA;
+                break;
+        }
         // Only create new buffer when the old buffer is not sufficient
-        if (size > this->bufferSizes[i]) {
+        if (size > this->bufferSizes[argi]) {
             switch (mode) {
                 case KernelArgMode::input:
-                    this->buffers[i] = clCreateBuffer(context,
-                                                      CL_MEM_READ_ONLY,
-                                                      size,
-                                                      NULL,
-                                                      &status);
+                    this->buffers[argi] = clCreateBuffer(context,
+                                                         CL_MEM_READ_ONLY | mem_flag,
+                                                         size,
+                                                         NULL,
+                                                         &status);
                     break;
                 case KernelArgMode::output:
-                    this->buffers[i] = clCreateBuffer(context,
-                                                      CL_MEM_WRITE_ONLY,
-                                                      size,
-                                                      NULL,
-                                                      &status);
+                    this->buffers[argi] = clCreateBuffer(context,
+                                                         CL_MEM_WRITE_ONLY | mem_flag,
+                                                         size,
+                                                         NULL,
+                                                         &status);
                     break;
                 case KernelArgMode::input_output:
-                    this->buffers[i] = clCreateBuffer(context,
-                                                      CL_MEM_READ_WRITE,
-                                                      size,
-                                                      NULL,
-                                                      &status);
+                    this->buffers[argi] = clCreateBuffer(context,
+                                                         CL_MEM_READ_WRITE | mem_flag,
+                                                         size,
+                                                         NULL,
+                                                         &status);
                     break;
             }
-            this->bufferSizes[i] = size;
+            this->bufferSizes[argi] = size;
         }
     }
 

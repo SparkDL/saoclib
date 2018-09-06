@@ -1,12 +1,12 @@
-#define BLOCK_SIZE 64
+#include "../config.h"
 
 __kernel
-__a
+__attribute((num_simd_work_items(SIMD_WORK_ITEMS)))
 __attribute((reqd_work_group_size(BLOCK_SIZE, BLOCK_SIZE, 1)))
 void sgemm(int M, int N, int K,
         // Input and output matrices
-           __global float *restrict A,
-           __global float *restrict B,
+           __global volatile float *restrict A,
+           __global volatile float *restrict B,
            __global float *restrict C) {
     // Local storage for a block of input matrices A and B
     __local float a_cache[BLOCK_SIZE][BLOCK_SIZE];

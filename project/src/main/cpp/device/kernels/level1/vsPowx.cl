@@ -1,7 +1,7 @@
 #include "../config.h"
 
 __kernel
-void vsPowx(__global const float *restrict a,
+void vsPowx(__global volatile float *restrict a,
             float b,
             __global float *restrict y) {
     int i = get_global_id(0);

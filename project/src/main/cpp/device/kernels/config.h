@@ -33,5 +33,4 @@
 #define MUL 303
 #define DIV 304
 
-
 #endif //SAOCLIB_CONFIG_H

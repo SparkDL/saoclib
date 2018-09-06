@@ -162,10 +162,11 @@ namespace acl {
                                   float *x, int incx,
                                   float *y, int incy,
                                   float *a, int lda) {
+        assert(order == CblasColMajor && "Only col-major storage is supported now.");
         assert(incx == 1 && incy == 1 && "Only incx=1 and incy=1 is supported now.");
         int M = m, K = 1, N = n;
         cblas_sgemm(order,
-                    CblasNoTrans, CblasTrans,
+                    CblasNoTrans, CblasNoTrans,
                     M, N, K,
                     alpha,
                     x, M,
@@ -204,41 +205,28 @@ namespace acl {
                                         float *c, int ldc) {
         assert(order == CblasColMajor && "Only col major order is supported now.");
 
-        auto transa_arg = IntArg((int) isTrans(transa), Mode::input);
-        auto transb_arg = IntArg((int) isTrans(transb), Mode::input);
-        auto M_arg = IntArg(M, Mode::input);
-        auto N_arg = IntArg(N, Mode::input);
-        auto K_arg = IntArg(K, Mode::input);
+        auto K_arg = IntArg(paddedSize(K, BLOCK_SIZE), Mode::input);
         auto alpha_arg = FloatArg(alpha, Mode::input);
-        auto a_arg = FloatArrayArg(a, lda * K, Mode::input);
-        auto lda_arg = IntArg(lda, Mode::input);
-        auto b_arg = FloatArrayArg(b, ldb * N, Mode::input);
-        auto ldb_arg = IntArg(ldb, Mode::input);
+        auto a_arg = Matrix<float>(a, lda, M, K, isTrans(transa), Mode::input);
+        auto b_arg = Matrix<float>(b, ldb, K, N, isTrans(transb), Mode::input);
         auto beta_arg = FloatArg(beta, Mode::input);
-        auto c_arg = FloatArrayArg(c, ldc * N, Mode::input_output);
-        auto ldc_arg = IntArg(ldc, Mode::input);
-        KernelArg *args[] = {&transa_arg, &transb_arg,
-                             &M_arg, &N_arg, &K_arg,
+        auto c_arg = Matrix<float>(c, ldc, M, N, false, Mode::input_output);
+
+        KernelArg *args[] = {&K_arg,
                              &alpha_arg,
-                             &a_arg, &lda_arg,
-                             &b_arg, &ldb_arg,
+                             &a_arg,
+                             &b_arg,
                              &beta_arg,
-                             &c_arg, &ldc_arg};
+                             &c_arg};
+
         const size_t work_dim = 2;
-        int m_factor = M / BLOCK_SIZE;
-        if (M - m_factor * BLOCK_SIZE > 0) {
-            m_factor++;
-        }
-        int n_factor = N / BLOCK_SIZE;
-        if (N - n_factor * BLOCK_SIZE > 0) {
-            n_factor++;
-        }
-        const size_t global_work_size[work_dim] = {n_factor * BLOCK_SIZE, m_factor * BLOCK_SIZE};
+        const size_t global_work_size[work_dim] = {static_cast<const size_t>(paddedSize(M, BLOCK_SIZE)),
+                                                   static_cast<const size_t>(paddedSize(N, BLOCK_SIZE)),};
         const size_t local_work_size[work_dim] = {BLOCK_SIZE, BLOCK_SIZE};
         sgemmKernel->call(work_dim,
                           global_work_size,
                           local_work_size,
-                          args, 13);
+                          args, 6);
     }
 
     NDRangeKernel *ACLMKLAccelerator::newAxpyKernel() {
@@ -349,21 +337,14 @@ namespace acl {
     }
 
     NDRangeKernel *ACLMKLAccelerator::newSgemmKernel() {
-        static const int sgemmNumArgs = 13;
+        static const int sgemmNumArgs = 6;
         static KernelArgSignature signature[sgemmNumArgs] = {
                 Sig::primitive<int>(Mode::input),
-                Sig::primitive<int>(Mode::input),
-                Sig::primitive<int>(Mode::input),
-                Sig::primitive<int>(Mode::input),
-                Sig::primitive<int>(Mode::input),
                 Sig::primitive<float>(Mode::input),
                 Sig::array<float>(Mode::input, 0),
-                Sig::primitive<int>(Mode::input),
                 Sig::array<float>(Mode::input, 0),
-                Sig::primitive<int>(Mode::input),
                 Sig::primitive<float>(Mode::input),
                 Sig::array<float>(Mode::input_output, 0),
-                Sig::primitive<int>(Mode::input)
         };
 
         return new NDRangeKernel(manager->getProgram(),

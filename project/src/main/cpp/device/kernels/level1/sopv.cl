@@ -2,7 +2,7 @@
 
 __kernel
 void sopv(int op,
-          __global const float *restrict x,
+          __global volatile float *restrict x,
           __global float *restrict a) {
     int i = get_global_id(0);
     float value = 0;

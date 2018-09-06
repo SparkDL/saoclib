@@ -43,8 +43,8 @@ void alignedFree(void *ptr);
 // Error functions
 std::string printError(cl_int error);
 void _checkError(int line,
-								 const char *file,
-								 cl_int error,
+				 const char *file,
+				 cl_int error,
                  const char *msg,
                  ...); // does not return
 #define checkError(status, ...) _checkError(__LINE__, __FILE__, status, __VA_ARGS__)

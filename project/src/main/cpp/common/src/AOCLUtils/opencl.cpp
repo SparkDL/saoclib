@@ -543,8 +543,8 @@ namespace aocl_utils {
 #endif
     }
 
-    void oclContextCallback(const char *errinfo, const void *, size_t, void *) {
-        printf("Context callback: %s\n", errinfo);
+    void oclContextCallback(const char *errinfo, const void *, size_t, void *msg) {
+        printf("\nKernel error occurred: %s\n", errinfo);
     }
 
 } // ns aocl_utils

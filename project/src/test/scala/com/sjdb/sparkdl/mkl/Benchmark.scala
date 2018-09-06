@@ -11,9 +11,9 @@ object Benchmark {
   }
 
   def sgemm(): Unit = {
-    val m = 2048
-    val n = 1024
-    val k = 1024
+    val m = 4096
+    val n = 4096
+    val k = 4096
     val alpha = 1f
     val beta = 1f
     val a = Array.fill(m * k)(Random.nextFloat)
@@ -25,6 +25,6 @@ object Benchmark {
         b, 0, k,
         beta, c, 0, m),
       "sgemm",
-      100)
+      10)
   }
 }
