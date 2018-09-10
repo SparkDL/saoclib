@@ -69,6 +69,6 @@ add_library(aclmkl SHARED ${api} ${srcs} ${blas})
 
 # Copy the share library to the "classes" directory
 # to ensure the released jar contains the libaclmkl.so file.
-ADD_CUSTOM_TARGET(copy_library ALL
-        COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/libaclmkl.so ${release_dir}
-        DEPENDS aclmkl)
+#ADD_CUSTOM_TARGET(copy_library ALL
+#        COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/libaclmkl.so ${release_dir}
+#        DEPENDS aclmkl)
