@@ -2,9 +2,9 @@
 
 __kernel
 void sdot(int n,
-          __global volatile float *restrict x,
+          __global const float *restrict x,
           int incx,
-          __global volatile float *restrict y,
+          __global const float *restrict y,
           int incy,
           __global float *restrict result) {
     float sum = 0;

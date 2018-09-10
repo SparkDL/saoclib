@@ -13,6 +13,8 @@
 #include "aclmkl.h"
 
 namespace acl {
+    bool is_first_running();
+
     void log(const std::string &format, ...);
 
     std::string getThreadString();

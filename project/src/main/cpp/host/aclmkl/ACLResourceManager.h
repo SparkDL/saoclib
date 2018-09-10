@@ -14,30 +14,34 @@ namespace acl {
     // TODO this class must be thread safe
     class ACLResourceManager {
     public:
-        ACLResourceManager(const char *binaryPath);
+        ACLResourceManager();
+
+        ~ACLResourceManager();
 
         const Context *getContext() const;
 
         const Program *getProgram() const;
 
-        ~ACLResourceManager();
-
-        bool allocateAccelerator(ACLMKLAccelerator **accelerator, std::string &msg);
-
-        bool allocateAccelerators(std::vector<ACLMKLAccelerator*> &accelerators, std::string &msg);
+        bool allocateAccelerators(std::vector<ACLMKLAccelerator *> &accelerators,
+                                  std::string &msg);
 
     private:
-        bool initResource(std::string &reason);
+        bool initResource(std::string &msg);
+
+        bool allocateAccelerator(ACLMKLAccelerator **accelerator, std::string &msg);
 
         std::mutex devicesLock;
         std::mutex initedLock;
         bool inited = false;
         bool initState = false;
+
         std::vector<cl_device_id> freeDevices;
         std::vector<cl_device_id> busyDevices;
+
+        Context *context = NULL;
+        Program *program = NULL;
+        std::string binaryPath;
         std::vector<ACLMKLAccelerator *> accelerators;
-        Context *context;
-        Program *program;
     };
 }
 

@@ -2,7 +2,7 @@
 
 __kernel
 void saxpy(float a,
-           __global volatile float *restrict x,
+           __global const float *restrict x,
            int incx,
            __global float *restrict y,
            int incy) {

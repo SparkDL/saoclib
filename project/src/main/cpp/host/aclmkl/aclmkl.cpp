@@ -6,8 +6,7 @@
 extern "C" {
 #endif
 using namespace acl;
-static const char *binaryPath = "/home/pcz/develop/saoclib/project/target/aclblas_emu";
-static ACLResourceManager manager(binaryPath);
+static ACLResourceManager manager;
 
 /*
  * Class:     com_sjdb_sparkdl_mkl_ACLMKLNative__
@@ -18,6 +17,8 @@ JNIEXPORT jlongArray JNICALL Java_com_sjdb_sparkdl_mkl_ACLMKLNative_00024_alloca
         (JNIEnv *env, jobject, jstring jmsg) {
     std::string msg;
     std::vector<ACLMKLAccelerator *> accelerators;
+
+    // Allocate accelerators
     bool isOK = manager.allocateAccelerators(accelerators, msg);
     if (!isOK) {
         jmsg = env->NewStringUTF(msg.c_str());
@@ -283,12 +284,12 @@ JNIEXPORT void JNICALL Java_com_sjdb_sparkdl_mkl_ACLMKLNative_00024_vsgemm
     jfloat *jni_b = (float *) env->GetPrimitiveArrayCritical(b, JNI_FALSE);
     jfloat *jni_c = (float *) env->GetPrimitiveArrayCritical(c, JNI_FALSE);
 
-//    int jni_transa, jni_transb;
-//    if (transa == 't' || transa == 'T') jni_transa = CblasTrans; else jni_transa = CblasNoTrans;
-//    if (transb == 't' || transb == 'T') jni_transb = CblasTrans; else jni_transb = CblasNoTrans;
-//
-//    cblas_sgemm(CblasColMajor, jni_transa, jni_transb, m, n, k, alpha, jni_a + aOffset, lda,
-//                jni_b + bOffset, ldb, beta, jni_c + cOffset, ldc);
+    CBLAS_TRANSPOSE jni_transa, jni_transb;
+    if (transa == 't' || transa == 'T') jni_transa = CblasTrans; else jni_transa = CblasNoTrans;
+    if (transb == 't' || transb == 'T') jni_transb = CblasTrans; else jni_transb = CblasNoTrans;
+    reinterpret_cast<ACLMKLAccelerator *>(accHandle)->
+            cblas_sgemm(CblasColMajor, jni_transa, jni_transb, m, n, k, alpha, jni_a + aOffset, lda,
+                        jni_b + bOffset, ldb, beta, jni_c + cOffset, ldc);
 
     env->ReleasePrimitiveArrayCritical(a, jni_a, 0);
     env->ReleasePrimitiveArrayCritical(b, jni_b, 0);
@@ -310,10 +311,11 @@ JNIEXPORT void JNICALL Java_com_sjdb_sparkdl_mkl_ACLMKLNative_00024_vsgemv
     jfloat *jni_x = (jfloat *) env->GetPrimitiveArrayCritical(x, JNI_FALSE);
     jfloat *jni_y = (jfloat *) env->GetPrimitiveArrayCritical(y, JNI_FALSE);
 
-//    int jni_trans;
-//    if (trans == 't' || trans == 'T') jni_trans = CblasTrans; else jni_trans = CblasNoTrans;
-//    cblas_sgemv(CblasColMajor, jni_trans, m, n, alpha, jni_a + aOffset, lda, jni_x + xOffset, incx,
-//                beta, jni_y + yOffset, incy);
+    CBLAS_TRANSPOSE jni_trans;
+    if (trans == 't' || trans == 'T') jni_trans = CblasTrans; else jni_trans = CblasNoTrans;
+    reinterpret_cast<ACLMKLAccelerator *>(accHandle)->
+            cblas_sgemv(CblasColMajor, jni_trans, m, n, alpha, jni_a + aOffset, lda, jni_x + xOffset, incx,
+                        beta, jni_y + yOffset, incy);
 
     env->ReleasePrimitiveArrayCritical(a, jni_a, 0);
     env->ReleasePrimitiveArrayCritical(x, jni_x, 0);

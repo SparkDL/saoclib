@@ -28,8 +28,17 @@ namespace acl {
         for (unsigned j = 0; j < numGivenDevices; j++) {
             auto given_id = devices[j];
             if (!context->isManagedDevice(given_id)) {
-                printf("Invalid device id: %p", given_id);
-                return false;
+                std::stringstream stream;
+                stream << "Invalid device id: " << given_id;
+                throw std::runtime_error(stream.str());
+            }
+            cl_bool available;
+            size_t size;
+            clGetDeviceInfo(given_id, CL_DEVICE_AVAILABLE, sizeof(cl_bool), &available, &size);
+            if (available == CL_FALSE) {
+                std::stringstream stream;
+                stream << "Device is not available, cannot program device: " << given_id;
+                throw std::runtime_error(stream.str());
             }
             deployedDevices.push_back(context->getDeviceID(j));
         }

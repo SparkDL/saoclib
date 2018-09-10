@@ -10,7 +10,9 @@
 
 #endif
 
-#include <AOCLUtils/opencl.h>
+#include "sys/file.h"
+
+#include "AOCLUtils/opencl.h"
 #include <cstdarg>
 #include <thread>
 #include <iostream>
@@ -18,6 +20,18 @@
 #include "utils.h"
 
 namespace acl {
+
+    bool is_first_running() {
+        int pid_file = open("/tmp/aclmkl.pid", O_CREAT | O_RDWR, 0666);
+        int rc = flock(pid_file, LOCK_EX | LOCK_NB);
+        if (rc) {
+            if (EWOULDBLOCK == errno) {
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
 
     void log(const std::string &format, ...) {
 #ifndef NDEBUG

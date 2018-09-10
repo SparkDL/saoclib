@@ -2,8 +2,8 @@
 
 __kernel
 void sopvv(int op,
-           __global volatile float *restrict x,
-           __global volatile float *restrict y,
+           __global const float *restrict x,
+           __global const float *restrict y,
            __global float *restrict a) {
     int i = get_global_id(0);
     float value = 0;

@@ -442,7 +442,7 @@ namespace aocl_utils {
 
     std::string getBoardBinaryFile(const char *prefix, cl_device_id device) {
         // First check if <prefix>.aocx exists. Use it if it does.
-        std::string file_name = std::string(prefix) + ".aocx";
+        std::string file_name = std::string(prefix);// + ".aocx";
         if (fileExists(file_name.c_str())) {
             return file_name;
         }

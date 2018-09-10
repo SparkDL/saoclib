@@ -19,16 +19,15 @@ public:
     }
 
     void SetUp() override {
-        static const char *binaryPath = "/home/pcz/develop/saoclib/project/target/aclmkl";
-        //static const char *binaryPath = "/home/pcz/aocx/aclblas";
-
-        static ACLResourceManager manager(binaryPath);
+        std::vector<ACLMKLAccelerator *> accs;
+        static ACLResourceManager manager;
         std::string reason;
-        bool ok = manager.allocateAccelerator(&acc, reason);
+        bool ok = manager.allocateAccelerators(accs, reason);
         if (!ok) {
             printf("\nSetup accelerator for test failed: %s\n", reason.c_str());
             exit(-1);
         }
+        acc = accs[0];
     }
 
     void TearDown() override {
