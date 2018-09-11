@@ -5,10 +5,10 @@ __attribute((reqd_work_group_size(BLOCK_SIZE, BLOCK_SIZE, 1)))
 __attribute((num_simd_work_items(SIMD_WORK_ITEMS)))
 void sgemm(int K,
            float alpha,
-           __global volatile float *restrict a,
-           __global volatile float *restrict b,
+           __global const float *restrict a,
+           __global const float *restrict b,
            float beta,
-           __global volatile float *restrict c) {
+           __global float *restrict c) {
     // Local storage for a block of input matrices A and B
     __local float a_cache[BLOCK_SIZE][BLOCK_SIZE];
     __local float b_cache[BLOCK_SIZE][BLOCK_SIZE];
