@@ -1,5 +1,7 @@
 package com.sjdb.sparkdl.mkl
 
+import com.intel.analytics.bigdl.mkl.{MKL => iMKL}
+
 import scala.util.Random
 
 object MKLTest {
@@ -25,7 +27,12 @@ object MKLTest {
       start = System.currentTimeMillis()
       ACLMKL.vsger(m, n, alpha, x, 0, incx, y, 0, incy, a1, 0, lda)
       end = System.currentTimeMillis()
-      println(f"aclmkl cost: ${end - start}ms")
+      println(f"aclblas cost: ${end - start}ms")
+
+      start = System.currentTimeMillis()
+      iMKL.vsger(m, n, alpha, x, 0, incx, y, 0, incy, a2, 0, lda)
+      end = System.currentTimeMillis()
+      println(f"mkl cost: ${end - start}ms");
 
       //println(a1.sameElements(a2))
       if (!a1.sameElements(a2)) {

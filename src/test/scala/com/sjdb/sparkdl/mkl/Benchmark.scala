@@ -1,5 +1,6 @@
 package com.sjdb.sparkdl.mkl
 
+import com.intel.analytics.bigdl.mkl.MKL
 import com.sjdb.sparkdl.utils.Utils
 import com.sjdb.sparkdl.mkl.ACLMKL
 
@@ -20,6 +21,10 @@ object Benchmark {
     val b = Array.fill(k * n)(Random.nextFloat)
     var c = Array.fill(m * n)(Random.nextFloat)
 
+    MKL.vsgemm('n', 'n', m, n, k, alpha,
+      a, 0, m,
+      b, 0, k,
+      beta, c, 0, m)
     ACLMKL.vsgemm('n', 'n', m, n, k, alpha,
       a, 0, m,
       b, 0, k,

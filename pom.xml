@@ -118,6 +118,13 @@
     </build>
 
     <dependencies>
+        <!-- https://mvnrepository.com/artifact/com.intel.analytics.bigdl/bigdl-core -->
+        <dependency>
+            <groupId>com.intel.analytics.bigdl</groupId>
+            <artifactId>bigdl-core</artifactId>
+            <version>0.3.0</version>
+            <type>pom</type>
+        </dependency>
         <!-- scala -->
         <dependency>
             <groupId>org.scala-lang</groupId>
