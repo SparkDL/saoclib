@@ -7,7 +7,7 @@
     <groupId>com.sparkdl</groupId>
     <artifactId>aclmkl</artifactId>
     <packaging>jar</packaging>
-    <version>0.3-SNAPSHOT</version>
+    <version>0.3.0-SNAPSHOT</version>
 
     <properties>
         <cmake-bin>/home/pcz/software/CLion-2018.1.1/clion-2018.1.1/bin/cmake/bin/cmake</cmake-bin>
