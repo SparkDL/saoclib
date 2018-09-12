@@ -10,6 +10,7 @@ void sgemm(int K,
            float beta,
            __global float *restrict c) {
     // Local storage for a block of input matrices A and B
+
     __local float a_cache[BLOCK_SIZE][BLOCK_SIZE];
     __local float b_cache[BLOCK_SIZE][BLOCK_SIZE];
 

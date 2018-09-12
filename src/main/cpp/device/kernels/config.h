@@ -7,9 +7,7 @@
 
 #define BLOCK_SIZE 64
 
-#define SIMD_WORK_ITEMS 16
-
-#define SLICE_SIZE 16
+#define SIMD_WORK_ITEMS 8
 
 #define pos(row, col, ld) ((ld)*(col)+(row))
 

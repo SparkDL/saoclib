@@ -7,14 +7,14 @@
     <groupId>com.sparkdl</groupId>
     <artifactId>aclmkl</artifactId>
     <packaging>jar</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.3-SNAPSHOT</version>
 
     <properties>
         <cmake-bin>/home/pcz/software/CLion-2018.1.1/clion-2018.1.1/bin/cmake/bin/cmake</cmake-bin>
         <scala.major.version>2.11</scala.major.version>
         <scala.version>2.11.8</scala.version>
         <scala.macros.version>2.11</scala.macros.version>
-        <spark.version>2.2.0</spark.version>
+        <spark.version>2.0.0</spark.version>
         <spark-scope>compile</spark-scope>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -118,12 +118,6 @@
     </build>
 
     <dependencies>
-        <!-- bigdl -->
-        <dependency>
-            <groupId>com.intel.analytics.bigdl</groupId>
-            <artifactId>bigdl-SPARK_2.2</artifactId>
-            <version>0.5.0</version>
-        </dependency>
         <!-- scala -->
         <dependency>
             <groupId>org.scala-lang</groupId>
