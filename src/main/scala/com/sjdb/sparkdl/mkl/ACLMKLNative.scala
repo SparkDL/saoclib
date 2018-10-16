@@ -7,13 +7,12 @@ import java.nio.channels.Channels.newChannel
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicIntegerArray}
 
 
-
 object ACLMKLNative {
   try {
     val aoclmklFileName: String = "libaclmkl.so"
-    //    val tmpFile = extract(aoclmklFileName)
-    //    System.load(tmpFile.getAbsolutePath)
-    System.load("/home/pcz/develop/saoclib/project/target/classes/libaclmkl.so")
+    val tmpFile = extract(aoclmklFileName)
+    // System.load(tmpFile.getAbsolutePath)
+    System.load("/home/pcz/develop/saoclib/src/main/cpp/cmake-build-debug/libaclmkl.so")
   } catch {
     case e: Exception => {
       e.printStackTrace()
@@ -43,7 +42,7 @@ object ACLMKLNative {
     }
   }
 
-  @native def allocateAccelerators(msg: String): Array[Long]
+  @native def allocateAccelerators(msg: Array[String]): Array[Long]
 
   @native def releaseAccelerator(accHandle: Long): Boolean
 

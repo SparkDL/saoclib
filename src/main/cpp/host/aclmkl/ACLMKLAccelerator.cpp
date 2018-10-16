@@ -31,23 +31,23 @@ namespace acl {
     void ACLMKLAccelerator::sopvv(int opCode, int n, float *a, float *b, float *y) {
         static const int sopvvNumArgs = 4;
         IntArg arg_opCode = IntArg(opCode, Mode::input);
-        FloatArrayArg arg_a = FloatArrayArg(a, n, Mode::input);
-        FloatArrayArg arg_b = FloatArrayArg(b, n, Mode::input);
-        FloatArrayArg arg_y = FloatArrayArg(y, n, Mode::output);
+        FloatArrayArg arg_a = FloatArrayArg(a, static_cast<size_t>(n), Mode::input);
+        FloatArrayArg arg_b = FloatArrayArg(b, static_cast<size_t>(n), Mode::input);
+        FloatArrayArg arg_y = FloatArrayArg(y, static_cast<size_t>(n), Mode::output);
         KernelArg *args[] = {&arg_opCode, &arg_a, &arg_b, &arg_y};
 
-        size_t global_work_size[1] = {n};
+        size_t global_work_size[1] = {static_cast<size_t>(n)};
         sopvvKernel->call(1, global_work_size, NULL, args, sopvvNumArgs);
     }
 
     void ACLMKLAccelerator::sopv(int opCode, int n, float *a, float *y) {
         static const int sopvNumArgs = 3;
         IntArg arg_opCode = IntArg(opCode, Mode::input);
-        FloatArrayArg arg_a = FloatArrayArg(a, n, Mode::input);
-        FloatArrayArg arg_y = FloatArrayArg(y, n, Mode::output);
+        FloatArrayArg arg_a = FloatArrayArg(a, static_cast<size_t>(n), Mode::input);
+        FloatArrayArg arg_y = FloatArrayArg(y, static_cast<size_t>(n), Mode::output);
         KernelArg *args[] = {&arg_opCode, &arg_a, &arg_y};
 
-        size_t global_work_size[1] = {n};
+        size_t global_work_size[1] = {static_cast<size_t>(n)};
         sopvKernel->call(1, global_work_size, NULL, args, sopvNumArgs);
     }
 
@@ -94,12 +94,12 @@ namespace acl {
     void ACLMKLAccelerator::vsPowx(int n, float *a, float b, float *y) {
         static const int vsPowxNumArgs = 3;
 
-        FloatArrayArg arg_a = FloatArrayArg(a, n, Mode::input);
+        FloatArrayArg arg_a = FloatArrayArg(a, static_cast<size_t>(n), Mode::input);
         FloatArg arg_b = FloatArg(b, Mode::input);
-        FloatArrayArg arg_y = FloatArrayArg(y, n, Mode::output);
+        FloatArrayArg arg_y = FloatArrayArg(y, static_cast<size_t>(n), Mode::output);
         KernelArg *args[vsPowxNumArgs] = {&arg_a, &arg_b, &arg_y};
 
-        size_t global_work_size[1] = {n};
+        size_t global_work_size[1] = {static_cast<size_t>(n)};
         vsPowxKernel->call(1, global_work_size, NULL, args, vsPowxNumArgs);
     }
 
@@ -117,7 +117,7 @@ namespace acl {
         IntArg arg_incy = IntArg(incy, Mode::input);
         KernelArg *args[saxpyNumArgs] = {&arg_a, &arg_x, &arg_incx, &arg_y, &arg_incy};
 
-        size_t global_work_size[1] = {n};
+        size_t global_work_size[1] = {static_cast<size_t>(n)};
         saxpyKernel->call(1, global_work_size, NULL, args, saxpyNumArgs);
     }
 
@@ -131,7 +131,7 @@ namespace acl {
         IntArg arg_incx = IntArg(incx, Mode::input);
         KernelArg *args[sscalNumArgs] = {&arg_scale, &arg_x, &arg_incx};
 
-        size_t global_work_size[1] = {n};
+        size_t global_work_size[1] = {static_cast<size_t>(n)};
         sscalKernel->call(1, global_work_size, NULL, args, sscalNumArgs);
     }
 
@@ -204,7 +204,7 @@ namespace acl {
                                         float beta,
                                         float *c, int ldc) {
         assert(order == CblasColMajor && "Only col major order is supported now.");
-
+        log("M:%d,N:%d,K:%d,transa:%d:transb:%d\n", M, N, K, isTrans(transa), isTrans(transb));
         auto K_arg = IntArg(paddedSize(K, BLOCK_SIZE), Mode::input);
         auto alpha_arg = FloatArg(alpha, Mode::input);
         auto a_arg = Matrix<float>(a, lda, M, K, isTrans(transa), Mode::input);

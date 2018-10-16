@@ -19,7 +19,6 @@
 
 #define II_CYCLES 12
 
-
 // vector operations
 #define ABS 101
 #define SQRT 102

@@ -169,7 +169,7 @@ namespace acl {
         printf("\n%s:\n", name);
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                printf("%.2f,", a[rows * j + i]);
+                printf("%.4f,", a[rows * j + i]);
             }
             printf("\n");
         }

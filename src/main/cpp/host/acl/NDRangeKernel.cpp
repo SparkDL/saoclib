@@ -15,7 +15,7 @@ namespace acl {
                                  unsigned num_args)
             : Kernel(binary, device, queue, kernel_name, signatures, num_args) {}
 
-    NDRangeKernel::~NDRangeKernel() {}
+    NDRangeKernel::~NDRangeKernel() = default;
 
     bool NDRangeKernel::call(cl_uint work_dim,
                              const size_t *global_work_size_list,
@@ -35,35 +35,38 @@ namespace acl {
          * Transfer inputs to device. Each of the host buffers supplied to
          * clEnqueueWriteBuffer here is already aligned to ensure that DMA is used
          * for the host-to-device transfer.
-         */
-        executeTime(
-                [=]() {
-                    this->setInputs(args, numArgs);
-                },
-                (kernelName + "-setInputs").c_str()
-        );
+//         */
+//        executeTime(
+//                [=]() {
+//                    this->setInputs(args, numArgs);
+//                },
+//                (kernelName + "-setInputs").c_str()
+//        );
+//
+//        /*
+//         * Enqueue kernel.
+//         */
+//        executeTime(
+//                [=]() {
+//                    this->callKernel(work_dim, global_work_size_list, local_work_size_list);
+//                },
+//                (kernelName + "-callKernel").c_str()
+//        );
+//
+//
+//        /*
+//         * Read the result. This the final operation.
+//         */
+//        executeTime(
+//                [=]() {
+//                    this->getOutputs(args, numArgs);
+//                },
+//                (kernelName + "-getOutputs").c_str()
+//        );
 
-        /*
-         * Enqueue kernel.
-         */
-        executeTime(
-                [=]() {
-                    this->callKernel(work_dim, global_work_size_list, local_work_size_list);
-                },
-                (kernelName + "-callKernel").c_str()
-        );
-
-
-        /*
-         * Read the result. This the final operation.
-         */
-        executeTime(
-                [=]() {
-                    this->getOutputs(args, numArgs);
-                },
-                (kernelName + "-getOutputs").c_str()
-        );
-
+        this->setInputs(args, numArgs);
+        this->callKernel(work_dim, global_work_size_list, local_work_size_list);
+        this->getOutputs(args, numArgs);
         const double end_time = getCurrentTimestamp();
         // Wall-clock time taken.
         log("Total time(%s): %0.3f ms\n\n", kernelName.c_str(), (end_time - start_time) * 1e3);
@@ -163,6 +166,10 @@ namespace acl {
         }
         // Only create new buffer when the old buffer is not sufficient
         if (size > this->bufferSizes[argi]) {
+            // Release the old buffer first
+            if (buffers[argi]) {
+                clReleaseMemObject(buffers[argi]);
+            }
             switch (mode) {
                 case KernelArgMode::input:
                     this->buffers[argi] = clCreateBuffer(context,

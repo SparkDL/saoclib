@@ -6,39 +6,76 @@ import scala.util.Random
 
 object MKLTest {
   def main(args: Array[String]): Unit = {
-    var m = 500
-    var n = 500
-    var alpha = 1f
-    var incx = 1
-    var incy = 1
-    var lda = m
-    m += 1
-    n += 1
-    lda = m
-    val x = Array.fill(m * incx)(Random.nextFloat)
-    val y = Array.fill(n * incy)(Random.nextFloat)
-    var a1 = Array.fill(lda * n)(0f)
-    var a2 = Array.fill(lda * n)(0f)
+    val transa: Char = 't'
+    val transb: Char = 'n'
+    val m = 4096
+    val n = 4096
+    val k = 1152
+    val lda = m
+    val ldb = k
+    val ldc = m
+    val alpha = 1f
+    val beta = 0f
+    val aOffset = 0
+    val bOffset = 0
+    val cOffset = 0
 
-    for (i <- 0 to 5) {
+    val a = Array.fill(m * k)(Random.nextFloat())
+    val b = Array.fill(k * n)(Random.nextFloat())
+    var c1 = Array.fill(m * n)(0f)
+    var c2 = Array.fill(m * n)(0f)
 
-      var start: Double = 0
-      var end: Double = 0
-      start = System.currentTimeMillis()
-      ACLMKL.vsger(m, n, alpha, x, 0, incx, y, 0, incy, a1, 0, lda)
-      end = System.currentTimeMillis()
-      println(f"aclblas cost: ${end - start}ms")
+    iMKL.vsgemm(transa, transb,
+      m, n, k,
+      alpha,
+      a, aOffset, lda,
+      a, bOffset, ldb,
+      beta,
+      c1, cOffset, ldc
+    )
 
-      start = System.currentTimeMillis()
-      iMKL.vsger(m, n, alpha, x, 0, incx, y, 0, incy, a2, 0, lda)
-      end = System.currentTimeMillis()
-      println(f"mkl cost: ${end - start}ms");
+    ACLMKL.vsgemm(transa, transb,
+      m, n, k,
+      alpha,
+      a, aOffset, lda,
+      a, bOffset, ldb,
+      beta,
+      c2, cOffset, ldc
+    )
 
-      //println(a1.sameElements(a2))
-      if (!a1.sameElements(a2)) {
-        //println(a1.mkString(","))
-        //println(a2.mkString(","))
+    println(s"l2error:${l2error(c2, c1)}")
+  }
+
+  def div(a: Array[Float], b: Array[Float]) = {
+    require(a.length == b.length)
+    a.zip(b).map(x => x._1 / x._2)
+  }
+
+  def diff(a: Array[Float], b: Array[Float]) = {
+    require(a.length == b.length)
+    a.zip(b).map(x => x._1 - x._2)
+  }
+
+  def square(a: Array[Float]) = {
+    a.map(x => x * x)
+  }
+
+  def l2error(a: Array[Float], b: Array[Float]) = {
+    require(a.length == b.length)
+    val d = square(diff(a, b))
+    val o = square(b)
+    Math.sqrt(div(d, o).sum / a.length)
+  }
+
+  def printMatrix(name: String, a: Array[Float], rows: Int, cols: Int): Unit = {
+    println(f"${name}:")
+    for (i <- 0 until rows) {
+      for (j <- 0 until cols) {
+        print(a(rows * j + i))
+        print(",")
       }
+      println()
     }
+    println()
   }
 }

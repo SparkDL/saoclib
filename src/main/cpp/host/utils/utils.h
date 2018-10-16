@@ -6,7 +6,9 @@
 #define SAOCLIB_CPP_UTILS_H
 
 #include <cstddef>
+#include <cstdlib>
 #include <cassert>
+#include <memory.h>
 #include <functional>
 #include "NativeTypeID.h"
 #include "KernelArgMode.h"
@@ -42,9 +44,9 @@ namespace acl {
     void matrixCopy(T *src, int src_rows, int src_cols, int src_real_rows,
                     T *dest, int dest_rows, int dest_cols, int dest_real_rows) {
         if (dest_rows == src_rows && dest_cols == src_cols) {
-            memcpy(dest, src, src_rows * src_cols * sizeof(T));
+            memcpy((void *) dest, (void *) src, src_rows * src_cols * sizeof(T));
         } else {
-            memset(dest, 0, dest_rows * dest_cols * sizeof(T));
+            memset((void *) dest, 0, dest_rows * dest_cols * sizeof(T));
             int copy_cols = src_cols < dest_cols ? src_cols : dest_cols;
             int copy_rows = src_rows < dest_rows ? src_rows : dest_rows;
             for (int i = 0; i < copy_cols; i++) {
@@ -58,7 +60,9 @@ namespace acl {
     template<typename T>
     void matrixTransposeCopy(T *src, int src_rows, int src_cols, int src_real_rows,
                              T *dest, int dest_rows, int dest_cols, int dest_real_rows) {
-        memset(dest, 0, dest_rows * dest_cols * sizeof(T));
+        log("src_rows:%d,src_cols:%d,src_real_rows:%d\n", src_rows, src_cols, src_real_rows);
+        log("dest_rows:%d,dest_cols:%d,dest_real_rows:%d\n", dest_rows, dest_cols, dest_real_rows);
+        memset((void *) dest, 0, dest_rows * dest_cols * sizeof(T));
         int copy_cols = src_cols < dest_cols ? src_cols : dest_cols;
         int copy_rows = src_rows < dest_rows ? src_rows : dest_rows;
         for (int row = 0; row < copy_rows; row++) {

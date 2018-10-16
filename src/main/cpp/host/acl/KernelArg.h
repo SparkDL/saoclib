@@ -39,6 +39,8 @@ namespace acl {
     public:
         explicit KernelArg(KernelArgSignature signature) : signature(signature) {};
 
+        virtual ~KernelArg() = default;
+
         /**
          * Check if the data meets given Limit, including type and size.
          * @param rhs
@@ -77,6 +79,8 @@ namespace acl {
                 : KernelArg(KernelArgSignature::primitive<T>(mode)),
                   data(data) {}
 
+        ~Primitive() override = default;
+
         void setArg(cl_kernel kernel, int argi) override {
             cl_int status;
             size_t size = signature.getSize();
@@ -113,6 +117,7 @@ namespace acl {
                   needCopy((long) rawData % 1024 != 0) {
         }
 
+        ~Array() override = default;
 
         size_t bufferSize() override {
             return sizeof(T) * length;
@@ -257,6 +262,8 @@ namespace acl {
             needCopy = !((long) rawData % 1024 == 0 && paddedRows == dataRows && paddedCols == dataCols);
         }
 
+        virtual ~Matrix() = default;
+
         int getPaddedRows() {
             return paddedRows;
         }
@@ -278,8 +285,10 @@ namespace acl {
         }
 
         void writeContainer() override {
+            log("Writing container\n");
             if (transpose) {
-                matrixTransposeCopy<T>(this->rawData, dataRows, dataCols, dataRealRows,
+                /// @note M.T is a dataRows*dataCols matrix, thus M is a dataCols*dataRows matrix
+                matrixTransposeCopy<T>(this->rawData, dataCols, dataRows, dataRealRows,
                                        this->container.data(), paddedRows, paddedCols, paddedRows);
             } else {
                 matrixCopy<T>(this->rawData, dataRows, dataCols, dataRealRows,

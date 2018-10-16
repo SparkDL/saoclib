@@ -11,17 +11,18 @@ static ACLResourceManager manager;
 /*
  * Class:     com_sjdb_sparkdl_mkl_ACLMKLNative__
  * Method:    allocateAccelerators
- * Signature: (Ljava/lang/String;)J
+ * Signature: ([Ljava/lang/String;)[J
  */
 JNIEXPORT jlongArray JNICALL Java_com_sjdb_sparkdl_mkl_ACLMKLNative_00024_allocateAccelerators
-        (JNIEnv *env, jobject, jstring jmsg) {
+        (JNIEnv *env, jobject, jobjectArray jMsgArray) {
     std::string msg;
     std::vector<ACLMKLAccelerator *> accelerators;
 
     // Allocate accelerators
     bool isOK = manager.allocateAccelerators(accelerators, msg);
     if (!isOK) {
-        jmsg = env->NewStringUTF(msg.c_str());
+        jobject jmsg = env->NewStringUTF(msg.c_str());
+        env->SetObjectArrayElement(jMsgArray, 0, jmsg);
         jlongArray result = env->NewLongArray(0);
         return result;
     }

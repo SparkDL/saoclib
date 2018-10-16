@@ -67,6 +67,12 @@ add_test(NAME test
 
 add_library(aclmkl SHARED ${api} ${srcs} ${blas})
 
+add_executable(sgemm_test.exe spec/sgemm_test.cpp ${srcs})
+
+add_executable(matrix_mult.exe spec/matrix_mult.cpp ${srcs})
+
+add_executable(container_test.exe spec/container_test.cpp ${srcs})
+
 # Copy the share library to the "classes" directory
 # to ensure the released jar contains the libaclmkl.so file.
 #ADD_CUSTOM_TARGET(copy_library ALL

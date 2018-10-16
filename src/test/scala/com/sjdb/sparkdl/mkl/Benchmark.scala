@@ -8,13 +8,13 @@ import scala.util.Random
 
 object Benchmark {
   def main(args: Array[String]): Unit = {
-    sgemm()
+      sgemm()
   }
 
   def sgemm(): Unit = {
-    val m = 2048
-    val n = 1024
-    val k = 2048
+    val m = 4096
+    val n = 4096
+    val k = 4096
     val alpha = 1f
     val beta = 1f
     val a = Array.fill(m * k)(Random.nextFloat)
@@ -31,11 +31,19 @@ object Benchmark {
       beta, c, 0, m)
 
     Utils.executeTime(
+      () => MKL.vsgemm('n', 'n', m, n, k, alpha,
+        a, 0, m,
+        b, 0, k,
+        beta, c, 0, m),
+      "mkl-sgemm",
+      1)
+
+    Utils.executeTime(
       () => ACLMKL.vsgemm('n', 'n', m, n, k, alpha,
         a, 0, m,
         b, 0, k,
         beta, c, 0, m),
       "aclmkl-sgemm",
-      10)
+      1)
   }
 }
