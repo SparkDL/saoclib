@@ -26,6 +26,8 @@ namespace acl {
 
         ~ACLMKLAccelerator();
 
+        bool refreshBenchmarkResultFile();
+
         void sopvv(int opCode, int n, float *a, float *b, float *y);
 
         void sopv(int opCode, int n, float *a, float *y);

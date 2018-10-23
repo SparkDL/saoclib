@@ -41,7 +41,7 @@ namespace acl {
     }
 
     void Kernel::cleanup() {
-        log("Cleaning up kernel resources: %s", this->kernelName.c_str());
+        log("Cleaning up kernel resources: %s\n", this->kernelName.c_str());
         if (kernel) {
             clReleaseKernel(kernel);
             kernel = NULL;

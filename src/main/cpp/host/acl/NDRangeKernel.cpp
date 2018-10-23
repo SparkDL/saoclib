@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include <fstream>
 #include "NDRangeKernel.h"
 
 namespace acl {
@@ -15,13 +16,35 @@ namespace acl {
                                  unsigned num_args)
             : Kernel(binary, device, queue, kernel_name, signatures, num_args) {}
 
-    NDRangeKernel::~NDRangeKernel() = default;
+    NDRangeKernel::~NDRangeKernel() {
+        fileLock.unlock();
+    }
 
-    bool NDRangeKernel::call(cl_uint work_dim,
-                             const size_t *global_work_size_list,
-                             const size_t *local_work_size_list,
-                             KernelArg **args,
-                             unsigned numArgs) {
+    bool NDRangeKernel::refreshBenchmarkResultFile() {
+#ifdef BENCHMARK
+        fileLock.lock();
+        std::ofstream f("/tmp/time.txt");
+        auto l = this->kernelTime.size();
+        assert(l == this->totalTime.size());
+        for (int i = 0; i < l; i++) {
+            f << this->kernelTime[i] << "," << this->totalTime[i] << std::endl;
+        }
+        f.close();
+
+        this->kernelTime.resize(0);
+        this->totalTime.resize(0);
+        fileLock.unlock();
+#endif
+        return true;
+    }
+
+    bool NDRangeKernel::
+
+    call(cl_uint work_dim,
+         const size_t *global_work_size_list,
+         const size_t *local_work_size_list,
+         KernelArg **args,
+         unsigned numArgs) {
         log("\nCalling %s\n", kernelName.c_str());
         /*
          * Check kernel arguments signature
@@ -68,8 +91,10 @@ namespace acl {
         this->callKernel(work_dim, global_work_size_list, local_work_size_list);
         this->getOutputs(args, numArgs);
         const double end_time = getCurrentTimestamp();
+        const float time_us = float(end_time - start_time) * 1e6f;
+        this->totalTime.push_back(time_us);
         // Wall-clock time taken.
-        log("Total time(%s): %0.3f ms\n\n", kernelName.c_str(), (end_time - start_time) * 1e3);
+        log("Total time(%s): %0.3f us\n\n", kernelName.c_str(), time_us);
     }
 
 
@@ -92,8 +117,10 @@ namespace acl {
 
         // Get kernel times using the OpenCL event profiling API.
         cl_ulong time_ns = getStartEndTime(kernel_event);
-        log("Kernel time (device %p): %0.3f ms\n", device, double(time_ns) * 1e-6);
+        float time_us = time_ns * 1e-3f;
+        log("Kernel time (device %p): %0.3f us\n", device, time_us);
 
+        this->kernelTime.push_back(time_us);
         clReleaseEvent(kernel_event);
     }
 
@@ -206,4 +233,6 @@ namespace acl {
             }
         }
     }
+
+
 }

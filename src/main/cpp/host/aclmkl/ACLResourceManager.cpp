@@ -19,7 +19,9 @@ namespace acl {
     ACLResourceManager::~ACLResourceManager() {
         initedLock.unlock();
         delete program;
+        program = NULL;
         delete context;
+        context = NULL;
         for (auto &p:accelerators) {
             delete p;
             p = NULL;
@@ -103,6 +105,13 @@ namespace acl {
             *accelerator = ret;
             return true;
         }
-
     }
+
+    bool ACLResourceManager::refreshBenchmarkResultFile() {
+        for (auto p:this->accelerators) {
+            p->refreshBenchmarkResultFile();
+        }
+        return true;
+    }
+
 }

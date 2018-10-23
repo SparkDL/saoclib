@@ -5,8 +5,31 @@ import java.util.concurrent.atomic.AtomicIntegerArray
 import com.intel.analytics.bigdl.mkl.MKL
 import com.sjdb.sparkdl.utils.Utils
 
+import scala.collection.mutable.ListBuffer
+
 
 object ACLMKL extends MKLInterface {
+  private var _useIntelMKL = false
+  private var executionTimems: Double = 0
+
+
+  def getAndRefreshTransferTimems: Double = {
+    ACLMKLNative.refreshBenchmarkResultFile()
+    val kernelTimems = Utils.getKernelTimems()
+    val totalTimems = this.executionTimems
+    this.executionTimems = 0
+    totalTimems - kernelTimems
+  }
+
+  /**
+    * Use Intel MKL library instead of FPGA functions
+    *
+    * @param use whether to use IntelMKL library or not
+    */
+  def useIntelMKL(use: Boolean): Unit = {
+    this._useIntelMKL = use
+  }
+
   var msg: Array[String] = Array("");
   private var accelerators: Array[Long] = ACLMKLNative.allocateAccelerators(msg)
   if (accelerators.isEmpty) {
@@ -163,11 +186,11 @@ object ACLMKL extends MKLInterface {
   = {
     val start = System.nanoTime()
     val (index, accHandle) = getAccelerator
-    if (accHandle == 0) {
+    if (this._useIntelMKL || accHandle == 0) {
       MKL.vsgemm(transa, transb, m, n, k, alpha, a, aOffset, lda, b, bOffset, ldb, beta, c, cOffset, ldc)
     } else {
       ACLMKLNative.vsgemm(accHandle, transa, transb, m, n, k, alpha, a, aOffset, lda, b, bOffset, ldb, beta, c, cOffset, ldc)
-//      var d = c.clone()
+      //      var d = c.clone()
       //      MKL.vsgemm(transa, transb, m, n, k, alpha, a, aOffset, lda, b, bOffset, ldb, beta, d, cOffset, ldc)
       //      val l2e = Utils.l2error(c, d)
       //      val diffv = Utils.diff(c, d)
@@ -183,10 +206,9 @@ object ACLMKL extends MKLInterface {
       //        throw new RuntimeException(f"Wrong sgemm results: $l2e")
       //      }
     }
-
-    val end = System.nanoTime()
-    println(f"${m}x${n}x${k} ${end - start}ns")
     unlock(index)
+    val end = System.nanoTime()
+    executionTimems += (end - start) * 1e-6
   }
 
   override def vsgemv(trans: Char, m: Int, n: Int, alpha: Float, a: Array[Float], aOffset: Int, lda: Int, x: Array[Float], xOffest: Int, incx: Int, beta: Float, y: Array[Float], yOffest: Int, incy: Int): Unit

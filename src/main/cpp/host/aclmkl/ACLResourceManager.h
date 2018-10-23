@@ -25,6 +25,8 @@ namespace acl {
         bool allocateAccelerators(std::vector<ACLMKLAccelerator *> &accelerators,
                                   std::string &msg);
 
+        bool refreshBenchmarkResultFile();
+
     private:
         bool initResource(std::string &msg);
 

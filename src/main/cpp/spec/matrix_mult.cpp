@@ -27,9 +27,9 @@ float *c = NULL;
 float *d = NULL;
 
 const int BLOCK_SIZE = 64;
-const int M = 128;
-const int K = 64;
-const int N = 64;
+const int M = 4096;
+const int K = 4096;
+const int N = 4096;
 const int a_size = M * N;
 const int b_size = N * K;
 const int c_size = M * N;
@@ -69,7 +69,7 @@ bool init_opencl() {
 
     // Create the program for all device. Use the first device as the
     // representative device (assuming all device are of the same type).
-    std::string binary_file = getBoardBinaryFile("/home/pcz/develop/saoclib/target/sgemm.aocx",
+    std::string binary_file = getBoardBinaryFile("/home/pcz/aocx/aclmkl_simd8_const_fprc.aocx",
                                                  devices[0]);
     printf("Using AOCX: %s\n", binary_file.c_str());
     program = createProgramFromBinary(context, binary_file.c_str(), devices, num_devices);
@@ -256,12 +256,12 @@ void sgemm() {
 int main(int argc, char **argv) {
     init_opencl();
     init_problem();
-    mm(a, b, d, M, N, K);
+    //mm(a, b, d, M, N, K);
     sgemm();
-    acl::printMatrix("a", a, M, K);
-    acl::printMatrix("b", b, K, N);
-    acl::printMatrix("c", c, M, N);
-    acl::printMatrix("d", d, M, N);
+//    acl::printMatrix("a", a, M, K);
+//    acl::printMatrix("b", b, K, N);
+//    acl::printMatrix("c", c, M, N);
+//    acl::printMatrix("d", d, M, N);
 }
 
 

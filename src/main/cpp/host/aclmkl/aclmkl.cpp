@@ -41,9 +41,25 @@ JNIEXPORT jlongArray JNICALL Java_com_sjdb_sparkdl_mkl_ACLMKLNative_00024_alloca
  * Method:    releaseAccelerator
  * Signature: (J)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_sjdb_sparkdl_mkl_ACLMKLNative_00024_releaseAccelerator
-        (JNIEnv *env, jobject, jlong accHandle) {
-//TODO inplement this function
+JNIEXPORT jboolean JNICALL Java_com_sjdb_sparkdl_mkl_ACLMKLNative_00024_releaseAccelerators
+        (JNIEnv *env, jobject) {
+//    if (manager.releaseAccelerators()) {
+//        return JNI_TRUE;
+//    }
+//    return JNI_FALSE;
+}
+
+/*
+ * Class:     com_sjdb_sparkdl_mkl_ACLMKLNative__
+ * Method:    releaseAccelerator
+ * Signature: (J)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_sjdb_sparkdl_mkl_ACLMKLNative_00024_refreshBenchmarkResultFile
+        (JNIEnv *env, jobject) {
+    if (manager.refreshBenchmarkResultFile()) {
+        return JNI_TRUE;
+    }
+    return JNI_FALSE;
 }
 
 /*
@@ -288,6 +304,7 @@ JNIEXPORT void JNICALL Java_com_sjdb_sparkdl_mkl_ACLMKLNative_00024_vsgemm
     CBLAS_TRANSPOSE jni_transa, jni_transb;
     if (transa == 't' || transa == 'T') jni_transa = CblasTrans; else jni_transa = CblasNoTrans;
     if (transb == 't' || transb == 'T') jni_transb = CblasTrans; else jni_transb = CblasNoTrans;
+
     reinterpret_cast<ACLMKLAccelerator *>(accHandle)->
             cblas_sgemm(CblasColMajor, jni_transa, jni_transb, m, n, k, alpha, jni_a + aOffset, lda,
                         jni_b + bOffset, ldb, beta, jni_c + cOffset, ldc);

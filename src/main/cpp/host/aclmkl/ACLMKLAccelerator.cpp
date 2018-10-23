@@ -5,6 +5,7 @@
 #include "config.h"
 #include "ACLMKLAccelerator.h"
 #include "ACLResourceManager.h"
+#include "common.h"
 
 namespace acl {
     using Sig = KernelArgSignature;
@@ -26,6 +27,20 @@ namespace acl {
 
     ACLMKLAccelerator::~ACLMKLAccelerator() {
         clReleaseCommandQueue(queue);
+        delete this->saxpyKernel;
+        delete this->sdotKernel;
+        delete this->sopvKernel;
+        delete this->sopvvKernel;
+        delete this->vsPowxKernel;
+        delete this->sgemmKernel;
+    }
+
+    bool ACLMKLAccelerator::refreshBenchmarkResultFile() {
+#ifdef BENCHMARK
+        return this->sgemmKernel->refreshBenchmarkResultFile();
+#else
+        return true;
+#endif
     }
 
     void ACLMKLAccelerator::sopvv(int opCode, int n, float *a, float *b, float *y) {
@@ -354,4 +369,6 @@ namespace acl {
                                  signature,
                                  sgemmNumArgs);
     }
+
+
 }

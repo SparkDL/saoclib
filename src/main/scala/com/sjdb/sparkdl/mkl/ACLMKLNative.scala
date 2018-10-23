@@ -12,7 +12,7 @@ object ACLMKLNative {
     val aoclmklFileName: String = "libaclmkl.so"
     val tmpFile = extract(aoclmklFileName)
     // System.load(tmpFile.getAbsolutePath)
-    System.load("/home/pcz/develop/saoclib/src/main/cpp/cmake-build-debug/libaclmkl.so")
+    System.load("/home/pcz/env/libaclmkl.so")
   } catch {
     case e: Exception => {
       e.printStackTrace()
@@ -44,7 +44,7 @@ object ACLMKLNative {
 
   @native def allocateAccelerators(msg: Array[String]): Array[Long]
 
-  @native def releaseAccelerator(accHandle: Long): Boolean
+  @native def refreshBenchmarkResultFile(): Boolean
 
   @native def vsAdd(accHandle: Long, n: Int, a: Array[Float], aOffset: Int, b: Array[Float], bOffset: Int, y: Array[Float], yOffset: Int): Unit
 

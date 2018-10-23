@@ -5,7 +5,9 @@
 #ifndef SAOCLIB_CPP_NDRANGEKERNEL_H
 #define SAOCLIB_CPP_NDRANGEKERNEL_H
 
+#include <mutex>
 #include "Kernel.h"
+#include "common.h"
 
 namespace acl {
     class NDRangeKernel : public Kernel {
@@ -18,6 +20,9 @@ namespace acl {
                       unsigned num_args);
 
         ~NDRangeKernel() override;
+
+
+        bool refreshBenchmarkResultFile() override;
 
         /**
          * Call a kernel with arguments
@@ -53,6 +58,12 @@ namespace acl {
         void createBuffer(int argi, int bufferi, KernelArgMode mode, size_t size);
 
         bool checkArgs(KernelArg **args);
+
+        std::vector<float> kernelTime;
+        std::vector<float> totalTime;
+#ifdef BENCHMARK
+        std::mutex fileLock;
+#endif
     };
 }
 

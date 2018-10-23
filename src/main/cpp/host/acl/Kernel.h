@@ -25,7 +25,10 @@ namespace acl {
                const KernelArgSignature *signatures,
                unsigned numArgs);
 
+
         virtual ~Kernel();
+
+        virtual bool refreshBenchmarkResultFile()=0;
 
         void cleanup();
 
